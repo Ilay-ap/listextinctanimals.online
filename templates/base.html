@@ -1,0 +1,421 @@
+{% load static %}
+{% load i18n %}
+{% load language_tags %}
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE|default:'pt-BR' }}">
+<head>
+<script>
+window.addEventListener('error', function(e) {
+    fetch('/pt-br/log-error/', {
+        method: 'POST',
+        body: JSON.stringify({ message: e.message, filename: e.filename, lineno: e.lineno, colno: e.colno, error: e.error ? e.error.stack : null })
+    });
+});
+window.addEventListener('unhandledrejection', function(e) {
+    fetch('/pt-br/log-error/', {
+        method: 'POST',
+        body: JSON.stringify({ message: e.reason ? e.reason.message : 'Unhandled Rejection', error: e.reason ? e.reason.stack : null })
+    });
+});
+</script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% trans "Extinct Mammals Catalog" %}{% endblock %}</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="description" content="{% trans 'Interactive catalog of extinct mammals since 1500 with maps, detailed information and favorites system' %}">
+    <meta name="theme-color" content="#16213e">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="{% trans 'Extinct Mammals' %}">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="{% static 'manifest.json' %}">
+    
+    <!-- PWA Icons -->
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'images/icons/icon-72x72.png' %}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'images/icons/icon-72x72.png' %}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'images/icons/icon-192x192.png' %}">
+    <link rel="apple-touch-icon" sizes="152x152" href="{% static 'images/icons/icon-152x152.png' %}">
+    <link rel="apple-touch-icon" sizes="144x144" href="{% static 'images/icons/icon-144x144.png' %}">
+    <link rel="apple-touch-icon" sizes="120x120" href="{% static 'images/icons/icon-128x128.png' %}">
+    <link rel="apple-touch-icon" sizes="114x114" href="{% static 'images/icons/icon-128x128.png' %}">
+    <link rel="apple-touch-icon" sizes="76x76" href="{% static 'images/icons/icon-96x96.png' %}">
+    <link rel="apple-touch-icon" sizes="72x72" href="{% static 'images/icons/icon-72x72.png' %}">
+    <link rel="apple-touch-icon" href="{% static 'images/icons/icon-192x192.png' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=2.0">
+    <link rel="stylesheet" href="{% static 'css/accessibility.css' %}">
+    <link rel="stylesheet" href="{% static 'css/cookie-consent.css' %}">
+    <link rel="stylesheet" href="{% static 'css/alerts.css' %}">
+    <link rel="stylesheet" href="{% static 'css/buttons_fix.css' %}">
+    {% block extra_css %}{% endblock %}
+    
+    <!-- Microsoft Clarity -->
+    <script type="text/javascript">
+        (function(c,l,a,r,i,t,y){
+            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+        })(window, document, "clarity", "script", "tnroogw3ii");
+    </script>
+    
+    <script>
+        window.CLARITY_PROJECT_ID = 'tnroogw3ii';
+        
+        // URLs geradas pelo Django para uso no JavaScript (correção de i18n_patterns)
+        window.URLS = {
+            search: "{% url 'mammals:search' %}",
+            globalMapData: "{% url 'mammals:global_map_data' %}",
+            mammalBase: "{% url 'mammals:detail' pk=1 %}".replace('/1/', '/')
+        };
+        
+        // Traduções para JavaScript
+        window.translations = {
+            'all_species': "{% trans 'All Species' %}",
+            'no_results': "{% trans 'No results found' %}",
+            'try_adjust_filters': "{% trans 'Try adjusting the filters or using different search terms.' %}",
+            'view_details': "{% trans 'View Details' %}",
+            'dark_theme': "{% trans 'Dark' %}",
+            'light_theme': "{% trans 'Light' %}"
+        };
+    </script>
+    
+    <style>
+    /* Navegação com tamanho fixo */
+    .navbar .container {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        align-items: center;
+        gap: 2rem;
+        min-height: 70px;
+    }
+    
+    .nav-brand {
+        grid-column: 1;
+    }
+    
+    .nav-menu {
+        grid-column: 3;
+        list-style: none;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin: 0;
+        padding: 0;
+    }
+    
+    .nav-menu li {
+        margin: 0;
+    }
+    
+    .nav-link {
+        display: inline-block;
+        padding: 0.6rem 1rem;
+        font-size: 0.9rem;
+        white-space: nowrap;
+        color: white;
+        text-decoration: none;
+        border-radius: 8px;
+        transition: var(--transition);
+        font-weight: 500;
+    }
+    
+    .nav-link:hover {
+        background: rgba(255, 255, 255, 0.15);
+        transform: translateY(-1px);
+    }
+    
+    /* Controles de tema e idioma — minimalistas */
+    .nav-controls {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        margin-left: 0.4rem;
+        padding-left: 0.4rem;
+        border-left: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    /* Mini-buttons for theme + language */
+    .theme-toggle {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 30px !important;
+        height: 30px !important;
+        min-width: 30px !important;
+        max-width: 30px !important;
+        min-height: 30px !important;
+        max-height: 30px !important;
+        align-self: center !important;
+        padding: 0 !important;
+        border-radius: 4px !important;
+        font-size: 0.75rem !important;
+        line-height: 30px !important;
+        cursor: pointer !important;
+        border: 1px solid rgba(255, 255, 255, 0.25) !important;
+        background: rgba(255, 255, 255, 0.1) !important;
+        color: white !important;
+        transition: background 0.2s !important;
+        aspect-ratio: 1 / 1 !important;
+        box-sizing: border-box !important;
+        overflow: hidden !important;
+    }
+    
+    
+    .theme-toggle:hover {
+        background: rgba(255, 255, 255, 0.2) !important;
+    }
+    
+    .theme-toggle-icon {
+        font-size: 0.9rem;
+        line-height: 1;
+    }
+    
+    .theme-toggle-text { display: none !important; }
+    
+    .language-selector {
+        height: 30px !important;
+        min-width: auto !important;
+        width: auto !important;
+        padding: 0 1.2rem 0 0.35rem !important;
+        font-size: 0.72rem !important;
+        font-weight: 500 !important;
+        border-radius: 4px !important;
+        cursor: pointer !important;
+        border: 1px solid rgba(255, 255, 255, 0.25) !important;
+        background-color: rgba(255, 255, 255, 0.1) !important;
+        color: white !important;
+        transition: background 0.2s !important;
+        appearance: none !important;
+        -webkit-appearance: none !important;
+        -moz-appearance: none !important;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 12 12'%3E%3Cpath fill='white' d='M6 9L1 4h10z'/%3E%3C/svg%3E") !important;
+        background-repeat: no-repeat !important;
+        background-position: right 0.3rem center !important;
+    }
+    
+    .language-selector:hover {
+        background-color: rgba(255, 255, 255, 0.2) !important;
+    }
+    
+    .language-form {
+        margin: 0;
+    }
+    
+    /* Hamburger menu */
+    .hamburger-menu {
+        display: none;
+        grid-column: 1;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        font-size: 1.5rem;
+        padding: 0.5rem 0.8rem;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: var(--transition);
+    }
+    
+    .hamburger-menu:hover {
+        background: rgba(255, 255, 255, 0.2);
+    }
+    
+    .menu-close {
+        display: none;
+    }
+    
+    @media (max-width: 1024px) {
+        .hamburger-menu {
+            display: block;
+        }
+        
+        .nav-menu {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 300px;
+            height: 100vh;
+            background: var(--primary-dark);
+            flex-direction: column;
+            align-items: stretch;
+            padding: 2rem 1rem;
+            box-shadow: -4px 0 20px rgba(0, 0, 0, 0.3);
+            transition: right 0.3s ease;
+            z-index: 2000;
+            overflow-y: auto;
+        }
+        
+        .nav-menu.active {
+            right: 0;
+        }
+        
+        .menu-close {
+            display: block;
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            font-size: 2rem;
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .menu-close:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .nav-link {
+            width: 100%;
+            text-align: left;
+            padding: 0.8rem 1rem;
+        }
+        
+        .nav-controls {
+            flex-direction: column;
+            width: 100%;
+            margin-left: 0;
+            padding-left: 0;
+            border-left: none;
+            border-top: 1px solid rgba(255, 255, 255, 0.3);
+            padding-top: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .theme-toggle,
+        .language-selector {
+            width: 100%;
+        }
+    }
+    
+    .menu-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1500;
+    }
+    
+    .menu-overlay.active {
+        display: block;
+    }
+    </style>
+</head>
+<body>
+    <!-- Skip link para acessibilidade -->
+    <a href="#main-content" class="skip-to-main">{% trans "Skip to main content" %}</a>
+    
+    <header>
+        <nav class="navbar">
+            <div class="container">
+                <button class="hamburger-menu" id="hamburger-menu" aria-label="{% trans 'Open navigation menu' %}" aria-expanded="false">
+                    ☰
+                </button>
+                
+                <div class="nav-brand">
+                    <a href="{% url 'mammals:index' %}">
+                        <h1>{% trans "Extinct Mammals Catalog" %}</h1>
+                        <p class="subtitle">{% trans "Biological Memory since 1500" %}</p>
+                    </a>
+                </div>
+                
+                <ul class="nav-menu" id="nav-menu">
+                    <button class="menu-close" id="menu-close" aria-label="{% trans 'Close menu' %}">×</button>
+                    
+                    <li><a href="{% url 'mammals:index' %}" class="nav-link">{% trans "Home" %}</a></li>
+                    <li><a href="{% url 'mammals:about' %}" class="nav-link">{% trans "About" %}</a></li>
+                    <li><a href="{% url 'mammals:global_map' %}" class="nav-link">{% trans "Dados" %}</a></li>
+                    
+                    {% if user.is_authenticated %}
+                        <li><a href="{% url 'mammals:favorites' %}" class="nav-link">{% trans "Favorites" %}</a></li>
+                        <li><a href="{% url 'accounts:profile' %}" class="nav-link">{% trans "Profile" %}</a></li>
+                        {% if user.is_superuser or user.is_staff %}
+                            <li><a href="{% url 'mammals:admin_mammals' %}" class="nav-link">{% trans "Admin" %}</a></li>
+                        {% endif %}
+                        <li><a href="{% url 'accounts:logout' %}" class="nav-link">{% trans "Logout" %}</a></li>
+                    {% else %}
+                        <li><a href="{% url 'accounts:login' %}" class="nav-link">{% trans "Entrar" %}</a></li>
+                    {% endif %}
+                    
+                    <li class="nav-controls">
+                        <button id="theme-toggle" class="theme-toggle" aria-label="{% trans 'Toggle dark/light theme' %}" aria-pressed="false">
+                            <span class="theme-toggle-icon" aria-hidden="true">🌙</span>
+                            <span class="theme-toggle-text"></span>
+                        </button>
+                        
+                        <form action="{% url 'set_language' %}" method="post" id="language-form" class="language-form">
+                            {% csrf_token %}
+                            <input name="next" type="hidden" value="{{ request.get_full_path }}">
+                            <select name="language" onchange="this.form.submit()" class="language-selector" aria-label="{% trans 'Select language' %}">
+                                {% get_current_language as LANGUAGE_CODE %}
+                                {% get_available_languages as languages %}
+                                {% for lang_code, lang_name in languages %}
+                                    <option value="{{ lang_code }}" {% if lang_code == LANGUAGE_CODE %}selected{% endif %}>
+                                        {{ lang_name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Overlay para menu mobile -->
+    <div class="menu-overlay" id="menu-overlay"></div>
+
+    <main id="main-content" class="main-content">
+        {% if messages %}
+            <div class="container">
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}">
+                        {{ message }}
+                        <button class="alert-close" onclick="this.parentElement.remove()">×</button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 {% trans "Extinct Mammals Catalog" %} | TCC - {% trans "ICT applied to biological memory conservation" %}</p>
+            <p>{% trans "Developed for educational purposes and biological memory conservation" %}</p>
+        </div>
+    </footer>
+
+    <div id="cookie-consent-banner" class="cookie-consent-banner">
+        <div class="cookie-consent-content">
+            <div class="cookie-consent-text">
+                <h3>🍪 {% trans "Cookies and Privacy" %}</h3>
+                <p>
+                    {% trans "We use cookies to improve your experience and understand how visitors interact with our content. Your data is treated anonymously and securely, in compliance with LGPD and GDPR." %}
+                </p>
+            </div>
+            <div class="cookie-consent-buttons">
+                <button id="cookie-accept" class="cookie-btn cookie-btn-accept">{% trans "Accept Cookies" %}</button>
+                <button id="cookie-reject" class="cookie-btn cookie-btn-reject">{% trans "Reject" %}</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="{% static 'js/script.js' %}?v=2.1"></script>
+    <script src="{% static 'js/cookie-consent.js' %}"></script>
+    <script src="{% static 'js/pwa.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+
+</body>
+
+</html>

@@ -1,0 +1,184 @@
+{% extends "base.html" %}
+
+{% block title %}Admin - Mamíferos{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+<style>
+    .admin-container {
+        max-width: 1200px;
+        margin: 2rem auto;
+        padding: 2rem;
+        background: var(--surface-color);
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .admin-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        padding-bottom: 1rem;
+    }
+    .admin-header h2 {
+        color: var(--primary-color);
+        margin: 0;
+    }
+    .admin-nav {
+        margin-bottom: 1.5rem;
+        display: flex;
+        gap: 1rem;
+    }
+    .admin-nav a {
+        padding: 0.5rem 1.2rem;
+        border-radius: 8px;
+        text-decoration: none;
+        color: var(--text-color);
+        background: rgba(255,255,255,0.05);
+        transition: all 0.2s;
+        font-weight: 500;
+    }
+    .admin-nav a:hover {
+        background: rgba(255,255,255,0.1);
+    }
+    .admin-nav a.active {
+        background: var(--primary-color);
+        color: white;
+    }
+    /* DataTables Dark Theme Overrides */
+    .dataTables_wrapper .dataTables_length, 
+    .dataTables_wrapper .dataTables_filter, 
+    .dataTables_wrapper .dataTables_info, 
+    .dataTables_wrapper .dataTables_processing, 
+    .dataTables_wrapper .dataTables_paginate {
+        color: var(--text-color) !important;
+        margin-bottom: 1rem;
+    }
+    .dataTables_wrapper .dataTables_filter input,
+    .dataTables_wrapper .dataTables_length select {
+        border: 1px solid rgba(255,255,255,0.2);
+        border-radius: 4px;
+        padding: 0.3rem 0.5rem;
+        background: rgba(255,255,255,0.05);
+        color: var(--text-color);
+    }
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+        color: var(--text-color) !important;
+    }
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+        background: var(--primary-color) !important;
+        color: white !important;
+        border: none;
+    }
+    table.dataTable.no-footer {
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    table.dataTable thead th {
+        border-bottom: 2px solid var(--primary-color) !important;
+        color: var(--text-color);
+    }
+    table.dataTable tbody tr {
+        background-color: transparent !important;
+    }
+    table.dataTable tbody tr:hover {
+        background-color: rgba(255,255,255,0.02) !important;
+    }
+    table.dataTable tbody td {
+        border-top: 1px solid rgba(255,255,255,0.05);
+        padding: 12px 10px;
+        color: var(--text-color);
+    }
+    .btn-primary {
+        background: var(--primary-color);
+        color: white;
+        padding: 0.6rem 1.2rem;
+        border-radius: 8px;
+        text-decoration: none;
+        transition: filter 0.2s;
+        font-weight: bold;
+    }
+    .btn-primary:hover {
+        filter: brightness(1.1);
+    }
+    .btn-view, .btn-edit, .btn-delete {
+        padding: 0.4rem 0.8rem;
+        border-radius: 6px;
+        text-decoration: none;
+        font-size: 0.85rem;
+        margin-right: 0.3rem;
+        display: inline-block;
+        border: none;
+        cursor: pointer;
+        font-weight: 500;
+        transition: filter 0.2s;
+    }
+    .btn-view:hover, .btn-edit:hover, .btn-delete:hover {
+        filter: brightness(1.2);
+    }
+    .btn-view { background: #3498db; color: white; }
+    .btn-edit { background: #f39c12; color: white; }
+    .btn-delete { background: #e74c3c; color: white; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <div class="admin-header">
+        <h2>Gerenciar Mamíferos</h2>
+        <a href="{% url 'mammals:admin_add_mammal' %}" class="btn-primary">Adicionar Mamífero</a>
+    </div>
+
+    <div class="admin-nav">
+        <a href="{% url 'mammals:admin_mammals' %}" class="active">Mamíferos</a>
+        <a href="{% url 'mammals:admin_users' %}">Usuários</a>
+    </div>
+
+    <table id="mammalsTable" class="display" style="width:100%;">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nome Comum</th>
+                <th>Nome Científico</th>
+                <th>Continente</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for mammal in mammals %}
+            <tr>
+                <td>{{ mammal.id }}</td>
+                <td><strong>{{ mammal.common_name }}</strong></td>
+                <td><em>{{ mammal.binomial_name }}</em></td>
+                <td>{{ mammal.continent|default:"N/A" }}</td>
+                <td class="admin-actions">
+                    <a href="{% url 'mammals:detail' mammal.pk %}" class="btn-view">Ver</a>
+                    <a href="{% url 'mammals:admin_edit_mammal' mammal.pk %}" class="btn-edit">Editar</a>
+                    <form method="post" action="{% url 'mammals:admin_delete_mammal' mammal.pk %}" style="display: inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-delete" onclick="return confirm('Tem certeza que deseja deletar este mamífero?')">Deletar</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('#mammalsTable').DataTable({
+            "language": {
+                "url": "//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json"
+            },
+            "pageLength": 25,
+            "order": [[0, "desc"]]
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,562 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Catálogo de Mamíferos Extintos\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-10-28 20:00-0300\n"
+"PO-Revision-Date: 2025-10-28 20:00-0300\n"
+"Last-Translator: \n"
+"Language-Team: Portuguese (Brazil)\n"
+"Language: pt_BR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+# Títulos principais
+msgid "Extinct Mammals Catalog"
+msgstr "Catálogo de Mamíferos Extintos"
+
+msgid "Edit Profile"
+msgstr "Editar Perfil"
+
+msgid "Profile"
+msgstr "Perfil"
+
+msgid "My Profile"
+msgstr "Meu Perfil"
+
+# Autenticação
+msgid "Login"
+msgstr "Entrar"
+
+msgid "Logout"
+msgstr "Sair"
+
+msgid "Register"
+msgstr "Registrar"
+
+msgid "Register here"
+msgstr "Registre-se aqui"
+
+msgid "Login here"
+msgstr "Entre aqui"
+
+msgid "Create Account"
+msgstr "Criar Conta"
+
+msgid "Already have an account?"
+msgstr "Já tem uma conta?"
+
+msgid "Don't have an account?"
+msgstr "Não tem uma conta?"
+
+# Formulários
+msgid "Username"
+msgstr "Nome de usuário"
+
+msgid "Email"
+msgstr "E-mail"
+
+msgid "Password"
+msgstr "Senha"
+
+msgid "Confirm Password"
+msgstr "Confirmar Senha"
+
+msgid "Current password"
+msgstr "Senha atual"
+
+msgid "New password"
+msgstr "Nova senha"
+
+msgid "Confirm new password"
+msgstr "Confirmar nova senha"
+
+msgid "Change Password (optional)"
+msgstr "Alterar Senha (opcional)"
+
+msgid "Save Changes"
+msgstr "Salvar Alterações"
+
+msgid "Cancel"
+msgstr "Cancelar"
+
+msgid "Remember me"
+msgstr "Lembrar de mim"
+
+# Navegação
+msgid "Home"
+msgstr "Início"
+
+msgid "About"
+msgstr "Sobre"
+
+msgid "Map"
+msgstr "Mapa"
+
+msgid "Admin"
+msgstr "Administração"
+
+msgid "Favorites"
+msgstr "Favoritos"
+
+msgid "View Favorites"
+msgstr "Ver Favoritos"
+
+msgid "Mammals"
+msgstr "Mamíferos"
+
+msgid "User"
+msgstr "Usuário"
+
+# Perfil
+msgid "Member since"
+msgstr "Membro desde"
+
+msgid "Status"
+msgstr "Status"
+
+msgid "Administrator"
+msgstr "Administrador"
+
+msgid "Statistics"
+msgstr "Estatísticas"
+
+msgid "Comments"
+msgstr "Comentários"
+
+# Tema e idioma
+msgid "Toggle dark/light theme"
+msgstr "Alternar tema claro/escuro"
+
+msgid "Dark"
+msgstr "Escuro"
+
+msgid "Light"
+msgstr "Claro"
+
+msgid "Select language"
+msgstr "Selecionar idioma"
+
+# Acessibilidade
+msgid "Skip to main content"
+msgstr "Pular para conteúdo principal"
+
+msgid "Open navigation menu"
+msgstr "Abrir menu de navegação"
+
+msgid "Close menu"
+msgstr "Fechar menu"
+
+# Slogans
+msgid "Biological Memory since 1500"
+msgstr "Memória Biológica desde 1500"
+
+msgid "ICT applied to biological memory conservation"
+msgstr "TIC aplicadas à conservação da memória biológica"
+
+# Footer
+msgid "Developed for educational purposes and biological memory conservation"
+msgstr "Desenvolvido para fins educacionais e de conservação da memória biológica"
+
+# Cookies
+msgid "Cookies and Privacy"
+msgstr "Cookies e Privacidade"
+
+msgid "We use cookies to improve your experience and understand how visitors interact with our content. Your data is treated anonymously and securely, in compliance with LGPD and GDPR."
+msgstr "Utilizamos cookies para melhorar sua experiência e entender como os visitantes interagem com nosso conteúdo. Seus dados são tratados de forma anônima e segura, em conformidade com a LGPD e GDPR."
+
+msgid "Accept Cookies"
+msgstr "Aceitar Cookies"
+
+msgid "Reject"
+msgstr "Rejeitar"
+
+# Sobre
+msgid "About the Project"
+msgstr "Sobre o Projeto"
+
+msgid "Objective"
+msgstr "Objetivo"
+
+msgid "This digital catalog was developed as part of a Final Course Project (TCC) on ICT applied to biological memory conservation. The objective is to document and preserve information about extinct mammals since 1500, promoting awareness about the importance of biodiversity conservation."
+msgstr "Este catálogo digital foi desenvolvido como parte de um Trabalho de Conclusão de Curso (TCC) sobre TIC aplicadas à conservação da memória biológica. O objetivo é documentar e preservar informações sobre mamíferos extintos desde 1500, promovendo a conscientização sobre a importância da conservação da biodiversidade."
+
+msgid "Methodology"
+msgstr "Metodologia"
+
+msgid "Data was collected from reliable scientific sources, including the IUCN Red List and academic publications. Each documented species includes information about habitat, geographic distribution and causes of extinction."
+msgstr "Os dados foram coletados de fontes científicas confiáveis, incluindo a Lista Vermelha da IUCN e publicações acadêmicas. Cada espécie documentada inclui informações sobre habitat, distribuição geográfica e causas de extinção."
+
+msgid "Technologies"
+msgstr "Tecnologias"
+
+msgid "This project was developed using Django, a high-level Python web framework, with SQLite database for information storage."
+msgstr "Este projeto foi desenvolvido usando Django, um framework web Python de alto nível, com banco de dados SQLite para armazenamento de informações."
+
+msgid "Contact"
+msgstr "Contato"
+
+msgid "For more information about the project, contact us via email:"
+msgstr "Para mais informações sobre o projeto, entre em contato via e-mail:"
+
+# Detalhes de mamíferos
+msgid "Description"
+msgstr "Descrição"
+
+msgid "Habitat"
+msgstr "Habitat"
+
+msgid "Distribution"
+msgstr "Distribuição"
+
+msgid "Historical Distribution Map"
+msgstr "Mapa de Distribuição Histórica"
+
+msgid "Extinction Causes"
+msgstr "Causas da Extinção"
+
+msgid "Taxonomy"
+msgstr "Taxonomia"
+
+msgid "Order"
+msgstr "Ordem"
+
+msgid "Continent"
+msgstr "Continente"
+
+msgid "Not specified"
+msgstr "Não especificado"
+
+#, python-format
+msgid "Detailed image of %(name)s (%(binomial)s), extinct mammal"
+msgstr "Imagem detalhada de %(name)s (%(binomial)s), mamífero extinto"
+
+# Favoritos
+msgid "Add to Favorites"
+msgstr "Adicionar aos Favoritos"
+
+msgid "Remove from Favorites"
+msgstr "Remover dos Favoritos"
+
+#, python-format
+msgid "Add %(name)s to favorites"
+msgstr "Adicionar %(name)s aos favoritos"
+
+#, python-format
+msgid "Remove %(name)s from favorites"
+msgstr "Remover %(name)s dos favoritos"
+
+msgid "Added to favorites!"
+msgstr "Adicionado aos favoritos!"
+
+msgid "Removed from favorites."
+msgstr "Removido dos favoritos."
+
+msgid "Error updating favorite: {}"
+msgstr "Erro ao atualizar favorito: {}"
+
+# Comentários
+msgid "Write your comment..."
+msgstr "Escreva seu comentário..."
+
+msgid "Send Comment"
+msgstr "Enviar Comentário"
+
+msgid "to comment"
+msgstr "para comentar"
+
+msgid "Delete"
+msgstr "Excluir"
+
+msgid "Are you sure you want to delete this comment?"
+msgstr "Tem certeza que deseja excluir este comentário?"
+
+msgid "Comment cannot be empty."
+msgstr "O comentário não pode estar vazio."
+
+msgid "Comment added successfully!"
+msgstr "Comentário adicionado com sucesso!"
+
+msgid "Comment removed successfully!"
+msgstr "Comentário removido com sucesso!"
+
+msgid "Error adding comment: {}"
+msgstr "Erro ao adicionar comentário: {}"
+
+msgid "Error removing comment: {}"
+msgstr "Erro ao remover comentário: {}"
+
+msgid "You do not have permission to delete this comment."
+msgstr "Você não tem permissão para excluir este comentário."
+
+msgid "No comments yet. Be the first!"
+msgstr "Nenhum comentário ainda. Seja o primeiro!"
+
+# Navegação de páginas
+msgid "Back to list"
+msgstr "Voltar para a lista"
+
+# Busca e filtros
+msgid "All Species"
+msgstr "Todas as Espécies"
+
+msgid "No results found"
+msgstr "Nenhum resultado encontrado"
+
+msgid "Try adjusting the filters or using different search terms."
+msgstr "Tente ajustar os filtros ou usar termos de busca diferentes."
+
+msgid "View Details"
+msgstr "Ver Detalhes"
+
+# Mapa global
+msgid "Global Distribution Map"
+msgstr "Mapa de Distribuição Global"
+
+msgid "Interactive world map showing the historical distribution of extinct mammals. Darker colors indicate higher concentration of species."
+msgstr "Mapa-múndi interativo mostrando a distribuição histórica de mamíferos extintos. Cores mais escuras indicam maior concentração de espécies."
+
+msgid "Locations"
+msgstr "Localizações"
+
+msgid "Species"
+msgstr "Espécies"
+
+msgid "species"
+msgstr "espécies"
+
+msgid "Max Concentration"
+msgstr "Concentração Máxima"
+
+msgid "Loading map data..."
+msgstr "Carregando dados do mapa..."
+
+msgid "Concentration Legend"
+msgstr "Legenda de Concentração"
+
+msgid "How to use:"
+msgstr "Como usar:"
+
+msgid "Hover over markers to see species list"
+msgstr "Passe o mouse sobre os marcadores para ver a lista de espécies"
+
+msgid "Click on a species name to view details"
+msgstr "Clique no nome de uma espécie para ver detalhes"
+
+msgid "Zoom and pan to explore the map"
+msgstr "Use zoom e arraste para explorar o mapa"
+
+msgid "Error loading map data. Please try again later."
+msgstr "Erro ao carregar dados do mapa. Por favor, tente novamente mais tarde."
+
+# Taxonomia - Continentes
+msgid "Africa"
+msgstr "África"
+
+msgid "Asia"
+msgstr "Ásia"
+
+msgid "Europe"
+msgstr "Europa"
+
+msgid "North America"
+msgstr "América do Norte"
+
+msgid "South America"
+msgstr "América do Sul"
+
+msgid "Oceania"
+msgstr "Oceania"
+
+msgid "Antarctica"
+msgstr "Antártida"
+
+# Taxonomia - Ordens
+msgid "Rodentia"
+msgstr "Roedores"
+
+msgid "Carnivora"
+msgstr "Carnívoros"
+
+msgid "Primates"
+msgstr "Primatas"
+
+msgid "Artiodactyla"
+msgstr "Artiodáctilos"
+
+msgid "Perissodactyla"
+msgstr "Perissodáctilos"
+
+msgid "Chiroptera"
+msgstr "Quirópteros"
+
+msgid "Didelphimorphia"
+msgstr "Didelfimorfos"
+
+msgid "Diprotodontia"
+msgstr "Diprotodontes"
+
+msgid "Eulipotyphla"
+msgstr "Eulipotiflos"
+
+msgid "Lagomorpha"
+msgstr "Lagomorfos"
+
+# Página inicial - Textos faltantes
+msgid "Digital Catalog of Extinct Mammals since 1500"
+msgstr "Catálogo Digital de Mamíferos Extintos desde 1500"
+
+msgid "Explore the history and causes of mammal extinction around the world since 1500. This digital catalog preserves the biological memory of these lost species and promotes awareness about the importance of conservation."
+msgstr "Explore a história e as causas da extinção de mamíferos ao redor do mundo desde 1500. Este catálogo digital preserva a memória biológica dessas espécies perdidas e promove a conscientização sobre a importância da conservação."
+
+msgid "Why does this matter?"
+msgstr "Por que isso importa?"
+
+msgid "Species extinction is an irreversible process that results in the permanent loss of biodiversity. Since 1500, human activity has been the main cause of mammal extinction, through habitat destruction, overhunting, introduction of invasive species and climate change. Understanding these losses helps us prevent future extinctions and protect the species that still exist today."
+msgstr "A extinção de espécies é um processo irreversível que resulta na perda permanente de biodiversidade. Desde 1500, a atividade humana tem sido a principal causa da extinção de mamíferos, através da destruição de habitat, caça excessiva, introdução de espécies invasoras e mudanças climáticas. Compreender essas perdas nos ajuda a prevenir futuras extinções e proteger as espécies que ainda existem hoje."
+
+# Busca e filtros
+msgid "Search by name, description, habitat or distribution..."
+msgstr "Buscar por nome, descrição, habitat ou distribuição..."
+
+msgid "Mammal search field"
+msgstr "Campo de busca de mamíferos"
+
+msgid "Perform search"
+msgstr "Realizar busca"
+
+msgid "Search"
+msgstr "Buscar"
+
+msgid "Clear search and filters"
+msgstr "Limpar busca e filtros"
+
+msgid "Clear"
+msgstr "Limpar"
+
+msgid "Filter by Region:"
+msgstr "Filtrar por Região:"
+
+msgid "Region filters"
+msgstr "Filtros de região"
+
+msgid "Filter by Africa"
+msgstr "Filtrar por África"
+
+msgid "Filter by America"
+msgstr "Filtrar por América"
+
+msgid "Filter by Asia"
+msgstr "Filtrar por Ásia"
+
+msgid "Filter by Europe"
+msgstr "Filtrar por Europa"
+
+msgid "Filter by Oceania"
+msgstr "Filtrar por Oceania"
+
+msgid "America"
+msgstr "América"
+
+msgid "Filter by Taxonomy:"
+msgstr "Filtrar por Taxonomia:"
+
+msgid "Taxonomy filters"
+msgstr "Filtros de taxonomia"
+
+msgid "Filter by Rodents"
+msgstr "Filtrar por Roedores"
+
+msgid "Rodents"
+msgstr "Roedores"
+
+msgid "Filter by Chiroptera"
+msgstr "Filtrar por Quirópteros"
+
+msgid "Filter by Artiodactyls"
+msgstr "Filtrar por Artiodáctilos"
+
+msgid "Artiodactyls"
+msgstr "Artiodáctilos"
+
+msgid "Filter by Eulipotyphlans"
+msgstr "Filtrar por Eulipotiflos"
+
+msgid "Eulipotyphlans"
+msgstr "Eulipotiflos"
+
+msgid "Filter by Diprotodonts"
+msgstr "Filtrar por Diprotodontes"
+
+msgid "Diprotodonts"
+msgstr "Diprotodontes"
+
+msgid "Filter by Carnivores"
+msgstr "Filtrar por Carnívoros"
+
+msgid "Carnivores"
+msgstr "Carnívoros"
+
+msgid "Filter by Peramelemorphs"
+msgstr "Filtrar por Peramelemorfos"
+
+msgid "Peramelemorphs"
+msgstr "Peramelemorfos"
+
+msgid "Filter by Primates"
+msgstr "Filtrar por Primatas"
+
+msgid "Filter by Didelphimorphs"
+msgstr "Filtrar por Didelfimorfos"
+
+msgid "Didelphimorphs"
+msgstr "Didelfimorfos"
+
+msgid "Filter by Lagomorphs"
+msgstr "Filtrar por Lagomorfos"
+
+msgid "Lagomorphs"
+msgstr "Lagomorfos"
+
+msgid "Filter by Dasyuromorphs"
+msgstr "Filtrar por Dasiuromorfos"
+
+msgid "Dasyuromorphs"
+msgstr "Dasiuromorfos"
+
+msgid "Filter by Sirenians"
+msgstr "Filtrar por Sirênios"
+
+msgid "Sirenians"
+msgstr "Sirênios"
+
+# Paginação
+msgid "Display"
+msgstr "Exibir"
+
+msgid "All"
+msgstr "Todos"
+
+msgid "Showing"
+msgstr "Mostrando"
+
+msgid "of"
+msgstr "de"
+
+msgid "results"
+msgstr "resultados"
+
+msgid "Previous"
+msgstr "Anterior"
+
+msgid "Next"
+msgstr "Próximo"
+
+msgid "Page"
+msgstr "Página"

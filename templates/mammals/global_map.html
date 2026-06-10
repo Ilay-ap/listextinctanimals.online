@@ -1,0 +1,667 @@
+{% extends "base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Global Distribution Map" %} - {% trans "Extinct Mammals Catalog" %}{% endblock %}
+
+{% block extra_css %}
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+     />
+
+<style>
+    .global-map-header { text-align: center; margin-bottom: 2rem; }
+    .global-map-header h2 { font-size: 2.5rem; margin-bottom: 0.5rem; color: var(--text-color); }
+    .map-description { font-size: 1.05rem; color: var(--text-light); max-width: 800px; margin: 0 auto; line-height: 1.7; }
+
+    .map-statistics { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+    .map-stat-card {
+        background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px;
+        padding: 1.4rem; display: flex; align-items: center; gap: 1rem;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .map-stat-card:hover { transform: translateX(-3px); box-shadow: var(--shadow-lg); }
+    .map-stat-icon { font-size: 2.4rem; }
+    .map-stat-value { font-size: 2rem; font-weight: 700; color: var(--primary-color); }
+    .map-stat-label { font-size: 0.85rem; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.5px; }
+
+    
+    .map-loading {
+        position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(26, 26, 46, 0.8); z-index: 1000;
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        border-radius: 14px;
+    }
+
+    .spinner {
+        border: 4px solid var(--border-color); border-top: 4px solid var(--primary-color);
+        border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin: 0 auto 1rem;
+    }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+    .global-map-container { width: 100%; margin: 0 auto 1.5rem; border-radius: 14px; overflow: hidden; box-shadow: 0 6px 30px rgba(0,0,0,0.2); border: 2px solid var(--border-color); }
+    #global-map { width: 100%; height: 600px; background: #1a1a2e; }
+
+    .map-legend-container { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; }
+    .map-legend-container h3 { margin-top: 0; margin-bottom: 1rem; color: var(--text-color); }
+    .heatmap-gradient-bar {
+        height: 28px; border-radius: 6px; margin-bottom: 0.5rem;
+        background: linear-gradient(to right, #0000dd 0%, #00ccff 25%, #00ee00 45%, #ffee00 65%, #ff8800 80%, #ff0000 100%);
+    }
+    .gradient-labels { display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--text-light); }
+    .legend-info { border-top: 1px solid var(--border-color); padding-top: 1rem; margin-top: 1rem; }
+    .legend-info ul { margin: 0.5rem 0 0 0; padding-left: 1.4rem; }
+    .legend-info li { margin-bottom: 0.4rem; color: var(--text-light); font-size: 0.95rem; }
+    .marker-legend { display: flex; align-items: center; gap: 0.4rem; margin-top: 0.8rem; flex-wrap: wrap; font-size: 0.9rem; color: var(--text-light); }
+    .marker-dot { display: inline-block; width: 14px; height: 14px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 4px rgba(0,0,0,0.4); vertical-align: middle; }
+
+    /* ─── GRID DE GRÁFICOS ─── */
+    .analytics-section { margin-top: 4rem; }
+    .analytics-title { text-align: center; font-size: 2.3rem; color: var(--primary-color); margin-bottom: 0.5rem; }
+    .analytics-subtitle { text-align: center; color: var(--text-light); font-size: 1.05rem; margin-bottom: 2.5rem; }
+
+    .dashboards-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        margin-bottom: 4rem;
+    }
+
+    .dashboard-card {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 14px;
+        padding: 1.8rem;
+        box-shadow: var(--shadow-md);
+        position: relative;
+        transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+    }
+    .dashboard-card:hover { transform: translateX(-4px); box-shadow: var(--shadow-lg); border-color: var(--primary-color); }
+    .dashboard-card h3 { color: var(--text-color); font-size: 1.2rem; margin: 0 0 1.2rem 0; padding-right: 38px; }
+    .dashboard-card.full-width { grid-column: 1 / -1; }
+
+    /* Altura dos wrappers — EXPLICIT HEIGHT obrigatório para Chart.js */
+    .chart-wrapper { position: relative; width: 100%; height: 320px; }
+    .dashboard-card.full-width .chart-wrapper { height: 400px; }
+
+    /* ─── BOTÃO ? REDISENHADO ─── */
+    .info-btn {
+        position: absolute; top: 1.2rem; right: 1.2rem;
+        width: 28px; height: 28px; line-height: 28px; text-align: center;
+        background: var(--primary-color); color: #fff; border: none;
+        border-radius: 50%; font-size: 14px; font-weight: 800;
+        cursor: pointer; z-index: 5;
+        transition: background 0.2s, transform 0.2s;
+    }
+    .info-btn:hover { background: var(--primary-dark, #6B5435); transform: scale(1.1); }
+
+    /* Painel fixo abaixo do ? */
+    .info-panel {
+          z-index: 9999;
+        display: none;
+        position: absolute;
+        top: calc(1.2rem + 36px);
+        right: 0.5rem;
+        width: min(340px, calc(100vw - 40px));
+        background: var(--card-bg);
+        border: 2px solid var(--primary-color);
+        border-radius: 12px;
+        padding: 1.2rem 1.4rem;
+        z-index: 100;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+        font-size: 0.9rem;
+        line-height: 1.65;
+        color: var(--text-color);
+    }
+    .info-panel.open { display: block; }
+    .info-panel-title {
+        display: flex; justify-content: space-between; align-items: center;
+        font-weight: 700; font-size: 1rem; color: var(--primary-color);
+        margin-bottom: 0.8rem; padding-bottom: 0.6rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+    .info-panel-close { background: none; border: none; font-size: 1rem; cursor: pointer; color: var(--text-light); transition: color 0.2s; padding: 0; }
+    .info-panel-close:hover { color: #dc2f02; }
+    .info-panel p { margin: 0 0 0.6rem 0; }
+    .info-panel p:last-child { margin-bottom: 0; }
+    .info-panel ul { margin: 0.4rem 0 0; padding-left: 1.1rem; }
+    .info-panel li { margin-bottom: 0.4rem; font-size: 0.87rem; }
+    .taxon-scroll { max-height: 220px; overflow-y: auto; padding-right: 4px; }
+
+    /* Popup mapa */
+    .species-popup { min-width: 250px; max-width: 350px; }
+    .popup-header { background: linear-gradient(135deg, var(--primary-color), var(--primary-dark, #6B5435)); color: white; padding: 0.9rem; border-radius: 8px 8px 0 0; }
+    .popup-header h4 { margin: 0 0 0.3rem 0; font-size: 1rem; }
+    .popup-count { font-size: 0.83rem; opacity: 0.9; }
+    .popup-species-list { max-height: 260px; overflow-y: auto; }
+    .species-item { padding: 0.6rem 0.8rem; border-bottom: 1px solid var(--border-color); cursor: pointer; display: flex; align-items: center; gap: 0.6rem; transition: background 0.15s; }
+    .species-item:last-child { border-bottom: none; }
+    .species-item:hover { background: var(--bg-secondary); }
+    .species-item img { width: 38px; height: 38px; border-radius: 6px; object-fit: cover; }
+    .species-name { font-weight: 600; color: var(--text-color); font-size: 0.88rem; }
+    .species-scientific { font-size: 0.78rem; font-style: italic; color: var(--text-light); }
+
+    /* Responsivo */
+    @media (max-width: 960px) {
+        .dashboards-grid { grid-template-columns: 1fr; }
+        .dashboard-card.full-width { grid-column: 1; }
+        .chart-wrapper, .dashboard-card.full-width .chart-wrapper { height: 280px; }
+    }
+    @media (max-width: 640px) {
+        #global-map { height: 400px; }
+        .map-statistics { grid-template-columns: 1fr 1fr; }
+        .analytics-title { font-size: 1.7rem; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="global-map-header" style="position: relative;">
+        <h2>
+            {% trans "Global Distribution Map" %}
+            <button class="info-btn" onclick="toggleInfo('panel-map', this)">?</button>
+        </h2>
+        
+        <div class="info-panel" id="panel-map" style="text-align:left;">
+            <div class="info-panel-title">
+                Como ler o mapa
+                <button class="info-panel-close" onclick="closeInfo('panel-map')">✕</button>
+            </div>
+            <p></p>
+            <ul>
+                <li><strong>Cores quentes (vermelho/laranja)</strong> — regiões com maior número de extinções registradas</li>
+                <li><strong>Cores frias (azul/verde)</strong> — regiões com menor concentração de extinções</li>
+                <li><strong>Marcadores coloridos</strong> — clique para ver as espécies extintas da região</li>
+                <li><strong>Zoom/Arraste</strong> para explorar o mapa; fronteiras brancas delimitam países</li>
+            </ul>
+            <div class="marker-legend" style="margin-top: 1rem;">
+                <span class="marker-dot" style="background:#f5c842;"></span> 1 espécie &nbsp;
+                <span class="marker-dot" style="background:#ffaa00;"></span> 2 espécies &nbsp;
+                <span class="marker-dot" style="background:#ff4500;"></span> 3+ espécies
+            </div>
+        </div>
+    </div>
+
+    <!-- Estatísticas -->
+    <div class="map-statistics">
+        
+        <div class="map-stat-card">
+            <div>
+                <div class="map-stat-value" id="stat-species">-</div>
+                <div class="map-stat-label">{% trans "Total Species" %}</div>
+            </div>
+        </div>
+        <div class="map-stat-card">
+            <div>
+                <div class="map-stat-value" id="stat-max">-</div>
+                <div class="map-stat-label">Máx. p/ País</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mapa -->
+    <div id="global-map-container" class="global-map-container" style="position: relative;">
+        <div id="global-map"></div>
+        <!-- Loading Overlay -->
+        <div id="map-loading" class="map-loading">
+            <div class="spinner"></div>
+            <p>{% trans "Loading map data..." %}</p>
+        </div>
+    </div>
+
+    <!-- Legenda movida para o ícone de informação (?) no título -->
+
+    <!-- ─── ANALXTICS ─── -->
+    <div class="analytics-section">
+        <div class="dashboards-grid">
+
+            <!-- CURVA DE EXTINÇÃO — largura total -->
+            <div class="dashboard-card full-width">
+                <button class="info-btn" onclick="toggleInfo('panel-era', this)">?</button>
+                <div class="info-panel" id="panel-era">
+                    <div class="info-panel-title">
+                        Curva de Extinção no Tempo
+                        <button class="info-panel-close" onclick="closeInfo('panel-era')">✕</button>
+                    </div>
+                    <p>Este gráfico de linha mostra <strong>quantas espécies foram extintas em cada ano</strong>, com registros desde 1500. Cada ponto na curva representa extinções documentadas naquele período.</p>
+                    <p>Uma <strong>subida íngreme</strong> indica períodos de crise ecológica — muitas vezes ligados à expansão colonial, caça industrial e destruição de habitats. O pico no século XX é especialmente dramático e reflete a modernização descuidada.</p>
+                </div>
+                <h3>Curva de Extinção no Tempo (1500 → Hoje)</h3>
+                <div class="chart-wrapper"><canvas id="eraChart"></canvas></div>
+            </div>
+
+            <!-- BARRAS: CONTINENTES -->
+            <div class="dashboard-card">
+                <button class="info-btn" onclick="toggleInfo('panel-continent', this)">?</button>
+                <div class="info-panel" id="panel-continent">
+                    <div class="info-panel-title">
+                        Extinções por Continente
+                        <button class="info-panel-close" onclick="closeInfo('panel-continent')">✕</button>
+                    </div>
+                    <p>Barras representando o <strong>total de mamíferos extintos por continente</strong>. Você pode ver numericamente quais massas terrestres sofreram as maiores perdas ecológicas.</p>
+                    <p>Passe o mouse sobre as barras para ver o número exato. <strong>Oceania</strong> e <strong>América do Norte</strong> costumam liderar pelo alto endemismo de suas espécies insulares.</p>
+                </div>
+                <h3>Extinções por Continente</h3>
+                <div class="chart-wrapper"><canvas id="continentChart"></canvas></div>
+            </div>
+
+            <!-- PIZZA: TAXONOMIA -->
+            <div class="dashboard-card">
+                <button class="info-btn" onclick="toggleInfo('panel-taxon', this)">?</button>
+                <div class="info-panel" id="panel-taxon">
+                    <div class="info-panel-title">
+                        Proporção Taxonômica
+                        <button class="info-panel-close" onclick="closeInfo('panel-taxon')">✕</button>
+                    </div>
+                    <p>Exibe as <strong>Ordens Biológicas</strong> dos mamíferos extintos. Cada fatia = um grupo taxonômico. Passe o mouse para ver % do total.</p>
+                    <div class="taxon-scroll">
+                        <ul>
+                            <li><strong>Rodentia</strong> — Roedores. Maior grupo; muito vulneráveis a predadores introduzidos em ilhas.</li>
+                            <li><strong>Chiroptera</strong> — Morcegos. Sensíveis à degradação de cavernas e florestas.</li>
+                            <li><strong>Eulipotyphla</strong> — Musaranhos e ouriços. Pequenos insetívoros endêmicos.</li>
+                            <li><strong>Diprotodontia</strong> — Marsupiais australianos (cangurus, wombats). Devastados pela colonização europeia.</li>
+                            <li><strong>Peramelemorphia</strong> — Bandicoots. Marsupiais da Oceania afetados por predadores invasores.</li>
+                            <li><strong>Artiodactyla</strong> — Ungulados (bois, veados). Caçados até a extinção.</li>
+                            <li><strong>Carnivora</strong> — Carnívoros (lobos, focas). Perseguidos por conflito com humanos.</li>
+                            <li><strong>Primates</strong> — Macacos. Extinção pela perda de florestas tropicais.</li>
+                            <li><strong>Dasyuromorphia</strong> — Marsupiais carnívoros (Tilacino, Diabo-da-Tasmânia).</li>
+                            <li><strong>Sirenia</strong> — Peixes-boi. Caçados pela gordura e carne.</li>
+                            <li><strong>Lagomorpha</strong> — Lebres e picas. Perda de habitat específico.</li>
+                        </ul>
+                    </div>
+                </div>
+                <h3>Proporção Taxonômica (Ordens)</h3>
+                <div class="chart-wrapper"><canvas id="taxonomyChart"></canvas></div>
+            </div>
+
+            <!-- POLAR AREA — largura total -->
+            <div class="dashboard-card full-width">
+                <button class="info-btn" onclick="toggleInfo('panel-polar', this)">?</button>
+                <div class="info-panel" id="panel-polar">
+                    <div class="info-panel-title">
+                        Volume Geográfico (Polar)
+                        <button class="info-panel-close" onclick="closeInfo('panel-polar')">✕</button>
+                    </div>
+                    <p>O gráfico de <strong>área polar</strong> projeta a concentração geográfica de extinções. O raio de cada fatia é proporcional ao impacto relativo do continente — diferente de uma barra reta, este visual demonstra a <strong>desigualdade geográfica</strong> das extinções de forma intuitiva.</p>
+                    <p>Clique em um continente na legenda para mostrar/ocultar. Passe o mouse para ver os dados exatos.</p>
+                </div>
+                <h3>Volume Geográfico por Continente (Área Polar)</h3>
+                <div class="chart-wrapper"><canvas id="scatterChart"></canvas></div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+
+<!-- Leaflet Heat (carregado após Leaflet) -->
+<script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
+
+<script>
+/* ─── TOOLTIP PANELS ─── */
+function toggleInfo(id, btn) {
+    const panel = document.getElementById(id);
+    const isOpen = panel.classList.contains('open');
+    // Fechar todos
+    document.querySelectorAll('.info-panel').forEach(p => p.classList.remove('open'));
+    if (!isOpen) panel.classList.add('open');
+}
+function closeInfo(id) {
+    document.getElementById(id).classList.remove('open');
+}
+// Fechar ao clicar fora
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('.dashboard-card') && !e.target.closest('.global-map-header')) {
+        document.querySelectorAll('.info-panel').forEach(p => p.classList.remove('open'));
+    }
+});
+</script>
+
+<script>
+/* ─── MAPA DE CALOR ─── */
+(function initMap() {
+    const mapContainer = document.getElementById('global-map');
+    if (!mapContainer) return;
+
+      
+      
+
+
+    const fitBoundsArr = [[-60, -180], [80, 180]]; // Limites do mundo habitável
+    const map = L.map('global-map', {
+        zoomSnap: 0.1,
+        worldCopyJump: false,
+        maxBounds: [[-90, -180], [90, 180]],
+        maxBoundsViscosity: 1.0
+    });
+    map.fitBounds(fitBoundsArr);
+    map.setMinZoom(map.getZoom());
+
+    // Tile escuro sem labels (labels serão sobrepostos)
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; OpenStreetMap &copy; CARTO', subdomains: 'abcd', maxZoom: 19, noWrap: true
+    }).addTo(map);
+
+    // Fronteiras dos países
+    fetch('https://raw.githubusercontent.com/johan/world.geo.json/master/countries.geo.json')
+        .then(r => r.json())
+        .then(geo => {
+            L.geoJSON(geo, {
+                style: { color: '#d4c5b0', weight: 1.0, opacity: 0.7, fillOpacity: 0 }
+            }).addTo(map);
+        }).catch(() => {});
+
+    // Labels de países por cima
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.png', {
+        attribution: '', subdomains: 'abcd', maxZoom: 19, noWrap: true, zIndex: 400
+    }).addTo(map);
+
+    window.addEventListener('resize', () => {
+        map.setMinZoom(0);
+        map.fitBounds(fitBoundsArr);
+        map.setMinZoom(map.getZoom());
+    });
+
+    // Esconder loading, mostrar mapa
+    // Removido: mostrado acima
+    
+    setTimeout(() => map.invalidateSize(), 400);
+
+    // Buscar dados
+    const apiUrl = (window.URLS && window.URLS.globalMapData) || '/pt-br/global-map-data/';
+    fetch(apiUrl)
+        .then(r => r.json())
+        .then(data => {
+            const locations = data.locations || [];
+            const countryMaxCount = data.statistics?.max_concentration || 1;
+            
+            // Calculate local max cluster count for rendering marker sizes properly
+            const localMaxCount = Math.max(1, ...locations.map(l => l.count || 0));
+
+            document.getElementById('stat-species').textContent   = data.total_species || locations.length;
+            // stat-locations removed
+            // Show real max concentration (max species per country/region)
+            document.getElementById('stat-max').textContent = countryMaxCount;
+
+            if (!locations.length) {
+                document.getElementById('map-loading').style.display = 'none';
+                return;
+            }
+
+            // ── HEATMAP (rendered first, so markers sit on top) ──
+            if (L.heatLayer) {
+                const heatPts = locations.filter(l => l.lat && l.lon).map(l => [parseFloat(l.lat), parseFloat(l.lon), Math.min(0.3 + ((l.count || 1) / localMaxCount) * 0.7, 1.0)]);
+
+                L.heatLayer(heatPts, {
+                    radius: 45,
+                    blur: 30,
+                    maxZoom: 12,
+                    max: 1.0,
+                    minOpacity: 0.35,
+                    gradient: {
+                        0.0:  '#0000cc',
+                        0.2:  '#0099ff',
+                        0.4:  '#00dd88',
+                        0.6:  '#ffee00',
+                        0.8:  '#ff6600',
+                        1.0:  '#ff0000'
+                    }
+                }).addTo(map);
+            }
+
+            // ── MARCADORES CLICÁVEIS (adicionados APÓS o heatmap para ficarem na frente) ──
+            const markerPane = map.createPane('markersPane');
+            markerPane.style.zIndex = 650; // above heatmap (450) and tile layers
+
+            locations.forEach(loc => {
+                if (!loc.lat || !loc.lon) return;
+                const r = 6 + (loc.count / localMaxCount) * 10;
+
+                const circle = L.circleMarker([loc.lat, loc.lon], {
+                    pane: 'markersPane',
+                    radius: 20,
+                    fillColor: 'transparent',
+                    color: 'transparent',
+                    weight: 0,
+                    fillOpacity: 0,
+                    interactive: true
+                });
+
+                let specHtml = (loc.species || []).map(sp => {
+                    const img = sp.image_filename
+                        ? `<img src="/static/images/${sp.image_filename}" alt="${sp.common_name}" style="width:38px;height:38px;border-radius:6px;object-fit:cover;" onerror="this.style.display='none'">`
+                        : `<div style="width:38px;height:38px;background:#3D2F1F;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;">?</div>`;
+                    const url = (window.URLS?.mammalBase || '/pt-br/mammal/') + sp.id + '/';
+                    return `<div class="species-item" onclick="location.href='${url}'" style="cursor:pointer;">
+                        ${img}
+                        <div>
+                            <div class="species-name">${sp.common_name}</div>
+                            <div class="species-scientific">${sp.binomial_name || ''}</div>
+                        </div>
+                    </div>`;
+                }).join('');
+
+                circle.bindPopup(`
+                    <div class="species-popup">
+                        <div class="popup-header">
+                            <h4>${loc.location_name || 'Região'}</h4>
+                            <div class="popup-count">${loc.count} espécie(s) extinta(s)</div>
+                        </div>
+                        <div class="popup-species-list">${specHtml}</div>
+                    </div>`, { minWidth: 260, maxWidth: 340 });
+
+                // Show tooltip on hover for quick identification
+                circle.bindTooltip(
+                    `<strong>${loc.location_name || 'Região'}</strong><br>${loc.count} espécie(s)`,
+                    { direction: 'top', offset: [0, -r], opacity: 0.92 }
+                );
+
+                circle.addTo(map);
+            });
+            document.getElementById('map-loading').style.display = 'none';
+        })
+        .catch(e => {
+            console.error('Map data error:', e);
+            document.getElementById('map-loading').style.display = 'none';
+        });
+})();
+</script>
+
+<script>
+/* ─── GRÁFICOS CHART.JS ─── */
+(function initCharts() {
+    // Buscar dados da API de stats
+    const statsUrl = (window.URLS && window.URLS.statsApi) || '/pt-br/api/stats/';
+    fetch(statsUrl)
+        .then(r => r.json())
+        .then(stats => drawCharts(stats))
+        .catch(e => {
+            // Tentar URL alternativa
+            fetch('/pt-br/api/stats/')
+                .then(r => r.json())
+                .then(stats => drawCharts(stats))
+                .catch(err => console.error('Stats API error:', err));
+        });
+
+    function drawCharts(stats) {
+        if (!stats || !stats.eras) { console.warn('Stats data invalid'); return; }
+
+        Chart.defaults.color = '#B8A898';
+        Chart.defaults.font.family = "'Inter', sans-serif";
+
+        const palette = [
+            '#8B6F47','#C4A57B','#A68A5E','#B89968',
+            '#E9C46A','#F4A261','#E76F51','#DC2F02',
+            '#9D0208','#6A040F','#264653','#2A9D8F',
+            '#ffba08','#4A3F35'
+        ];
+
+        const tooltipCfg = {
+            backgroundColor: 'rgba(20,16,12,0.97)',
+            titleColor: '#EDE0D0',
+            bodyColor: '#C4B5A0',
+            borderColor: '#8B6F47',
+            borderWidth: 1,
+            padding: 14,
+            cornerRadius: 8,
+            boxPadding: 6,
+            titleFont: { size: 13, weight: '700' },
+            bodyFont: { size: 12 }
+        };
+
+        const gridColor = 'rgba(200,180,150,0.07)';
+
+        // ── A. Curva de Extinção ──
+        const ctxEra = document.getElementById('eraChart');
+        if (ctxEra) {
+            const eraKeys = Object.keys(stats.eras).sort((a, b) => parseInt(a) - parseInt(b));
+            const eraVals = eraKeys.map(k => stats.eras[k]);
+            const grad = ctxEra.getContext('2d').createLinearGradient(0, 0, 0, 400);
+            grad.addColorStop(0, 'rgba(220,47,2,0.55)');
+            grad.addColorStop(1, 'rgba(220,47,2,0.02)');
+
+            new Chart(ctxEra, {
+                type: 'line',
+                data: { labels: eraKeys, datasets: [{
+                    label: 'Espécies Extintas',
+                    data: eraVals,
+                    borderColor: '#E76F51',
+                    backgroundColor: grad,
+                    borderWidth: 2.5,
+                    pointBackgroundColor: '#fff',
+                    pointBorderColor: '#E76F51',
+                    pointRadius: 4, pointHoverRadius: 7,
+                    tension: 0.35, fill: true
+                }]},
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                        legend: { labels: { usePointStyle: true } },
+                        tooltip: { ...tooltipCfg }
+                    },
+                    scales: {
+                        x: {
+                            grid: { color: gridColor },
+                            ticks: { maxTicksLimit: 16, maxRotation: 45, font: { size: 10 } }
+                        },
+                        y: {
+                            grid: { color: gridColor },
+                            ticks: { beginAtZero: true, font: { size: 11 } },
+                            title: { display: true, text: 'Nº de Extinções', color: '#9B8877', font: { size: 11 } }
+                        }
+                    },
+                    animation: { duration: 1600 }
+                }
+            });
+        }
+
+        // ── B. Barras: Continentes ──
+        const ctxCont = document.getElementById('continentChart');
+        if (ctxCont) {
+            const cKeys = Object.keys(stats.continents).sort((a, b) => stats.continents[b] - stats.continents[a]);
+            const cVals = cKeys.map(k => stats.continents[k]);
+            new Chart(ctxCont, {
+                type: 'bar',
+                data: { labels: cKeys, datasets: [{
+                    label: 'Espécies Extintas',
+                    data: cVals,
+                    backgroundColor: palette.slice(0, cKeys.length),
+                    borderRadius: 7, borderWidth: 0,
+                    maxBarThickness: 60
+                }]},
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: { legend: { display: false }, tooltip: { ...tooltipCfg } },
+                    scales: {
+                        x: { grid: { color: gridColor }, ticks: { font: { size: 11 } } },
+                        y: {
+                            grid: { color: gridColor },
+                            ticks: { beginAtZero: true, font: { size: 11 } },
+                            title: { display: true, text: 'Nº de Espécies', color: '#9B8877', font: { size: 11 } }
+                        }
+                    },
+                    animation: { duration: 1400 }
+                }
+            });
+        }
+
+        // ── C. Donut: Taxonomia ──
+        const ctxTax = document.getElementById('taxonomyChart');
+        if (ctxTax) {
+            const tKeys = Object.keys(stats.taxonomy).sort((a, b) => stats.taxonomy[b] - stats.taxonomy[a]);
+            const tVals = tKeys.map(k => stats.taxonomy[k]);
+            const total = tVals.reduce((a, b) => a + b, 0);
+
+            new Chart(ctxTax, {
+                type: 'doughnut',
+                data: { labels: tKeys, datasets: [{
+                    data: tVals,
+                    backgroundColor: palette,
+                    borderWidth: 2, borderColor: '#1A1410', hoverOffset: 12
+                }]},
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    cutout: '58%',
+                    plugins: {
+                        legend: { position: 'right', labels: { usePointStyle: true, font: { size: 11 }, padding: 14 } },
+                        tooltip: {
+                            ...tooltipCfg,
+                            callbacks: {
+                                label: ctx => {
+                                    const pct = ((ctx.parsed / total) * 100).toFixed(1);
+                                    return `  ${ctx.label}: ${ctx.parsed} esp. (${pct}%)`;
+                                }
+                            }
+                        }
+                    },
+                    animation: { duration: 1200 }
+                }
+            });
+        }
+
+        // ── D. Polar Area: Volume Geográfico ──
+        const ctxPolar = document.getElementById('scatterChart');
+        if (ctxPolar) {
+            const cKeys = Object.keys(stats.continents).sort((a, b) => stats.continents[b] - stats.continents[a]);
+            const cVals = cKeys.map(k => stats.continents[k]);
+            new Chart(ctxPolar, {
+                type: 'polarArea',
+                data: { labels: cKeys, datasets: [{
+                    label: 'Extinções por Continente',
+                    data: cVals,
+                    backgroundColor: palette.map(c => c + 'CC'),
+                    borderColor: '#2a1f17', borderWidth: 2
+                }]},
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            grid: { color: 'rgba(200,180,150,0.1)' },
+                            ticks: { display: false, backdropColor: 'transparent' },
+                            pointLabels: { color: '#C4B5A0', font: { size: 12 } }
+                        }
+                    },
+                    plugins: {
+                        legend: { position: 'right', labels: { usePointStyle: true, font: { size: 12 }, padding: 16 } },
+                        tooltip: { ...tooltipCfg }
+                    },
+                    animation: { duration: 1400 }
+                }
+            });
+        }
+    }
+})();
+</script>
+{% endblock %}

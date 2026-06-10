@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Offline" %} - {% trans "Extinct Mammals Catalog" %}{% endblock %}
+
+{% block content %}
+<div class="container" style="text-align: center; padding: 4rem 1rem;">
+    <div style="max-width: 600px; margin: 0 auto;">
+        <div style="font-size: 120px; margin-bottom: 2rem;">📡</div>
+        
+        <h1 style="font-size: 2.5rem; margin-bottom: 1rem; color: var(--text-primary);">
+            {% trans "You're Offline" %}
+        </h1>
+        
+        <p style="font-size: 1.2rem; color: var(--text-secondary); margin-bottom: 2rem;">
+            {% trans "It looks like you've lost your internet connection. Don't worry, you can still browse cached content!" %}
+        </p>
+        
+        <div style="background: var(--card-bg); padding: 2rem; border-radius: 12px; margin-bottom: 2rem; text-align: left;">
+            <h2 style="font-size: 1.5rem; margin-bottom: 1rem;">
+                📱 {% trans "PWA Features Available Offline" %}:
+            </h2>
+            <ul style="list-style: none; padding: 0;">
+                <li style="padding: 0.5rem 0; border-bottom: 1px solid var(--border-color);">
+                    ✅ {% trans "Browse previously visited mammals" %}
+                </li>
+                <li style="padding: 0.5rem 0; border-bottom: 1px solid var(--border-color);">
+                    ✅ {% trans "View cached images and maps" %}
+                </li>
+                <li style="padding: 0.5rem 0; border-bottom: 1px solid var(--border-color);">
+                    ✅ {% trans "Access your favorites list" %}
+                </li>
+                <li style="padding: 0.5rem 0;">
+                    ✅ {% trans "Navigate through the interface" %}
+                </li>
+            </ul>
+        </div>
+        
+        <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+            <a href="/" class="btn btn-primary" style="text-decoration: none;">
+                🏠 {% trans "Go to Home" %}
+            </a>
+            <button onclick="window.location.reload()" class="btn btn-secondary">
+                🔄 {% trans "Try Again" %}
+            </button>
+        </div>
+        
+        <p style="margin-top: 2rem; color: var(--text-secondary); font-size: 0.9rem;">
+            {% trans "Your connection will be restored automatically when you're back online." %}
+        </p>
+    </div>
+</div>
+
+<style>
+.btn {
+    display: inline-block;
+    padding: 0.8rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+    font-size: 1rem;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.btn-secondary {
+    background: var(--card-bg);
+    color: var(--text-primary);
+    border: 2px solid var(--border-color);
+}
+
+.btn-secondary:hover {
+    background: var(--hover-bg);
+    transform: translateY(-2px);
+}
+</style>
+{% endblock %}

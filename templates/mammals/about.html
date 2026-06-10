@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "About" %} - {% trans "Extinct Mammals Catalog" %}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="about-page">
+        <h2>{% trans "About the Project" %}</h2>
+
+        <section class="about-section">
+            <h3>🎯 {% trans "Objective" %}</h3>
+            <p>
+                {% blocktranslate  %}This digital catalog was developed as part of a Final Course Project (TCC) on ICT
+                applied to biological memory conservation. The objective is to document and preserve information about
+                extinct mammals since 1500, promoting awareness about the importance of biodiversity conservation.{% endblocktranslate %}
+            </p>
+        </section>
+
+        <section class="about-section">
+            <h3>🌱 {% trans "Why does this matter?" %}</h3>
+            <p>
+                {% blocktranslate  %}Species extinction is an irreversible process that results in the permanent loss of
+                biodiversity. Since 1500, human activity has been the main cause of mammal extinction, through habitat
+                destruction, overhunting, introduction of invasive species and climate change. Understanding these
+                losses helps us prevent future extinctions and protect the species that still exist today.{% endblocktranslate %}
+            </p>
+        </section>
+
+        <section class="about-section">
+            <h3>📚 {% trans "Methodology" %}</h3>
+            <p>
+                {% blocktranslate  %}Data was collected from reliable scientific sources, including the IUCN Red List and
+                academic publications. Each documented species includes information about habitat, geographic
+                distribution and causes of extinction.{% endblocktranslate %}
+            </p>
+        </section>
+
+        <section class="about-section">
+            <h3>🔬 {% trans "Technologies" %}</h3>
+            <p>
+                {% blocktranslate  %}This project was developed using Django, a high-level Python web framework, with
+                SQLite database for information storage.{% endblocktranslate %}
+            </p>
+        </section>
+
+        <section class="about-section">
+            <h3>📧 {% trans "Contact" %}</h3>
+            <p>
+                {% trans "For more information about the project, contact us via email:" %}
+                <a href="mailto:contato@exemplo.com">contato@exemplo.com</a>
+            </p>
+        </section>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}Página não encontrada{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="error-page">
+        <h1>404</h1>
+        <h2>Página não encontrada</h2>
+        <p>A página que você está procurando não existe.</p>
+        <a href="{% url 'mammals:index' %}" class="btn-primary">Voltar para o início</a>
+    </div>
+</div>
+{% endblock %}

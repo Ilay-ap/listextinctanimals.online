@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "My Favorites" %} - {% trans "Extinct Mammals Catalog" %}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>⭐ {% trans "My Favorites" %}</h2>
+    
+    {% if favorites %}
+    <div class="grid">
+        {% for item in favorites %}
+        <div class="mammal-card">
+            {% if item.mammal.image_filename %}
+            <div class="card-image">
+                <img src="{% static 'images/' %}{{ item.mammal.image_filename }}" 
+                     alt="{{ item.mammal.common_name }}"
+                     loading="lazy">
+            </div>
+            {% endif %}
+            <div class="card-header">
+                <h4 class="common-name">{{ item.mammal.common_name }}</h4>
+                <p class="binomial-name"><em>{{ item.mammal.binomial_name }}</em></p>
+            </div>
+            <div class="card-body">
+                <p class="description">{{ item.mammal.short_description }}</p>
+            </div>
+            <div class="card-footer">
+                <a href="{% url 'mammals:detail' item.mammal.pk %}" class="btn-primary">{% trans "View Details" %} →</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <p>{% trans "You don't have any favorites yet. Explore the catalog and add your favorite species!" %}</p>
+        <a href="{% url 'mammals:index' %}" class="btn-primary">{% trans "Explore Catalog" %}</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+

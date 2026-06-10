@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+
+{% block title %}Admin - Usuários{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+<style>
+    .admin-container {
+        max-width: 1200px;
+        margin: 2rem auto;
+        padding: 2rem;
+        background: var(--surface-color);
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .admin-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        padding-bottom: 1rem;
+    }
+    .admin-header h2 {
+        color: var(--primary-color);
+        margin: 0;
+    }
+    .admin-nav {
+        margin-bottom: 1.5rem;
+        display: flex;
+        gap: 1rem;
+    }
+    .admin-nav a {
+        padding: 0.5rem 1.2rem;
+        border-radius: 8px;
+        text-decoration: none;
+        color: var(--text-color);
+        background: rgba(255,255,255,0.05);
+        transition: all 0.2s;
+        font-weight: 500;
+    }
+    .admin-nav a:hover {
+        background: rgba(255,255,255,0.1);
+    }
+    .admin-nav a.active {
+        background: var(--primary-color);
+        color: white;
+    }
+    /* DataTables Dark Theme Overrides */
+    .dataTables_wrapper .dataTables_length, 
+    .dataTables_wrapper .dataTables_filter, 
+    .dataTables_wrapper .dataTables_info, 
+    .dataTables_wrapper .dataTables_processing, 
+    .dataTables_wrapper .dataTables_paginate {
+        color: var(--text-color) !important;
+        margin-bottom: 1rem;
+    }
+    .dataTables_wrapper .dataTables_filter input,
+    .dataTables_wrapper .dataTables_length select {
+        border: 1px solid rgba(255,255,255,0.2);
+        border-radius: 4px;
+        padding: 0.3rem 0.5rem;
+        background: rgba(255,255,255,0.05);
+        color: var(--text-color);
+    }
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+        color: var(--text-color) !important;
+    }
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+        background: var(--primary-color) !important;
+        color: white !important;
+        border: none;
+    }
+    table.dataTable.no-footer {
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    table.dataTable thead th {
+        border-bottom: 2px solid var(--primary-color) !important;
+        color: var(--text-color);
+    }
+    table.dataTable tbody tr {
+        background-color: transparent !important;
+    }
+    table.dataTable tbody tr:hover {
+        background-color: rgba(255,255,255,0.02) !important;
+    }
+    table.dataTable tbody td {
+        border-top: 1px solid rgba(255,255,255,0.05);
+        padding: 12px 10px;
+        color: var(--text-color);
+    }
+    .btn-edit, .btn-delete {
+        padding: 0.4rem 0.8rem;
+        border-radius: 6px;
+        text-decoration: none;
+        font-size: 0.85rem;
+        margin-right: 0.3rem;
+        display: inline-block;
+        border: none;
+        cursor: pointer;
+        font-weight: 500;
+        transition: filter 0.2s;
+    }
+    .btn-edit:hover, .btn-delete:hover {
+        filter: brightness(1.2);
+    }
+    .btn-edit { background: #f39c12; color: white; }
+    .btn-delete { background: #e74c3c; color: white; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <div class="admin-header">
+        <h2>Gerenciar Usuários</h2>
+    </div>
+
+    <div class="admin-nav">
+        <a href="{% url 'mammals:admin_mammals' %}">Mamíferos</a>
+        <a href="{% url 'mammals:admin_users' %}" class="active">Usuários</a>
+    </div>
+
+    <table id="usersTable" class="display" style="width:100%;">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Admin</th>
+                <th>Comentários</th>
+                <th>Favoritos</th>
+                <th>Membro desde</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for u in users %}
+            <tr>
+                <td>{{ u.id }}</td>
+                <td><strong>{{ u.username }}</strong></td>
+                <td>{{ u.email }}</td>
+                <td>{% if u.profile.is_admin %}Sim{% else %}Não{% endif %}</td>
+                <td>{{ u.comment_count }}</td>
+                <td>{{ u.favorite_count }}</td>
+                <td><span style="display:none">{{ u.date_joined|date:"Ymd" }}</span>{{ u.date_joined|date:"d/m/Y" }}</td>
+                <td class="admin-actions">
+                    <form method="post" action="{% url 'mammals:admin_toggle_admin' u.id %}" style="display: inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-edit">Toggle Admin</button>
+                    </form>
+                    <form method="post" action="{% url 'mammals:admin_delete_user' u.id %}" style="display: inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-delete" onclick="return confirm('Tem certeza que deseja deletar este usuário?')">Deletar</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('#usersTable').DataTable({
+            "language": {
+                "url": "//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json"
+            },
+            "pageLength": 25,
+            "order": [[0, "desc"]]
+        });
+    });
+</script>
+{% endblock %}

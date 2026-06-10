@@ -1,0 +1,775 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Extinct Mammals Catalog\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-10-27 19:38-0300\n"
+"PO-Revision-Date: 2025-01-23 00:00+0000\n"
+"Last-Translator: \n"
+"Language-Team: English\n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: templates/accounts/edit_profile.html:4
+#: templates/accounts/edit_profile.html:9 templates/accounts/profile.html:25
+#, fuzzy
+#| msgid "Profile"
+msgid "Edit Profile"
+msgstr "Profile"
+
+# Títulos
+#: templates/accounts/edit_profile.html:4 templates/accounts/login.html:4
+#: templates/accounts/profile.html:4 templates/accounts/register.html:4
+#: templates/base.html:9 templates/base.html:31 templates/base.html:97
+#: templates/mammals/about.html:4 templates/mammals/detail.html:5
+#: templates/mammals/favorites.html:5 templates/mammals/index.html:5
+msgid "Extinct Mammals Catalog"
+msgstr "Extinct Mammals Catalog"
+
+# Formulários
+#: templates/accounts/edit_profile.html:13 templates/accounts/login.html:13
+#: templates/accounts/profile.html:12 templates/accounts/register.html:13
+msgid "Username"
+msgstr "Username"
+
+#: templates/accounts/edit_profile.html:17 templates/accounts/profile.html:13
+#: templates/accounts/register.html:17
+msgid "Email"
+msgstr "Email"
+
+#: templates/accounts/edit_profile.html:21
+msgid "Change Password (optional)"
+msgstr "Change Password (optional)"
+
+#: templates/accounts/edit_profile.html:23
+#, fuzzy
+#| msgid "Confirm Password"
+msgid "Current password"
+msgstr "Confirm Password"
+
+#: templates/accounts/edit_profile.html:27
+#, fuzzy
+#| msgid "Password"
+msgid "New password"
+msgstr "Password"
+
+#: templates/accounts/edit_profile.html:31
+#, fuzzy
+#| msgid "Confirm Password"
+msgid "Confirm new password"
+msgstr "Confirm Password"
+
+#: templates/accounts/edit_profile.html:35
+msgid "Save Changes"
+msgstr "Save Changes"
+
+#: templates/accounts/edit_profile.html:36
+msgid "Cancel"
+msgstr "Cancel"
+
+#: templates/accounts/login.html:4 templates/accounts/login.html:9
+#: templates/accounts/login.html:25 templates/base.html:48
+#: templates/mammals/detail.html:102
+msgid "Login"
+msgstr "Login"
+
+#: templates/accounts/login.html:17 templates/accounts/register.html:21
+msgid "Password"
+msgstr "Password"
+
+#: templates/accounts/login.html:22
+msgid "Remember me"
+msgstr "Remember me"
+
+#: templates/accounts/login.html:28
+msgid "Don't have an account?"
+msgstr "Don't have an account?"
+
+#: templates/accounts/login.html:28
+#, fuzzy
+#| msgid "Register"
+msgid "Register here"
+msgstr "Register"
+
+#: templates/accounts/profile.html:4 templates/base.html:42
+msgid "Profile"
+msgstr "Profile"
+
+#: templates/accounts/profile.html:9
+#, fuzzy
+#| msgid "Profile"
+msgid "My Profile"
+msgstr "Profile"
+
+#: templates/accounts/profile.html:14
+msgid "Member since"
+msgstr "Member since"
+
+#: templates/accounts/profile.html:15
+msgid "Status"
+msgstr "Status"
+
+#: templates/accounts/profile.html:15
+msgid "Administrator"
+msgstr "Administrator"
+
+# Formulários
+#: templates/accounts/profile.html:15
+#, fuzzy
+#| msgid "Username"
+msgid "User"
+msgstr "Username"
+
+#: templates/accounts/profile.html:19
+msgid "Statistics"
+msgstr "Statistics"
+
+# Taxonomia
+#: templates/accounts/profile.html:20 templates/mammals/detail.html:92
+#, fuzzy
+#| msgid "Rodents"
+msgid "Comments"
+msgstr "Rodents"
+
+#: templates/accounts/profile.html:21 templates/base.html:41
+msgid "Favorites"
+msgstr "Favorites"
+
+#: templates/accounts/profile.html:26
+#, fuzzy
+#| msgid "Favorites"
+msgid "View Favorites"
+msgstr "Favorites"
+
+#: templates/accounts/register.html:4 templates/accounts/register.html:28
+#: templates/base.html:49
+msgid "Register"
+msgstr "Register"
+
+#: templates/accounts/register.html:9
+msgid "Create Account"
+msgstr "Create Account"
+
+#: templates/accounts/register.html:25
+msgid "Confirm Password"
+msgstr "Confirm Password"
+
+#: templates/accounts/register.html:31
+msgid "Already have an account?"
+msgstr "Already have an account?"
+
+#: templates/accounts/register.html:31
+#, fuzzy
+#| msgid "Login"
+msgid "Login here"
+msgstr "Login"
+
+#: templates/base.html:21
+msgid "Skip to main content"
+msgstr "Skip to main content"
+
+#: templates/base.html:26
+msgid "Open navigation menu"
+msgstr "Open navigation menu"
+
+#: templates/base.html:32
+msgid "Biological Memory since 1500"
+msgstr "Biological Memory since 1500"
+
+#: templates/base.html:36
+msgid "Close menu"
+msgstr "Close menu"
+
+# Navegação
+#: templates/base.html:37 templates/mammals/detail.html:12
+#: templates/mammals/index.html:5
+msgid "Home"
+msgstr "Home"
+
+#: templates/base.html:38 templates/mammals/about.html:4
+msgid "About"
+msgstr "About"
+
+msgid "Map"
+msgstr "Map"
+
+#: templates/base.html:44
+msgid "Admin"
+msgstr "Admin"
+
+#: templates/base.html:46
+msgid "Logout"
+msgstr "Logout"
+
+#: templates/base.html:52
+msgid "Toggle dark/light theme"
+msgstr "Toggle dark/light theme"
+
+# Tema
+#: templates/base.html:54
+msgid "Dark"
+msgstr "Dark"
+
+#: templates/base.html:61
+msgid "Select language"
+msgstr "Select language"
+
+#: templates/base.html:97
+msgid "ICT applied to biological memory conservation"
+msgstr "ICT applied to biological memory conservation"
+
+# Footer
+#: templates/base.html:98
+msgid "Developed for educational purposes and biological memory conservation"
+msgstr "Developed for educational purposes and biological memory conservation"
+
+# Cookies
+#: templates/base.html:105
+msgid "Cookies and Privacy"
+msgstr "Cookies and Privacy"
+
+#: templates/base.html:107
+msgid ""
+"We use cookies to improve your experience and understand how visitors "
+"interact with our content. Your data is treated anonymously and securely, in "
+"compliance with LGPD and GDPR."
+msgstr ""
+"We use cookies to improve your experience and understand how visitors "
+"interact with our content. Your data is treated anonymously and securely, in "
+"compliance with LGPD and GDPR."
+
+#: templates/base.html:111
+msgid "Accept Cookies"
+msgstr "Accept Cookies"
+
+#: templates/base.html:112
+msgid "Reject"
+msgstr "Reject"
+
+#: templates/mammals/about.html:9
+msgid "About the Project"
+msgstr "About the Project"
+
+#: templates/mammals/about.html:12
+msgid "Objective"
+msgstr "Objective"
+
+#: templates/mammals/about.html:14
+msgid ""
+"This digital catalog was developed as part of a Final Course Project (TCC) "
+"on ICT applied to biological memory conservation. The objective is to "
+"document and preserve information about extinct mammals since 1500, "
+"promoting awareness about the importance of biodiversity conservation."
+msgstr ""
+"This digital catalog was developed as part of a Final Course Project (TCC) "
+"on ICT applied to biological memory conservation. The objective is to "
+"document and preserve information about extinct mammals since 1500, "
+"promoting awareness about the importance of biodiversity conservation."
+
+#: templates/mammals/about.html:19
+msgid "Methodology"
+msgstr "Methodology"
+
+#: templates/mammals/about.html:21
+msgid ""
+"Data was collected from reliable scientific sources, including the IUCN Red "
+"List and academic publications. Each documented species includes information "
+"about habitat, geographic distribution and causes of extinction."
+msgstr ""
+"Data was collected from reliable scientific sources, including the IUCN Red "
+"List and academic publications. Each documented species includes information "
+"about habitat, geographic distribution and causes of extinction."
+
+#: templates/mammals/about.html:26
+msgid "Technologies"
+msgstr "Technologies"
+
+#: templates/mammals/about.html:28
+msgid ""
+"This project was developed using Django, a high-level Python web framework, "
+"with SQLite database for information storage."
+msgstr ""
+"This project was developed using Django, a high-level Python web framework, "
+"with SQLite database for information storage."
+
+#: templates/mammals/about.html:33
+msgid "Contact"
+msgstr "Contact"
+
+#: templates/mammals/about.html:35
+msgid "For more information about the project, contact us via email:"
+msgstr "For more information about the project, contact us via email:"
+
+#: templates/mammals/detail.html:16
+msgid "Mammals"
+msgstr "Mammals"
+
+#: templates/mammals/detail.html:32
+#, python-format
+msgid "Detailed image of %(name)s (%(binomial)s), extinct mammal"
+msgstr "Detailed image of %(name)s (%(binomial)s), extinct mammal"
+
+#: templates/mammals/detail.html:38
+msgid "Description"
+msgstr "Description"
+
+#: templates/mammals/detail.html:44
+msgid "Habitat"
+msgstr "Habitat"
+
+#: templates/mammals/detail.html:51
+msgid "Distribution"
+msgstr "Distribution"
+
+#: templates/mammals/detail.html:58
+msgid "Historical Distribution Map"
+msgstr "Historical Distribution Map"
+
+#: templates/mammals/detail.html:66
+msgid "Extinction Causes"
+msgstr "Extinction Causes"
+
+#: templates/mammals/detail.html:72
+msgid "Taxonomy"
+msgstr "Taxonomy"
+
+#: templates/mammals/detail.html:73
+msgid "Order"
+msgstr "Order"
+
+#: templates/mammals/detail.html:73 templates/mammals/detail.html:74
+#, fuzzy
+#| msgid "species"
+msgid "Not specified"
+msgstr "species"
+
+#: templates/mammals/detail.html:74
+msgid "Continent"
+msgstr "Continent"
+
+#: templates/mammals/detail.html:83
+#, python-format
+msgid "Remove %(name)s from favorites"
+msgstr "Remove %(name)s from favorites"
+
+#: templates/mammals/detail.html:83
+#, python-format
+msgid "Add %(name)s to favorites"
+msgstr "Add %(name)s to favorites"
+
+#: templates/mammals/detail.html:85
+#, fuzzy
+#| msgid "Favorites"
+msgid "Remove from Favorites"
+msgstr "Favorites"
+
+#: templates/mammals/detail.html:85
+#, fuzzy
+#| msgid "Favorites"
+msgid "Add to Favorites"
+msgstr "Favorites"
+
+#: templates/mammals/detail.html:97
+msgid "Write your comment..."
+msgstr "Write your comment..."
+
+#: templates/mammals/detail.html:98
+msgid "Send Comment"
+msgstr "Send Comment"
+
+#: templates/mammals/detail.html:102
+msgid "to comment"
+msgstr "to comment"
+
+#: templates/mammals/detail.html:118
+msgid "Are you sure you want to delete this comment?"
+msgstr "Are you sure you want to delete this comment?"
+
+#: templates/mammals/detail.html:118
+msgid "Delete"
+msgstr "Delete"
+
+#: templates/mammals/detail.html:124
+msgid "No comments yet. Be the first!"
+msgstr "No comments yet. Be the first!"
+
+#: templates/mammals/detail.html:130
+msgid "Back to list"
+msgstr "Back to list"
+
+#: templates/mammals/favorites.html:5 templates/mammals/favorites.html:9
+#, fuzzy
+#| msgid "Favorites"
+msgid "My Favorites"
+msgstr "Favorites"
+
+#: templates/mammals/favorites.html:30 templates/mammals/index.html:119
+msgid "View Details"
+msgstr "View Details"
+
+#: templates/mammals/favorites.html:37
+msgid ""
+"You don't have any favorites yet. Explore the catalog and add your favorite "
+"species!"
+msgstr ""
+
+#: templates/mammals/favorites.html:38
+msgid "Explore Catalog"
+msgstr "Explore Catalog"
+
+# Página inicial
+#: templates/mammals/index.html:10
+msgid "Digital Catalog of Extinct Mammals since 1500"
+msgstr "Digital Catalog of Extinct Mammals since 1500"
+
+#: templates/mammals/index.html:12
+msgid ""
+"Explore the history and causes of mammal extinction around the world since "
+"1500. This digital catalog preserves the biological memory of these lost "
+"species and promotes awareness about the importance of conservation."
+msgstr ""
+"Explore the history and causes of mammal extinction around the world since "
+"1500. This digital catalog preserves the biological memory of these lost "
+"species and promotes awareness about the importance of conservation."
+
+#: templates/mammals/index.html:18
+msgid "Why does this matter?"
+msgstr "Why does this matter?"
+
+#: templates/mammals/index.html:20
+msgid ""
+"Species extinction is an irreversible process that results in the permanent "
+"loss of biodiversity. Since 1500, human activity has been the main cause of "
+"mammal extinction, through habitat destruction, overhunting, introduction of "
+"invasive species and climate change. Understanding these losses helps us "
+"prevent future extinctions and protect the species that still exist today."
+msgstr ""
+"Species extinction is an irreversible process that results in the permanent "
+"loss of biodiversity. Since 1500, human activity has been the main cause of "
+"mammal extinction, through habitat destruction, overhunting, introduction of "
+"invasive species and climate change. Understanding these losses helps us "
+"prevent future extinctions and protect the species that still exist today."
+
+#: templates/mammals/index.html:31
+msgid "Search by name, description, habitat or distribution..."
+msgstr "Search by name, description, habitat or distribution..."
+
+#: templates/mammals/index.html:33
+msgid "Mammal search field"
+msgstr "Mammal search field"
+
+#: templates/mammals/index.html:35
+msgid "Perform search"
+msgstr "Perform search"
+
+# Botões e ações
+#: templates/mammals/index.html:35
+msgid "Search"
+msgstr "Search"
+
+#: templates/mammals/index.html:36
+msgid "Clear search and filters"
+msgstr "Clear search and filters"
+
+#: templates/mammals/index.html:36
+msgid "Clear"
+msgstr "Clear"
+
+# Filtros
+#: templates/mammals/index.html:40
+msgid "Filter by Region:"
+msgstr "Filter by Region:"
+
+#: templates/mammals/index.html:41
+#, fuzzy
+#| msgid "Register"
+msgid "Region filters"
+msgstr "Register"
+
+# Filtros
+#: templates/mammals/index.html:42
+#, fuzzy
+#| msgid "Filter by Region:"
+msgid "Filter by Africa"
+msgstr "Filter by Region:"
+
+# Regiões
+#: templates/mammals/index.html:42
+msgid "Africa"
+msgstr "Africa"
+
+# Filtros
+#: templates/mammals/index.html:43
+#, fuzzy
+#| msgid "Filter by Region:"
+msgid "Filter by America"
+msgstr "Filter by Region:"
+
+#: templates/mammals/index.html:43
+msgid "America"
+msgstr "America"
+
+# Filtros
+#: templates/mammals/index.html:44
+#, fuzzy
+#| msgid "Filter by Region:"
+msgid "Filter by Asia"
+msgstr "Filter by Region:"
+
+#: templates/mammals/index.html:44
+msgid "Asia"
+msgstr "Asia"
+
+# Filtros
+#: templates/mammals/index.html:45
+#, fuzzy
+#| msgid "Filter by Region:"
+msgid "Filter by Europe"
+msgstr "Filter by Region:"
+
+#: templates/mammals/index.html:45
+msgid "Europe"
+msgstr "Europe"
+
+# Filtros
+#: templates/mammals/index.html:46
+#, fuzzy
+#| msgid "Filter by Region:"
+msgid "Filter by Oceania"
+msgstr "Filter by Region:"
+
+#: templates/mammals/index.html:46
+msgid "Oceania"
+msgstr "Oceania"
+
+#: templates/mammals/index.html:49
+msgid "Filter by Taxonomy:"
+msgstr "Filter by Taxonomy:"
+
+#: templates/mammals/index.html:50
+msgid "Taxonomy filters"
+msgstr "Taxonomy filters"
+
+# Filtros
+#: templates/mammals/index.html:51
+#, fuzzy
+#| msgid "Filter by Region:"
+msgid "Filter by Rodents"
+msgstr "Filter by Region:"
+
+# Taxonomia
+#: templates/mammals/index.html:51
+msgid "Rodents"
+msgstr "Rodents"
+
+#: templates/mammals/index.html:52
+#, fuzzy
+#| msgid "Chiroptera"
+msgid "Filter by Chiroptera"
+msgstr "Chiroptera"
+
+#: templates/mammals/index.html:52
+msgid "Chiroptera"
+msgstr "Chiroptera"
+
+#: templates/mammals/index.html:53
+#, fuzzy
+#| msgid "Artiodactyls"
+msgid "Filter by Artiodactyls"
+msgstr "Artiodactyls"
+
+#: templates/mammals/index.html:53
+msgid "Artiodactyls"
+msgstr "Artiodactyls"
+
+#: templates/mammals/index.html:54
+#, fuzzy
+#| msgid "Eulipotyphlans"
+msgid "Filter by Eulipotyphlans"
+msgstr "Eulipotyphlans"
+
+#: templates/mammals/index.html:54
+msgid "Eulipotyphlans"
+msgstr "Eulipotyphlans"
+
+#: templates/mammals/index.html:55
+#, fuzzy
+#| msgid "Diprotodonts"
+msgid "Filter by Diprotodonts"
+msgstr "Diprotodonts"
+
+#: templates/mammals/index.html:55
+msgid "Diprotodonts"
+msgstr "Diprotodonts"
+
+#: templates/mammals/index.html:56
+#, fuzzy
+#| msgid "Filter by Taxonomy:"
+msgid "Filter by Carnivores"
+msgstr "Filter by Taxonomy:"
+
+#: templates/mammals/index.html:56
+msgid "Carnivores"
+msgstr "Carnivores"
+
+#: templates/mammals/index.html:57
+#, fuzzy
+#| msgid "Peramelemorphs"
+msgid "Filter by Peramelemorphs"
+msgstr "Peramelemorphs"
+
+#: templates/mammals/index.html:57
+msgid "Peramelemorphs"
+msgstr "Peramelemorphs"
+
+# Filtros
+#: templates/mammals/index.html:58
+#, fuzzy
+#| msgid "Filter by Region:"
+msgid "Filter by Primates"
+msgstr "Filter by Region:"
+
+#: templates/mammals/index.html:58
+msgid "Primates"
+msgstr "Primates"
+
+#: templates/mammals/index.html:59
+#, fuzzy
+#| msgid "Didelphimorphs"
+msgid "Filter by Didelphimorphs"
+msgstr "Didelphimorphs"
+
+#: templates/mammals/index.html:59
+msgid "Didelphimorphs"
+msgstr "Didelphimorphs"
+
+#: templates/mammals/index.html:60
+#, fuzzy
+#| msgid "Filter by Taxonomy:"
+msgid "Filter by Lagomorphs"
+msgstr "Filter by Taxonomy:"
+
+#: templates/mammals/index.html:60
+msgid "Lagomorphs"
+msgstr "Lagomorphs"
+
+#: templates/mammals/index.html:61
+#, fuzzy
+#| msgid "Dasyuromorphs"
+msgid "Filter by Dasyuromorphs"
+msgstr "Dasyuromorphs"
+
+#: templates/mammals/index.html:61
+msgid "Dasyuromorphs"
+msgstr "Dasyuromorphs"
+
+# Filtros
+#: templates/mammals/index.html:62
+#, fuzzy
+#| msgid "Filter by Region:"
+msgid "Filter by Sirenians"
+msgstr "Filter by Region:"
+
+#: templates/mammals/index.html:62
+msgid "Sirenians"
+msgstr "Sirenians"
+
+#: templates/mammals/index.html:71
+msgid "Display"
+msgstr "Display"
+
+#: templates/mammals/index.html:76
+msgid "All"
+msgstr "All"
+
+#: templates/mammals/index.html:81
+msgid "First page"
+msgstr "First page"
+
+#: templates/mammals/index.html:82
+msgid "Previous page"
+msgstr "Previous page"
+
+# Paginação
+#: templates/mammals/index.html:85
+msgid "Page"
+msgstr "Page"
+
+#: templates/mammals/index.html:85
+msgid "of"
+msgstr "of"
+
+#: templates/mammals/index.html:88
+msgid "Next page"
+msgstr "Next page"
+
+#: templates/mammals/index.html:89
+msgid "Last page"
+msgstr "Last page"
+
+#: templates/mammals/index.html:93
+msgid "species"
+msgstr "species"
+
+#: templates/mammals/index.html:97
+msgid "All Species"
+msgstr "All Species"
+
+#: templates/mammals/index.html:104
+#, python-format
+msgid "Image of %(name)s (%(binomial)s), extinct mammal"
+msgstr "Image of %(name)s (%(binomial)s), extinct mammal"
+
+# JavaScript translations
+msgid "No results found"
+msgstr "No results found"
+
+msgid "Try adjusting the filters or using different search terms."
+msgstr "Try adjusting the filters or using different search terms."
+
+msgid "Light"
+msgstr "Light"
+
+# Global Map
+msgid "Global Distribution Map"
+msgstr "Global Distribution Map"
+
+msgid "Interactive world map showing the historical distribution of extinct mammals. Darker colors indicate higher concentration of species."
+msgstr "Interactive world map showing the historical distribution of extinct mammals. Darker colors indicate higher concentration of species."
+
+msgid "Locations"
+msgstr "Locations"
+
+msgid "Species"
+msgstr "Species"
+
+msgid "Max Concentration"
+msgstr "Max Concentration"
+
+msgid "Loading map data..."
+msgstr "Loading map data..."
+
+msgid "Concentration Legend"
+msgstr "Concentration Legend"
+
+msgid "How to use:"
+msgstr "How to use:"
+
+msgid "Hover over markers to see species list"
+msgstr "Hover over markers to see species list"
+
+msgid "Click on a species name to view details"
+msgstr "Click on a species name to view details"
+
+msgid "Zoom and pan to explore the map"
+msgstr "Zoom and pan to explore the map"
+
+msgid "Error loading map data. Please try again later."
+msgstr "Error loading map data. Please try again later."

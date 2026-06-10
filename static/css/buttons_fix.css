@@ -1,0 +1,128 @@
+/* ============================================================================
+   PADRONIZAÇÃO COMPLETA DOS BOTÕES DE TEMA E IDIOMA - V22
+   ============================================================================ */
+
+/* Estilos base compartilhados - LARGURA E ALTURA FIXAS IGUAIS */
+.theme-toggle,
+.language-selector {
+    /* Dimensões fixas IGUAIS */
+    width: 140px !important;
+    height: 42px !important;
+    min-width: 140px !important;
+    max-width: 140px !important;
+    
+    /* Espaçamento */
+    padding: 0.6rem 1rem !important;
+    
+    /* Tipografia */
+    font-size: 0.95rem !important;
+    font-weight: 500 !important;
+    color: white !important;
+    line-height: 1.2 !important;
+    
+    /* Bordas e fundo */
+    background: rgba(255, 255, 255, 0.15) !important;
+    border: 2px solid rgba(255, 255, 255, 0.3) !important;
+    border-radius: 8px !important;
+    
+    /* Layout */
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    
+    /* Comportamento */
+    cursor: pointer !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    outline: none !important;
+    
+    /* Alinhamento vertical */
+    vertical-align: middle !important;
+    box-sizing: border-box !important;
+    
+    /* Prevenir quebra de texto */
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+
+/* Botão de tema - ajustes específicos */
+.theme-toggle {
+    gap: 0.5rem !important;
+}
+
+/* Texto do tema */
+.theme-toggle-text {
+    flex-shrink: 0 !important;
+}
+
+/* Seletor de idioma - ajustes específicos */
+.language-selector {
+    text-align: center !important;
+    text-align-last: center !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 12 12'%3E%3Cpath fill='white' d='M6 9L1 4h10z'/%3E%3C/svg%3E") !important;
+    background-repeat: no-repeat !important;
+    background-position: right 1rem center !important;
+    padding-right: 2rem !important;
+    padding-left: 1rem !important;
+}
+
+/* Estados hover */
+.theme-toggle:hover,
+.language-selector:hover {
+    background: rgba(255, 255, 255, 0.25) !important;
+    border-color: rgba(255, 255, 255, 0.4) !important;
+    transform: translateY(-2px) !important;
+}
+
+/* Estados focus */
+.theme-toggle:focus,
+.language-selector:focus {
+    background: rgba(255, 255, 255, 0.25) !important;
+    border-color: rgba(255, 255, 255, 0.6) !important;
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1) !important;
+    outline: none !important;
+}
+
+/* Ícone do tema */
+.theme-toggle-icon {
+    font-size: 1.2rem !important;
+    transition: transform 0.3s ease !important;
+    flex-shrink: 0 !important;
+}
+
+.theme-toggle:hover .theme-toggle-icon {
+    transform: rotate(20deg) !important;
+}
+
+/* Options do select */
+.language-selector option {
+    background-color: var(--card-bg) !important;
+    color: var(--text-color) !important;
+    padding: 0.6rem !important;
+    text-align: center !important;
+}
+
+/* Container do form de idioma */
+.language-form {
+    display: inline-block !important;
+    margin: 0 !important;
+    vertical-align: middle !important;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .theme-toggle,
+    .language-selector {
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 0.5rem 1rem !important;
+        font-size: 0.9rem !important;
+    }
+    
+    .language-selector {
+        margin-top: 8px !important;
+    }
+}

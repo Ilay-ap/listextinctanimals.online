@@ -1,0 +1,252 @@
+{% extends "base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{{ mammal.common_name }} - {% trans "Scientific Dossier" %}{% endblock %}
+
+{% block extra_css %}
+<style>
+.scientific-dossier {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.dossier-header {
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    color: white;
+    padding: 3rem 2rem;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+}
+
+.dossier-header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    font-weight: 700;
+}
+
+.dossier-header .scientific-name {
+    font-style: italic;
+    font-size: 1.8rem;
+    opacity: 0.9;
+    margin-bottom: 1rem;
+}
+
+.dossier-header .status {
+    display: inline-block;
+    background: rgba(255,255,255,0.2);
+    padding: 0.5rem 1.5rem;
+    border-radius: 25px;
+    font-weight: 600;
+    margin-top: 1rem;
+}
+
+.dossier-nav {
+    background: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    position: sticky;
+    top: 20px;
+    z-index: 100;
+}
+
+.dossier-nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.dossier-nav li {
+    margin: 0;
+}
+
+.dossier-nav a {
+    color: #2a5298;
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    transition: all 0.3s;
+    display: block;
+    font-weight: 500;
+}
+
+.dossier-nav a:hover {
+    background: #f0f4f8;
+    color: #1e3c72;
+}
+
+.dossier-section {
+    background: white;
+    border-radius: 12px;
+    padding: 2.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+}
+
+.dossier-section h2 {
+    color: #1e3c72;
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 3px solid #2a5298;
+}
+
+.dossier-section h3 {
+    color: #2a5298;
+    font-size: 1.5rem;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+}
+
+.dossier-section h4 {
+    color: #4a6fa5;
+    font-size: 1.2rem;
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.dossier-section p {
+    line-height: 1.8;
+    margin-bottom: 1rem;
+    color: #333;
+    text-align: justify;
+}
+
+.dossier-section ul, .dossier-section ol {
+    line-height: 1.8;
+    margin-bottom: 1rem;
+    padding-left: 2rem;
+}
+
+.dossier-section li {
+    margin-bottom: 0.5rem;
+}
+
+.info-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.5rem 0;
+}
+
+.info-table th, .info-table td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.info-table th {
+    background: #f5f7fa;
+    font-weight: 600;
+    color: #1e3c72;
+}
+
+.info-table tr:hover {
+    background: #f9fafb;
+}
+
+.image-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin: 2rem 0;
+}
+
+.gallery-item {
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    transition: transform 0.3s;
+}
+
+.gallery-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+}
+
+.gallery-item img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    cursor: pointer;
+}
+
+.gallery-item .caption {
+    padding: 0.75rem;
+    background: #f5f7fa;
+    font-size: 0.9rem;
+    color: #555;
+}
+
+.blockquote {
+    border-left: 4px solid #2a5298;
+    padding-left: 1.5rem;
+    margin: 1.5rem 0;
+    font-style: italic;
+    color: #555;
+    background: #f9fafb;
+    padding: 1rem 1.5rem;
+    border-radius: 0 8px 8px 0;
+}
+
+.highlight-box {
+    background: #e8f4f8;
+    border-left: 4px solid #2196F3;
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+    border-radius: 0 8px 8px 0;
+}
+
+.warning-box {
+    background: #fff3e0;
+    border-left: 4px solid #ff9800;
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+    border-radius: 0 8px 8px 0;
+}
+
+.success-box {
+    background: #e8f5e9;
+    border-left: 4px solid #4caf50;
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+    border-radius: 0 8px 8px 0;
+}
+
+@media (max-width: 768px) {
+    .dossier-header h1 {
+        font-size: 1.8rem;
+    }
+    
+    .dossier-header .scientific-name {
+        font-size: 1.3rem;
+    }
+    
+    .dossier-nav ul {
+        flex-direction: column;
+    }
+    
+    .dossier-section {
+        padding: 1.5rem;
+    }
+    
+    .image-gallery {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="scientific-dossier">
+    {% block dossier_content %}
+    <!-- Content will be injected here -->
+    {% endblock %}
+</div>
+{% endblock %}

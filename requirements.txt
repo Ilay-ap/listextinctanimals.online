@@ -1,0 +1,32 @@
+# Core Django
+Django>=5.0,<5.1
+Pillow>=10.0
+requests>=2.31.0
+python-dotenv>=1.0.0
+
+# Tradução automática
+deep-translator==1.11.4
+
+# HTTPS Development Server
+django-extensions>=3.2.0
+Werkzeug>=3.0.0
+pyOpenSSL>=24.0.0
+
+# Servidor de produção
+gunicorn>=21.2.0
+
+# Banco de dados PostgreSQL
+psycopg2-binary>=2.9.9
+
+# Configuração de banco via URL
+dj-database-url>=2.1.0
+
+# Servir arquivos estáticos
+whitenoise>=6.6.0
+
+# Dependências de teste
+pytest>=7.4.0
+pytest-django>=4.5.0
+pytest-cov>=4.1.0
+coverage>=7.2.0
+

@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Home" %} - {% trans "Extinct Mammals Catalog" %}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <section class="hero" role="region" aria-label="{% trans 'Introduction' %}">
+        <h2>{% trans "Digital Catalog of Extinct Mammals since 1500" %}</h2>
+        <p class="hero-description">
+            {% trans "Explore the history and causes of mammal extinction around the world since 1500. This digital catalog preserves the biological memory of these lost species and promotes awareness about the importance of conservation." %}
+        </p>
+    </section>
+
+    <section class="info-section" role="region" aria-label="{% trans 'Project Information' %}">
+        <div class="info-card">
+            <h3>🌱 {% trans "Why does this matter?" %}</h3>
+            <p>
+                {% trans "Species extinction is an irreversible process that results in the permanent loss of biodiversity. Since 1500, human activity has been the main cause of mammal extinction, through habitat destruction, overhunting, introduction of invasive species and climate change. Understanding these losses helps us prevent future extinctions and protect the species that still exist today." %}
+            </p>
+        </div>
+    </section>
+
+    <section class="search-section" role="search" aria-label="{% trans 'Search and Filters' %}">
+        <div class="search-container">
+            <input 
+                type="text" 
+                id="search-input" 
+                class="search-input" 
+                placeholder="{% trans 'Search by name, description, habitat or distribution...' %}"
+                autocomplete="off"
+                aria-label="{% trans 'Mammal search field' %}"
+            >
+            <button id="search-btn" class="search-btn" aria-label="{% trans 'Perform search' %}">🔍 {% trans "Search" %}</button>
+            <button id="clear-btn" class="clear-btn" aria-label="{% trans 'Clear search and filters' %}">✕ {% trans "Clear" %}</button>
+        </div>
+        
+        <div class="filter-section">
+            <h4>{% trans "Filter by Region:" %}</h4>
+            <div class="filter-buttons" role="group" aria-label="{% trans 'Region filters' %}">
+                <button class="filter-btn" data-filter-type="region" data-filter-value="África" aria-label="{% trans 'Filter by Africa' %}" aria-pressed="false">{% trans "Africa" %}</button>
+                <button class="filter-btn" data-filter-type="region" data-filter-value="América" aria-label="{% trans 'Filter by America' %}" aria-pressed="false">{% trans "America" %}</button>
+                <button class="filter-btn" data-filter-type="region" data-filter-value="Ásia" aria-label="{% trans 'Filter by Asia' %}" aria-pressed="false">{% trans "Asia" %}</button>
+                <button class="filter-btn" data-filter-type="region" data-filter-value="Europa" aria-label="{% trans 'Filter by Europe' %}" aria-pressed="false">{% trans "Europe" %}</button>
+                <button class="filter-btn" data-filter-type="region" data-filter-value="Oceania" aria-label="{% trans 'Filter by Oceania' %}" aria-pressed="false">{% trans "Oceania" %}</button>
+            </div>
+            
+            <h4>{% trans "Filter by Taxonomy:" %}</h4>
+            <div class="filter-buttons" role="group" aria-label="{% trans 'Taxonomy filters' %}">
+                <button class="filter-btn" data-filter-type="taxonomy" data-filter-value="RODENTIA" aria-label="{% trans 'Filter by Rodents' %}" aria-pressed="false">{% trans "Rodents" %}</button>
+                <button class="filter-btn" data-filter-type="taxonomy" data-filter-value="CHIROPTERA" aria-label="{% trans 'Filter by Chiroptera' %}" aria-pressed="false">{% trans "Chiroptera" %}</button>
+                <button class="filter-btn" data-filter-type="taxonomy" data-filter-value="ARTIODACTYLA" aria-label="{% trans 'Filter by Artiodactyls' %}" aria-pressed="false">{% trans "Artiodactyls" %}</button>
+                <button class="filter-btn" data-filter-type="taxonomy" data-filter-value="EULIPOTYPHLA" aria-label="{% trans 'Filter by Eulipotyphlans' %}" aria-pressed="false">{% trans "Eulipotyphlans" %}</button>
+                <button class="filter-btn" data-filter-type="taxonomy" data-filter-value="DIPROTODONTIA" aria-label="{% trans 'Filter by Diprotodonts' %}" aria-pressed="false">{% trans "Diprotodonts" %}</button>
+                <button class="filter-btn" data-filter-type="taxonomy" data-filter-value="CARNIVORA" aria-label="{% trans 'Filter by Carnivores' %}" aria-pressed="false">{% trans "Carnivores" %}</button>
+                <button class="filter-btn" data-filter-type="taxonomy" data-filter-value="PERAMELEMORPHIA" aria-label="{% trans 'Filter by Peramelemorphs' %}" aria-pressed="false">{% trans "Peramelemorphs" %}</button>
+                <button class="filter-btn" data-filter-type="taxonomy" data-filter-value="PRIMATES" aria-label="{% trans 'Filter by Primates' %}" aria-pressed="false">{% trans "Primates" %}</button>
+
+                <button class="filter-btn" data-filter-type="taxonomy" data-filter-value="LAGOMORPHA" aria-label="{% trans 'Filter by Lagomorphs' %}" aria-pressed="false">{% trans "Lagomorphs" %}</button>
+                <button class="filter-btn" data-filter-type="taxonomy" data-filter-value="DASYUROMORPHIA" aria-label="{% trans 'Filter by Dasyuromorphs' %}" aria-pressed="false">{% trans "Dasyuromorphs" %}</button>
+                <button class="filter-btn" data-filter-type="taxonomy" data-filter-value="SIRENIA" aria-label="{% trans 'Filter by Sirenians' %}" aria-pressed="false">{% trans "Sirenians" %}</button>
+            </div>
+        </div>
+    </section>
+
+    <section class="mammals-grid" role="region" aria-label="{% trans 'Mammals List' %}">
+        <!-- Paginação e Controles numa única linha -->
+        <div class="pagination-wrapper" id="pagination-wrapper">
+            <div class="pagination-controls-inline">
+                <label for="items-per-page">{% trans "Display" %}:</label>
+                <select id="items-per-page" class="items-per-page-select">
+                    <option value="10">10</option>
+                    <option value="20" selected>20</option>
+                    <option value="30">30</option>
+                    <option value="all">{% trans "All" %}</option>
+                </select>
+            </div>
+            
+            <div class="pagination-nav">
+                <button class="pagination-btn" id="first-page-btn" aria-label="{% trans 'First page' %}">««</button>
+                <button class="pagination-btn" id="prev-page-btn" aria-label="{% trans 'Previous page' %}">‹</button>
+                
+                <span class="pagination-info" id="pagination-info">
+                    {% trans "Page" %} <strong id="current-page">1</strong> {% trans "of" %} <strong id="total-pages">1</strong>
+                </span>
+                
+                <button class="pagination-btn" id="next-page-btn" aria-label="{% trans 'Next page' %}">›</button>
+                <button class="pagination-btn" id="last-page-btn" aria-label="{% trans 'Last page' %}">»»</button>
+            </div>
+            
+            <div class="pagination-total">
+                <span id="total-items">{{ mammals.paginator.count }}</span> {% trans "species" %}
+            </div>
+        </div>
+        
+        <h3 id="species-count">{% trans "All Species" %} ({{ mammals.paginator.count }})</h3>
+        <div class="grid" id="mammals-list">
+            {% for mammal in mammals %}
+            <div class="mammal-card">
+                {% if mammal.image %}
+                <div class="card-image">
+                    <img src="{{ mammal.image.url }}" 
+                         alt="{% blocktrans with name=mammal.common_name binomial=mammal.binomial_name %}Image of {{ name }} ({{ binomial }}), extinct mammal{% endblocktrans %}"
+                         loading="lazy"
+                         onerror="this.onerror=null; this.src='{% static 'images/' %}{{ mammal.image_filename }}';">
+                </div>
+                {% elif mammal.image_filename %}
+                <div class="card-image">
+                    <img src="{% static 'images/' %}{{ mammal.image_filename }}" 
+                         alt="{% blocktrans with name=mammal.common_name binomial=mammal.binomial_name %}Image of {{ name }} ({{ binomial }}), extinct mammal{% endblocktrans %}"
+                         loading="lazy">
+                </div>
+                {% endif %}
+                <div class="card-header">
+                    <h4 class="common-name">{{ mammal.common_name }}</h4>
+                    <p class="binomial-name"><em>{{ mammal.binomial_name }}</em></p>
+                </div>
+                <div class="card-body">
+                    <p class="description">
+                        {{ mammal.short_description }}
+                    </p>
+                </div>
+                <div class="card-footer">
+                    <a href="{% url 'mammals:detail' mammal.pk %}" class="btn-primary">
+                        {% trans "View Details" %} →
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+    </section>
+</div>
+{% endblock %}

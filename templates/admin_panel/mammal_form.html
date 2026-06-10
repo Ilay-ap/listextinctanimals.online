@@ -1,0 +1,1008 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% if action == 'add' %}Nova Ficha{% else %}Editando: {{ mammal.common_name }}{% endif %} — Catálogo de
+Mamíferos Extintos{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+    :root {
+        --form-accent: #C4A57B;
+        --form-accent-light: rgba(196, 165, 123, 0.15);
+        --section-radius: 14px;
+    }
+
+    .creator-layout {
+        display: grid;
+        grid-template-columns: 240px 1fr;
+        gap: 2rem;
+        max-width: 1100px;
+        margin: 0 auto;
+        align-items: start;
+    }
+
+    /* ── Sticky Sidebar Nav ── */
+    .creator-sidebar {
+        position: sticky;
+        top: 80px;
+        background: var(--surface-color);
+        border-radius: var(--section-radius);
+        padding: 1.5rem 1rem;
+        box-shadow: 0 2px 16px rgba(0, 0, 0, 0.12);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .creator-sidebar h4 {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        color: var(--text-muted);
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .sidebar-nav a {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 0.75rem;
+        border-radius: 8px;
+        text-decoration: none;
+        color: var(--text-muted);
+        font-size: 0.85rem;
+        transition: all 0.2s;
+        margin-bottom: 2px;
+    }
+
+    .sidebar-nav a:hover,
+    .sidebar-nav a.active {
+        background: var(--form-accent-light);
+        color: var(--form-accent);
+    }
+
+    .sidebar-nav .section-num {
+        font-size: 0.7rem;
+        background: rgba(255, 255, 255, 0.06);
+        border-radius: 4px;
+        padding: 1px 5px;
+        min-width: 20px;
+        text-align: center;
+    }
+
+    /* ── Main Form ── */
+    .creator-main {
+        min-width: 0;
+    }
+
+    .creator-header {
+        background: linear-gradient(135deg, var(--form-accent), #8B6F47);
+        border-radius: var(--section-radius);
+        padding: 2rem 2.5rem;
+        margin-bottom: 1.5rem;
+        color: #fff;
+    }
+
+    .creator-header h1 {
+        font-size: 1.6rem;
+        margin: 0 0 0.4rem;
+    }
+
+    .creator-header p {
+        opacity: 0.82;
+        margin: 0;
+        font-size: 0.9rem;
+    }
+
+    /* ── Section Cards ── */
+    .form-section {
+        background: var(--surface-color);
+        border-radius: var(--section-radius);
+        padding: 1.75rem 2rem;
+        margin-bottom: 1.25rem;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        scroll-margin-top: 80px;
+    }
+
+    .section-header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1.25rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    }
+
+    .section-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        background: var(--form-accent-light);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        flex-shrink: 0;
+    }
+
+    .section-header h3 {
+        margin: 0;
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--text-color);
+    }
+
+    .section-header span {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+    }
+
+    .section-badge {
+        margin-left: auto;
+        background: var(--form-accent-light);
+        color: var(--form-accent);
+        font-size: 0.7rem;
+        padding: 2px 8px;
+        border-radius: 20px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    /* ── Form Controls ── */
+    .form-grid {
+        display: grid;
+        gap: 1rem;
+    }
+
+    .form-grid.cols-2 {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .form-grid.cols-3 {
+        grid-template-columns: 1fr 1fr 1fr;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+    }
+
+    .form-group label {
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .required-badge {
+        color: var(--form-accent);
+        margin-left: 2px;
+    }
+
+    .form-control {
+        background: rgba(255, 255, 255, 0.04);
+        border: 1.5px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        padding: 0.75rem 1rem;
+        color: var(--text-color);
+        font-size: 0.95rem;
+        transition: border-color 0.2s, box-shadow 0.2s;
+        outline: none;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .form-control:focus {
+        border-color: var(--form-accent);
+        box-shadow: 0 0 0 3px rgba(58, 154, 110, 0.15);
+    }
+
+    textarea.form-control {
+        resize: vertical;
+        min-height: 100px;
+        font-family: inherit;
+    }
+
+    .char-counter {
+        font-size: 0.72rem;
+        color: var(--text-muted);
+        text-align: right;
+        margin-top: 2px;
+    }
+
+    /* ── Photo Upload ── */
+    .photo-drop-zone {
+        border: 2px dashed rgba(58, 154, 110, 0.4);
+        border-radius: 10px;
+        padding: 2.5rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.2s;
+        background: rgba(58, 154, 110, 0.04);
+    }
+
+    .photo-drop-zone:hover,
+    .photo-drop-zone.drag-over {
+        border-color: var(--form-accent);
+        background: rgba(58, 154, 110, 0.08);
+    }
+
+    .photo-drop-zone .drop-icon {
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .photo-drop-zone p {
+        margin: 0.25rem 0;
+        color: var(--text-muted);
+        font-size: 0.9rem;
+    }
+
+    .photo-drop-zone .btn-upload {
+        display: inline-block;
+        margin-top: 0.75rem;
+        padding: 0.5rem 1.5rem;
+        background: var(--form-accent);
+        color: #fff;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        cursor: pointer;
+    }
+
+    #photo-preview {
+        width: 100%;
+        max-height: 260px;
+        object-fit: cover;
+        border-radius: 10px;
+        margin-bottom: 0.75rem;
+        display: none;
+    }
+
+    #current-image-preview {
+        width: 100%;
+        max-height: 220px;
+        object-fit: cover;
+        border-radius: 10px;
+        margin-bottom: 0.75rem;
+    }
+
+    .change-photo-btn {
+        background: transparent;
+        border: 1px solid var(--form-accent);
+        color: var(--form-accent);
+        border-radius: 20px;
+        padding: 0.4rem 1.2rem;
+        cursor: pointer;
+        font-size: 0.85rem;
+        transition: all 0.2s;
+    }
+
+    .change-photo-btn:hover {
+        background: var(--form-accent);
+        color: #fff;
+    }
+
+    /* ── Map picker ── */
+    #map-picker {
+        height: 300px;
+        border-radius: 10px;
+        border: 1.5px solid rgba(255, 255, 255, 0.1);
+        margin-top: 1rem;
+    }
+
+    .map-coords-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin-top: 0.75rem;
+    }
+
+    .map-tip {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        margin-top: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+    /* ── Continent Select ── */
+    select.form-control {
+        -webkit-appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23888' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 1rem center;
+        color: var(--text-color);
+        border: 1.5px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        font-size: 0.95rem;
+        cursor: pointer;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: background 0.2s;
+        background-size: 12px;
+        padding-right: 2.5rem;
+    }
+
+    /* ── Actions ── */
+    .form-actions {
+        background: var(--surface-color);
+        border-radius: var(--section-radius);
+        padding: 1.5rem 2rem;
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .btn-save {
+        flex: 1;
+        padding: 0.9rem 2rem;
+        background: linear-gradient(135deg, var(--form-accent), #8B6F47);
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: transform 0.15s, box-shadow 0.15s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .btn-save:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 20px rgba(139, 111, 71, 0.35);
+    }
+
+    .btn-cancel {
+        padding: 0.9rem 1.5rem;
+        background: rgba(255, 255, 255, 0.06);
+        color: var(--text-color);
+        border: 1.5px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        font-size: 0.95rem;
+        cursor: pointer;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: background 0.2s;
+    }
+
+    .btn-cancel:hover {
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    .draft-indicator {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        margin-left: auto;
+    }
+
+    @media (max-width: 768px) {
+        .creator-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .creator-sidebar {
+            display: none;
+        }
+
+        .form-grid.cols-2,
+        .form-grid.cols-3 {
+            grid-template-columns: 1fr;
+        }
+    }
+
+/* Taxonomy DataGrid */
+.taxonomy-datagrid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 1px;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 8px;
+    overflow: hidden;
+}
+.dg-header {
+    background: rgba(255,255,255,0.05);
+    padding: 10px 5px;
+    text-align: center;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    white-space: nowrap;
+}
+.dg-cell {
+    background: rgba(0,0,0,0.2);
+    border: none;
+    padding: 10px 5px;
+    text-align: center;
+    color: white;
+    font-size: 0.9rem;
+    width: 100%;
+    outline: none;
+    transition: background 0.2s;
+}
+.dg-cell:focus {
+    background: rgba(255,255,255,0.1);
+    box-shadow: inset 0 0 0 2px var(--primary-color);
+}
+/* End DataGrid CSS */
+
+</style>
+{% endblock %}
+
+{% block content %}
+<div style="padding: 1.5rem 1rem 3rem;">
+
+    <div class="creator-layout">
+        <!-- ═══════════════════ SIDEBAR ═══════════════════ -->
+        <aside class="creator-sidebar">
+            <h4>Seções</h4>
+            <nav class="sidebar-nav" id="sidebarNav">
+                <a href="#sec-1"><span class="section-num">1</span>📌 Identificação</a>
+                <a href="#sec-2"><span class="section-num">2</span>Mídia</a>
+                <a href="#sec-3"><span class="section-num">3</span>🧬 Classificação</a>
+                <a href="#sec-4"><span class="section-num">4</span>Localização</a>
+                <a href="#sec-5"><span class="section-num">5</span>Mapa</a>
+                <a href="#sec-6"><span class="section-num">6</span>Descrição</a>
+                <a href="#sec-7"><span class="section-num">7</span>☠️ Extinção</a>
+                <a href="#sec-8"><span class="section-num">8</span>Ficha Técnica</a>
+                <a href="#sec-9"><span class="section-num">9</span>📅 Época</a>
+                <a href="#sec-10"><span class="section-num">10</span>🔬 Taxonomia+</a>
+                <a href="#sec-11"><span class="section-num">11</span>🌱 Imp. Ecológico</a>
+                <a href="#sec-12"><span class="section-num">12</span>🏛️ Legado</a>
+                <a href="#sec-13"><span class="section-num">13</span>✨ Curiosidades</a>
+            </nav>
+        </aside>
+
+        <!-- ═══════════════════ MAIN FORM ═══════════════════ -->
+        <main class="creator-main">
+            <div class="creator-header">
+                <h1>{% if action == 'add' %}Nova Ficha de Animal{% else %}✏️ Editando: {{ mammal.common_name }}{% endif %}</h1>
+                <p>Preencha as 13 seções para catalogar este mamífero extinto. Apenas Nome Comum, Nome Científico e
+                    Descrição são obrigatórios.</p>
+            </div>
+
+            <form method="post" enctype="multipart/form-data" id="mammalForm">
+                {% csrf_token %}
+
+                <!-- ══════ SECTION 1: IDENTIFICAÇÃO ══════ -->
+                <div class="form-section" id="sec-1">
+                    <div class="section-header">
+                        <div class="section-icon">📌</div>
+                        <div>
+                            <h3>Identificação Básica</h3>
+                            <span>Nome popular e científico do animal</span>
+                        </div>
+                        <span class="section-badge">Obrigatório</span>
+                    </div>
+                    <div class="form-grid cols-2">
+                        <div class="form-group">
+                            <label for="common_name">Nome Comum <span class="required-badge">*</span></label>
+                            <input type="text" id="common_name" name="common_name" class="form-control"
+                                value="{{ mammal.common_name|default:'' }}" placeholder="Ex: Tigre-Dente-de-Sabre"
+                                required>
+                        </div>
+                        <div class="form-group">
+                            <label for="binomial_name">Nome Científico <span class="required-badge">*</span></label>
+                            <input type="text" id="binomial_name" name="binomial_name" class="form-control"
+                                value="{{ mammal.binomial_name|default:'' }}" placeholder="Ex: Smilodon fatalis"
+                                required>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ══════ SECTION 2: MÍDIA ══════ -->
+                <div class="form-section" id="sec-2">
+                    <div class="section-header">
+                        <div class="section-icon"></div>
+                        <div>
+                            <h3>Mídia Oficial</h3>
+                            <span>Foto ou ilustração do animal</span>
+                        </div>
+                    </div>
+                    {% if mammal.image %}
+                    <img id="current-image-preview" src="{{ mammal.image.url }}"
+                        alt="Imagem atual de {{ mammal.common_name }}">
+                    <button type="button" class="change-photo-btn"
+                        onclick="document.getElementById('image-upload-zone').style.display='block'; this.style.display='none';">
+                        Trocar Foto
+                    </button>
+                    <div id="image-upload-zone" style="display:none; margin-top:1rem;">
+                        {% else %}
+                        <div id="image-upload-zone">
+                            {% endif %}
+                            <img id="photo-preview" src="" alt="Preview">
+                            <div class="photo-drop-zone" id="dropZone">
+                                <div class="drop-icon">🖼️</div>
+                                <p><strong>Arraste e solte</strong> uma imagem aqui</p>
+                                <p>ou</p>
+                                <label class="btn-upload" for="image">Selecionar Arquivo</label>
+                                <input type="file" id="image" name="image" accept="image/*" style="display:none">
+                                <p style="margin-top: 0.75rem; font-size: 0.78rem;">JPG, PNG, WEBP — Máx. 10MB</p>
+                            </div>
+                            {% if mammal.image %}
+                        </div>{% else %}
+                    </div>{% endif %}
+                    <details style="margin-top: 1rem;">
+                        <summary style="cursor: pointer; color: var(--text-muted); font-size: 0.85rem;">📁 Usar nome de
+                            arquivo legado (modo antigo)</summary>
+                        <div style="margin-top: 0.75rem;">
+                            <input type="text" name="image_filename" class="form-control"
+                                value="{{ mammal.image_filename|default:'' }}" placeholder="Ex: tigre.jpg">
+                        </div>
+                    </details>
+                </div>
+
+                <!-- ══════ SECTION 3: CLASSIFICAÇÃO ══════ -->
+                <div class="form-section" id="sec-3">
+                    <div class="section-header">
+                        <div class="section-icon">🧬</div>
+                        <div>
+                            <h3>Classificação e Taxonomia</h3>
+                            <span>Ordem taxonômica e continente de origem</span>
+                        </div>
+                    </div>
+                    <div class="form-grid cols-2">
+                        <div class="form-group">
+                            <label for="taxonomy_order">Ordem Taxonômica</label>
+                            <input type="text" id="taxonomy_order" name="taxonomy_order" class="form-control"
+                                value="{{ mammal.taxonomy_order|default:'' }}" placeholder="Ex: Carnivora">
+                        </div>
+                        <div class="form-group">
+                            <label for="continent">Continente Base</label>
+                            <select id="continent" name="continent" class="form-control">
+                                <option value="">Selecione um continente...</option>
+                                <option value="ÁÁÁÁfrica" {% if mammal.continent == "ÁÁÁÁfrica" %}selected{% endif %}>ÁÁÁÁfrica
+                                </option>
+                                <option value="América" {% if mammal.continent == "América" %}selected{% endif %}>🌎
+                                    América</option>
+                                <option value="Ásia" {% if mammal.continent == "Ásia" %}selected{% endif %}>🌏 Ásia
+                                </option>
+                                <option value="Europa" {% if mammal.continent == "Europa" %}selected{% endif %}>🗺️ Europa
+                                </option>
+                                <option value="Oceania" {% if mammal.continent == "Oceania" %}selected{% endif %}>🏝️
+                                    Oceania</option>
+                                <option value="Antártica" {% if mammal.continent == "Antártica" %}selected{% endif %}>❄️
+                                    Antártica</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ══════ SECTION 4: LOCALIZAÇÃO ══════ -->
+                <div class="form-section" id="sec-4">
+                    <div class="section-header">
+                        <div class="section-icon"></div>
+                        <div>
+                            <h3>Habitat e Distribuição</h3>
+                            <span>Onde este animal vivia e se espalhava</span>
+                        </div>
+                    </div>
+                    <div class="form-grid cols-2">
+                        <div class="form-group">
+                            <label for="habitat">Habitat Nativo</label>
+                            <textarea id="habitat" name="habitat" class="form-control" rows="3"
+                                placeholder="Ex: Florestas subtropicais densas, zonas costeiras…">{{ mammal.habitat|default:'' }}</textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="distribution">Distribuição Geográfica</label>
+                            <textarea id="distribution" name="distribution" class="form-control" rows="3"
+                                placeholder="Ex: Toda América do Sul, exceto Patagônia…">{{ mammal.distribution|default:'' }}</textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ══════ SECTION 5: MAPA ══════ -->
+                <div class="form-section" id="sec-5">
+                    <div class="section-header">
+                        <div class="section-icon"></div>
+                        <div>
+                            <h3>Posição no Mapa</h3>
+                            <span>Clique no mapa para definir as coordenadas</span>
+                        </div>
+                    </div>
+                    <p style="font-size: 0.9rem; color: var(--text-muted); margin: 0 0 0.5rem;">
+                        Clique em qualquer ponto do mapa abaixo para definir automaticamente onde este animal vivia. Ele
+                        aparecerá no mapa global do catálogo.
+                    </p>
+                    <div id="map-picker"></div>
+                    <div class="map-tip">💡 Você também pode digitar as coordenadas manualmente abaixo.</div>
+                    <div class="map-coords-row">
+                        <div class="form-group">
+                            <label for="latitude">Latitude</label>
+                            <input type="number" id="latitude" name="latitude" class="form-control" step="0.000001"
+                                value="{{ mammal.latitude|default:'' }}" placeholder="-23.5505">
+                        </div>
+                        <div class="form-group">
+                            <label for="longitude">Longitude</label>
+                            <input type="number" id="longitude" name="longitude" class="form-control" step="0.000001"
+                                value="{{ mammal.longitude|default:'' }}" placeholder="-46.6333">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ══════ SECTION 6: DESCRIÇÃO ══════ -->
+                <div class="form-section" id="sec-6">
+                    <div class="section-header">
+                        <div class="section-icon"></div>
+                        <div>
+                            <h3>Descrição Geral</h3>
+                            <span>A narrativa principal do animal no catálogo</span>
+                        </div>
+                        <span class="section-badge">Obrigatório</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="description">Descrição Detalhada <span class="required-badge">*</span></label>
+                        <textarea id="description" name="description" class="form-control" rows="7"
+                            placeholder="Descreva a aparência física, comportamento, papel ecológico e importância deste animal...">{{ mammal.description|default:'' }}</textarea>
+                        <div class="char-counter"><span id="desc-count">0</span> caracteres</div>
+                    </div>
+                </div>
+
+                <!-- ══════ SECTION 7: CAUSAS DA EXTINÇÃO ══════ -->
+                <div class="form-section" id="sec-7">
+                    <div class="section-header">
+                        <div class="section-icon">☠️</div>
+                        <div>
+                            <h3>Causas da Extinção</h3>
+                            <span>Por que e como este animal desapareceu</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="extinction_causes">Causas da Extinção</label>
+                        <textarea id="extinction_causes" name="extinction_causes" class="form-control" rows="5"
+                            placeholder="Ex: Caça excessiva pelos colonizadores, introdução de espécies invasoras, destruição do habitat...">{{ mammal.extinction_causes|default:'' }}</textarea>
+                        <div class="char-counter"><span id="causes-count">0</span> caracteres</div>
+                    </div>
+                </div>
+
+                <!-- ══════ SECTION 8: FICHA TÉCNICA ══════ -->
+                <div class="form-section" id="sec-8">
+                    <div class="section-header">
+                        <div class="section-icon"></div>
+                        <div>
+                            <h3>Ficha Técnica</h3>
+                            <span>Métricas biológicas chave</span>
+                        </div>
+                    </div>
+                    <div class="form-grid cols-2">
+                        <div class="form-group">
+                            <label for="size_weight">Tamanho e Peso</label>
+                            <input type="text" id="size_weight" name="size_weight" class="form-control"
+                                value="{{ mammal.size_weight|default:'' }}" placeholder="Ex: 1,2m de altura, 300kg">
+                        </div>
+                        <div class="form-group">
+                            <label for="diet">Dieta Predominante</label>
+                            <input type="text" id="diet" name="diet" class="form-control"
+                                value="{{ mammal.diet|default:'' }}" placeholder="Ex: Carnívoro (ungulados)">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ══════ SECTION 9: ÉPOCA DE EXTINÇÃO ══════ -->
+                <div class="form-section" id="sec-9">
+                    <div class="section-header">
+                        <div class="section-icon">📅</div>
+                        <div>
+                            <h3>Época da Extinção</h3>
+                            <span>Quando foi o último registro desta espécie</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="extinction_era">Época / Data de Extinção</label>
+                        <input type="text" id="extinction_era" name="extinction_era" class="form-control"
+                            value="{{ mammal.extinction_era|default:'' }}"
+                            placeholder="Ex: Século XVII (aprox. 1662), Pleistoceno (~10.000 a.C.)">
+                    </div>
+                </div>
+
+                <!-- ══════ SECTION 10: TAXONOMIA ESTENDIDA ══════ -->
+                <div class="form-section" id="sec-10">
+                    <div class="section-header">
+                        <div class="section-icon">🔬</div>
+                        <div>
+                            <h3>Taxonomia Estendida</h3>
+                            <span>Família, gênero e detalhes científicos</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="taxonomy_extended">Classificação Completa</label>
+                        <textarea id="taxonomy_extended" name="taxonomy_extended" class="form-control" rows="4"
+                            placeholder="Ex: Família: Delphinidae | Gênero: Tursiops | Subfamília: Delphininae | Reino: Animalia...">{{ mammal.taxonomy_extended|default:'' }}</textarea>
+                    </div>
+                </div>
+
+                <!-- ══════ SECTION 11: IMPACTO ECOLÓGICO ══════ -->
+                <div class="form-section" id="sec-11">
+                    <div class="section-header">
+                        <div class="section-icon">🌱</div>
+                        <div>
+                            <h3>Impacto Ecológico</h3>
+                            <span>Papel no ecossistema e consequências da extinção</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="ecological_impact">Papel no Ecossistema</label>
+                        <textarea id="ecological_impact" name="ecological_impact" class="form-control" rows="5"
+                            placeholder="Ex: Era predador de topo e controlava populações de herbívoros. Sua extinção desequilibrou a cadeia alimentar regional...">{{ mammal.ecological_impact|default:'' }}</textarea>
+                        <div class="char-counter"><span id="eco-count">0</span> caracteres</div>
+                    </div>
+                </div>
+
+                <!-- ══════ SECTION 12: LEGADO ══════ -->
+                <div class="form-section" id="sec-12">
+                    <div class="section-header">
+                        <div class="section-icon">🏛️</div>
+                        <div>
+                            <h3>Conservação e Legado</h3>
+                            <span>Registros históricos, museus e importância cultural</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="conservation_legacy">Legado e Preservação</label>
+                        <textarea id="conservation_legacy" name="conservation_legacy" class="form-control" rows="5"
+                            placeholder="Ex: Fósseis preservados no Museu Nacional do Rio de Janeiro. Referenciado em documentos coloniais portugueses de 1638...">{{ mammal.conservation_legacy|default:'' }}</textarea>
+                    </div>
+                </div>
+
+                <!-- ══════ SECTION 13: CURIOSIDADES ══════ -->
+                <div class="form-section" id="sec-13">
+                    <div class="section-header">
+                        <div class="section-icon">✨</div>
+                        <div>
+                            <h3>Curiosidades e Fatos</h3>
+                            <span>Informações surpreendentes e únicas</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="fun_facts">Curiosidades</label>
+                        <textarea id="fun_facts" name="fun_facts" class="form-control" rows="5"
+                            placeholder="Ex: O Smilodon não é um tigre — seus caninos mediam 28cm e eram usados mais para perfurar do que rasgar. Suas mandíbulas abriam 120°!">{{ mammal.fun_facts|default:'' }}</textarea>
+                        <div class="char-counter"><span id="facts-count">0</span> caracteres</div>
+                    </div>
+                </div>
+
+                <!-- ══════ ACTIONS ══════ -->
+                <div class="form-actions">
+                    <button type="submit" class="btn-save">💾 Salvar Ficha do Mamífero</button>
+                    <a href="{% url 'mammals:admin_mammals' %}" class="btn-cancel">✕ Cancelar</a>
+                    <div class="draft-indicator" id="draftStatus">💾 Rascunho auto-salvo</div>
+                </div>
+            </form>
+        </main>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+    // ══════════════════════════════════════════════
+    // 1. DRAG & DROP PHOTO UPLOAD
+    // ══════════════════════════════════════════════
+    const dropZone = document.getElementById('dropZone');
+    const imageInput = document.getElementById('image');
+    const photoPreview = document.getElementById('photo-preview');
+
+    if (dropZone && imageInput) {
+        dropZone.addEventListener('click', () => imageInput.click());
+        dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+        dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+        dropZone.addEventListener('drop', e => {
+            e.preventDefault();
+            dropZone.classList.remove('drag-over');
+            const file = e.dataTransfer.files[0];
+            if (file) { imageInput.files = e.dataTransfer.files; showPreview(file); }
+        });
+        imageInput.addEventListener('change', () => { if (imageInput.files[0]) showPreview(imageInput.files[0]); });
+    }
+    function showPreview(file) {
+        if (!photoPreview) return;
+        const reader = new FileReader();
+        reader.onload = e => { photoPreview.src = e.target.result; photoPreview.style.display = 'block'; };
+        reader.readAsDataURL(file);
+        if (dropZone) dropZone.style.display = 'none';
+    }
+
+    // ══════════════════════════════════════════════
+    // 2. LEAFLET MAP PICKER
+    // ══════════════════════════════════════════════
+
+    // ══════════════════════════════════════════════
+    // 2. LEAFLET GEOJSON POLYGON PICKER
+    // ══════════════════════════════════════════════
+    const distInput = document.getElementById('distribution'); // We will store selected logic here
+    const mapContainer = document.getElementById('map-picker');
+    const getMinZoom = (w) => Math.max(2, Math.ceil(Math.log2(w / 256)));
+    const initialWidth = mapContainer ? mapContainer.offsetWidth : 1024;
+    const initialMinZoom = getMinZoom(initialWidth);
+
+    const map = L.map('map-picker', {
+        zoomControl: true,
+        worldCopyJump: false,
+        maxBounds: [[-90, -180], [90, 180]],
+        maxBoundsViscosity: 1.0,
+        minZoom: initialMinZoom
+    }).setView([10, 0], Math.max(initialMinZoom, 2));
+
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; OpenStreetMap &copy; CARTO',
+        subdomains: 'abcd', maxZoom: 18,
+        noWrap: true
+    }).addTo(map);
+
+    window.addEventListener('resize', () => {
+        const newWidth = mapContainer ? mapContainer.offsetWidth : 1024;
+        const newMinZoom = getMinZoom(newWidth);
+        map.setMinZoom(newMinZoom);
+    });
+
+    let geojsonLayer;
+    let selectedCountries = new Set();
+    
+    // Parse initial countries from the text area if available
+    if(distInput && distInput.value) {
+        let existing = distInput.value.split(',').map(s => s.trim()).filter(s => s);
+        existing.forEach(c => selectedCountries.add(c));
+    }
+
+    function styleFeature(feature) {
+        const isSelected = selectedCountries.has(feature.properties.name);
+        return {
+            fillColor: isSelected ? 'var(--primary-color, #ff6b6b)' : '#333',
+            weight: 1,
+            opacity: 1,
+            color: 'rgba(255,255,255,0.2)',
+            fillOpacity: isSelected ? 0.6 : 0.1
+        };
+    }
+
+    // Load GeoJSON data
+    fetch('/static/data/countries.geo.json')
+        .then(response => response.json())
+        .then(data => {
+            geojsonLayer = L.geoJson(data, {
+                style: styleFeature,
+                onEachFeature: function(feature, layer) {
+                    layer.on({
+                        mouseover: function(e) {
+                            var layer = e.target;
+                            layer.setStyle({
+                                weight: 2,
+                                color: '#fff',
+                                fillOpacity: 0.7
+                            });
+                            if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
+                                layer.bringToFront();
+                            }
+                        },
+                        mouseout: function(e) {
+                            geojsonLayer.resetStyle(e.target);
+                        },
+                        click: function(e) {
+                            const cname = feature.properties.name;
+                            if(selectedCountries.has(cname)) {
+                                selectedCountries.delete(cname);
+                            } else {
+                                selectedCountries.add(cname);
+                            }
+                            geojsonLayer.resetStyle(e.target);
+                            
+                            // Update textarea
+                            if(distInput) {
+                                distInput.value = Array.from(selectedCountries).join(', ');
+                            }
+                        }
+                    });
+                }
+            }).addTo(map);
+        })
+        .catch(err => console.error("Error loading GeoJSON polygons: ", err));
+        
+    // Optionally update coordinates based on first country centroid... 
+    // but the system relies on the names string now!
+    // Auto sync from text input back to map
+    if(distInput) {
+        distInput.addEventListener('input', () => {
+             selectedCountries = new Set( distInput.value.split(',').map(s => s.trim()).filter(s => s) );
+             if(geojsonLayer) {
+                 geojsonLayer.eachLayer(layer => { geojsonLayer.resetStyle(layer); });
+             }
+        });
+    }
+
+    
+    // ══════════════════════════════════════════════
+    // 3. CHARACTER COUNTERS
+    // ══════════════════════════════════════════════
+    function addCounter(textareaId, counterId) {
+        const ta = document.getElementById(textareaId);
+        const cnt = document.getElementById(counterId);
+        if (!ta || !cnt) return;
+        cnt.textContent = ta.value.length;
+        ta.addEventListener('input', () => cnt.textContent = ta.value.length);
+    }
+    addCounter('description', 'desc-count');
+    addCounter('extinction_causes', 'causes-count');
+    addCounter('ecological_impact', 'eco-count');
+    addCounter('fun_facts', 'facts-count');
+
+    // ══════════════════════════════════════════════
+    // 4. AUTO-SAVE DRAFT TO LOCALSTORAGE
+    // ══════════════════════════════════════════════
+    const DRAFT_KEY = 'mammal_form_draft_{{ action }}_{{ mammal.pk|default:"new" }}';
+    const draftStatus = document.getElementById('draftStatus');
+    const form = document.getElementById('mammalForm');
+    const AUTOSAVE_FIELDS = ['common_name', 'binomial_name', 'taxonomy_order', 'description',
+        'habitat', 'distribution', 'extinction_causes', 'size_weight', 'diet', 'extinction_era',
+        'taxonomy_extended', 'ecological_impact', 'conservation_legacy', 'fun_facts',
+        'latitude', 'longitude', 'continent'];
+
+    function saveDraft() {
+        const data = {};
+        AUTOSAVE_FIELDS.forEach(f => {
+            const el = form.querySelector(`[name="${f}"]`);
+            if (el) data[f] = el.value;
+        });
+        localStorage.setItem(DRAFT_KEY, JSON.stringify(data));
+        if (draftStatus) {
+            draftStatus.textContent = 'Rascunho salvo em ' + new Date().toLocaleTimeString();
+            setTimeout(() => { draftStatus.textContent = '💾 Rascunho auto-salvo'; }, 3000);
+        }
+    }
+
+    // Load draft only when creating (not editing existing)
+    {% if action == 'add' %}
+    try {
+        const saved = localStorage.getItem(DRAFT_KEY);
+        if (saved) {
+            const data = JSON.parse(saved);
+            AUTOSAVE_FIELDS.forEach(f => {
+                const el = form.querySelector(`[name="${f}"]`);
+                if (el && data[f] && !el.value) el.value = data[f];
+            });
+        }
+    } catch (e) { }
+    {% endif %}
+
+    let saveTimer;
+    form.addEventListener('input', () => { clearTimeout(saveTimer); saveTimer = setTimeout(saveDraft, 1500); });
+
+    // Clear draft on successful submit
+    form.addEventListener('submit', () => localStorage.removeItem(DRAFT_KEY));
+
+    // ══════════════════════════════════════════════
+    // 5. SIDEBAR ACTIVE HIGHLIGHT ON SCROLL
+    // ══════════════════════════════════════════════
+    const sections = document.querySelectorAll('.form-section[id]');
+    const navLinks = document.querySelectorAll('.sidebar-nav a');
+
+    const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                navLinks.forEach(a => a.classList.remove('active'));
+                const active = document.querySelector(`.sidebar-nav a[href="#${entry.target.id}"]`);
+                if (active) active.classList.add('active');
+            }
+        });
+    }, { rootMargin: '-30% 0px -60% 0px' });
+
+    sections.forEach(sec => observer.observe(sec));
+</script>
+{% endblock %}
