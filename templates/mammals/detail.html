@@ -402,7 +402,7 @@
                 <img src="{% static 'images/' %}{{ mammal.image_filename }}" alt="{% blocktrans with name=mammal.common_name binomial=mammal.binomial_name %}Detailed image of {{ name }} ({{ binomial }}), extinct mammal{% endblocktrans %}. {{ mammal.short_description|default:'' }}" style="max-width: 100%; border-radius: 8px; display: block; margin: 0 auto;">
                 {% else %}
                 <div class="placeholder-image" style="text-align: center; padding: 3rem; background: var(--bg-secondary); border-radius: 8px;">
-                    <span style="font-size: 3rem;">📷</span>
+                    <span style="font-size: 3rem; display: none;"></span>
                     <p style="margin-top: 0.5rem; color: var(--text-light);">{% trans "No image available" %}</p>
                 </div>
                 {% endif %}
@@ -500,7 +500,7 @@
 
             {% if mammal.scientific_references %}
             <section class="detail-section">
-                <h3 id="references-heading">📚 {% trans "Referências Científicas e Bibliográficas" %}</h3>
+                <h3 id="references-heading">{% trans "Referências Científicas e Bibliográficas" %}</h3>
                 <div class="ref-list">
                     {{ mammal.scientific_references|safe }}
                 </div>
@@ -516,19 +516,19 @@
                 <button type="submit" class="btn-favorite {% if is_favorite %}active{% endif %}" 
                         aria-label="{% if is_favorite %}{% blocktrans with name=mammal.common_name %}Remove {{ name }} from favorites{% endblocktrans %}{% else %}{% blocktrans with name=mammal.common_name %}Add {{ name }} to favorites{% endblocktrans %}{% endif %}" 
                         aria-pressed="{% if is_favorite %}true{% else %}false{% endif %}">
-                    {% if is_favorite %}⭐ {% trans "Remove from Favorites" %}{% else %}☆ {% trans "Add to Favorites" %}{% endif %}
+                    {% if is_favorite %}{% trans "Remove from Favorites" %}{% else %}{% trans "Add to Favorites" %}{% endif %}
                 </button>
             </form>
             {% if user.profile.is_admin %}
             <a href="{% url 'mammals:admin_edit_mammal' mammal.pk %}" class="btn-primary" style="margin-left: 10px; text-decoration: none; display: inline-block; vertical-align: middle;">
-                ✏️ {% trans "Edit this animal's page" %}
+                {% trans "Edit this animal's page" %}
             </a>
             {% endif %}
         </div>
         {% endif %}
 
         <div class="comments-section" id="comments-section">
-            <h3>💬 {% trans "Comments" %} ({{ comments|length }})</h3>
+            <h3>{% trans "Comments" %} ({{ comments|length }})</h3>
 
             {% if user.is_authenticated %}
             <form method="post" action="{% url 'mammals:add_comment' mammal.pk %}" class="comment-form" >

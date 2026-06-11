@@ -310,8 +310,14 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
 
-        // Busca em tempo real
-        searchInput.addEventListener("input", performSearch);
+        // Busca em tempo real com debounce para evitar lag
+        let debounceTimer;
+        searchInput.addEventListener("input", () => {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                performSearch();
+            }, 300);
+        });
     }
 
     if (clearBtn) {
@@ -533,7 +539,30 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 // ============================================================================
-// SCROLL REVEAL - ANIMAÇÃO AO ROLAR A PÁGINA
+// PRESERVAR SCROLL EM FORMULÁRIOS
+// ============================================================================
+
+(function initPreserveScroll() {
+    document.addEventListener('submit', function(e) {
+        if (e.target.tagName === 'FORM' && (
+            e.target.action.includes('add_comment') || 
+            e.target.action.includes('delete_comment') || 
+            e.target.action.includes('toggle_favorite')
+        )) {
+            let scrollInput = e.target.querySelector('input[name="scroll_pos"]');
+            if (!scrollInput) {
+                scrollInput = document.createElement('input');
+                scrollInput.type = 'hidden';
+                scrollInput.name = 'scroll_pos';
+                e.target.appendChild(scrollInput);
+            }
+            scrollInput.value = Math.round(window.scrollY || window.pageYOffset);
+        }
+    });
+})();
+
+// ============================================================================
+// SCROLL REVEAL - ANIMAÇÃO AO ROLAR A PÁGINA (OTIMIZADO)
 // ============================================================================
 
 (function initScrollReveal() {
@@ -541,22 +570,48 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (revealElements.length === 0) return;
 
-    const revealOnScroll = () => {
-        const windowHeight = window.innerHeight;
-        const revealPoint = 100;
+    // Usar IntersectionObserver para melhor performance
+    if ('IntersectionObserver' in window) {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                    // Parar de observar após animar
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, {
+            rootMargin: '0px 0px -100px 0px',
+            threshold: 0
+        });
 
         revealElements.forEach(element => {
-            const elementTop = element.getBoundingClientRect().top;
+            observer.observe(element);
+        });
+    } else {
+        // Fallback otimizado com throttle para navegadores antigos
+        let isScrolling = false;
+        
+        const revealOnScroll = () => {
+            const windowHeight = window.innerHeight;
+            const revealPoint = 100;
 
-            if (elementTop < windowHeight - revealPoint) {
-                element.classList.add('active');
+            revealElements.forEach(element => {
+                const elementTop = element.getBoundingClientRect().top;
+                if (elementTop < windowHeight - revealPoint) {
+                    element.classList.add('active');
+                }
+            });
+            isScrolling = false;
+        };
+
+        window.addEventListener('scroll', () => {
+            if (!isScrolling) {
+                window.requestAnimationFrame(revealOnScroll);
+                isScrolling = true;
             }
         });
-    };
-
-    // Revelar elementos visíveis ao carregar
-    revealOnScroll();
-
-    // Revelar elementos ao rolar
-    window.addEventListener('scroll', revealOnScroll);
+        
+        revealOnScroll();
+    }
 })();
