@@ -26,7 +26,7 @@ else:
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1,testserver').split(',')
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1,listextinctanimals.online,www.listextinctanimals.online').split(',')
 if DEBUG:
     ALLOWED_HOSTS = ['*']  # Aceitar qualquer host em modo debug
 
