@@ -257,3 +257,5 @@ if os.environ.get('DATABASE_URL'):
 RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
 if RENDER_EXTERNAL_HOSTNAME:
     ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
+# Configuraues de CSRF para HTTPS no Render
+CSRF_TRUSTED_ORIGINS = ['https://listextinctanimals.online', 'https://www.listextinctanimals.online', 'https://listextinctanimals-online-1.onrender.com']
