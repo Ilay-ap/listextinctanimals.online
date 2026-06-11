@@ -199,8 +199,7 @@ def search(request):
                     'description': description,
                     'image_filename': mammal.image_filename or '',
                     'image_url': mammal.image.url if mammal.image else (
-                        f'/static/images/{
-                            mammal.image_filename}' if mammal.image_filename else ''),
+                        f'/static/images/{mammal.image_filename}' if mammal.image_filename else ''),
                     'continent': mammal.continent or '',
                     'taxonomy_order': mammal.taxonomy_order or '',
                 })
@@ -290,8 +289,7 @@ def admin_add_mammal(request):
                 image=image
             )
             messages.success(
-                request, f'Mamífero "{
-                    mammal.common_name}" adicionado com sucesso!')
+                request, f'Mamífero \"{mammal.common_name}\" adicionado com sucesso!')
             return redirect('mammals:detail', pk=mammal.pk)
         except ValueError as e:
             messages.error(request, f'Erro de validação: {str(e)}')
@@ -352,8 +350,7 @@ def admin_edit_mammal(request, pk):
         try:
             mammal.save()
             messages.success(
-                request, f'Mamífero "{
-                    mammal.common_name}" atualizado com sucesso!')
+                request, f'Mamífero \"{mammal.common_name}\" atualizado com sucesso!')
             return redirect('mammals:detail', pk=mammal.pk)
         except ValueError as e:
             messages.error(request, f'Erro de validação: {str(e)}')

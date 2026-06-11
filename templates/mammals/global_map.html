@@ -99,15 +99,14 @@
     .info-panel {
         display: none;
         position: absolute;
-        top: calc(1.2rem + 36px);
-        right: 0.5rem;
-        width: min(340px, calc(100vw - 40px));
-        background: var(--card-bg);
-        border: 2px solid var(--primary-color);
-        border-radius: 12px;
-        padding: 1.2rem 1.4rem;
-        z-index: 10000;
-        box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+        top: 3.5rem; right: 1.2rem;
+        width: 280px;
+        background: var(--card-bg, #1e293b);
+        border: 1px solid var(--border-color, #334155);
+        border-radius: 8px;
+        padding: 1rem;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        z-index: 10001;
         font-size: 0.9rem;
         line-height: 1.65;
         color: var(--text-color);
@@ -148,18 +147,20 @@
     }
     @media (max-width: 640px) {
         #global-map { height: 400px; }
-        .map-statistics { grid-template-columns: 1fr 1fr; }
+        .map-statistics { grid-template-columns: 1fr 1fr; gap: 1rem; }
         .analytics-title { font-size: 1.7rem; }
-        .dashboard-card h3 { font-size: 1.05rem; }
+        .dashboard-card { padding: 1rem; }
+        .dashboard-card h3 { font-size: 1.05rem; margin-bottom: 0.8rem; }
         .chart-wrapper, .dashboard-card.full-width .chart-wrapper { height: 350px; }
         .species-popup { min-width: 200px; max-width: 280px; }
+        .info-panel { width: 100%; right: 0; top: 3rem; }
     }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="container">
-    <div class="global-map-header" style="position: relative;">
+    <div class="global-map-header" style="position: relative; z-index: 10;">
         <h2>
             {% trans "Global Distribution Map" %}
             <button class="info-btn" onclick="toggleInfo('panel-map', this)">?</button>
