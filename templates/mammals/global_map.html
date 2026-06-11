@@ -90,14 +90,13 @@
         width: 28px; height: 28px; line-height: 28px; text-align: center;
         background: var(--primary-color); color: #fff; border: none;
         border-radius: 50%; font-size: 14px; font-weight: 800;
-        cursor: pointer; z-index: 5;
+        cursor: pointer; z-index: 9999;
         transition: background 0.2s, transform 0.2s;
     }
     .info-btn:hover { background: var(--primary-dark, #6B5435); transform: scale(1.1); }
 
     /* Painel fixo abaixo do ? */
     .info-panel {
-          z-index: 9999;
         display: none;
         position: absolute;
         top: calc(1.2rem + 36px);
@@ -107,7 +106,7 @@
         border: 2px solid var(--primary-color);
         border-radius: 12px;
         padding: 1.2rem 1.4rem;
-        z-index: 100;
+        z-index: 10000;
         box-shadow: 0 8px 32px rgba(0,0,0,0.25);
         font-size: 0.9rem;
         line-height: 1.65;
@@ -151,6 +150,9 @@
         #global-map { height: 400px; }
         .map-statistics { grid-template-columns: 1fr 1fr; }
         .analytics-title { font-size: 1.7rem; }
+        .dashboard-card h3 { font-size: 1.05rem; }
+        .chart-wrapper, .dashboard-card.full-width .chart-wrapper { height: 350px; }
+        .species-popup { min-width: 200px; max-width: 280px; }
     }
 </style>
 {% endblock %}
