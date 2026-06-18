@@ -778,6 +778,7 @@ footer p:first-child {
     .search-input {
         width: 100%;
         flex: 1 1 100%;
+        min-width: 0;
     }
     
     .search-btn, .clear-btn {
@@ -788,9 +789,19 @@ footer p:first-child {
     }
 
     .filter-buttons {
+        display: flex;
         flex-wrap: wrap;
         justify-content: center;
+        gap: 0.5rem;
         padding-bottom: 0.5rem;
+    }
+    
+    .filter-btn {
+        flex: 1 1 calc(50% - 0.25rem);
+        text-align: center;
+        padding: 0.5rem 0.5rem !important;
+        font-size: 0.8rem !important;
+        white-space: normal !important;
     }
     
     .filter-buttons::-webkit-scrollbar {

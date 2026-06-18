@@ -526,8 +526,19 @@ document.addEventListener('click', function(e) {
         // ── A1. Curva de Extinção Biológica ──
         const ctxBio = document.getElementById('biologicalYearChart');
         if (ctxBio && stats.biological_years) {
-            const bioKeys = Object.keys(stats.biological_years).sort((a, b) => parseInt(a) - parseInt(b));
-            const bioVals = bioKeys.map(k => stats.biological_years[k]);
+            let bioKeysRaw = Object.keys(stats.biological_years).map(k => parseInt(k));
+            let minYearBio = Math.min(...bioKeysRaw);
+            let maxYearBio = Math.max(...bioKeysRaw);
+            if (minYearBio < 1500) minYearBio = 1500;
+            if (maxYearBio > 2030) maxYearBio = 2030;
+
+            const bioKeys = [];
+            const bioVals = [];
+            for (let y = minYearBio; y <= maxYearBio; y += 10) {
+                bioKeys.push(y + 's');
+                bioVals.push(stats.biological_years[y + 's'] || 0);
+            }
+
             const grad = ctxBio.getContext('2d').createLinearGradient(0, 0, 0, 400);
             grad.addColorStop(0, 'rgba(220,47,2,0.55)');
             grad.addColorStop(1, 'rgba(220,47,2,0.02)');
@@ -571,8 +582,19 @@ document.addEventListener('click', function(e) {
         // ── A2. Curva de Formalização ──
         const ctxForm = document.getElementById('formalizationYearChart');
         if (ctxForm && stats.formalization_years) {
-            const formKeys = Object.keys(stats.formalization_years).sort((a, b) => parseInt(a) - parseInt(b));
-            const formVals = formKeys.map(k => stats.formalization_years[k]);
+            let formKeysRaw = Object.keys(stats.formalization_years).map(k => parseInt(k));
+            let minYearForm = Math.min(...formKeysRaw);
+            let maxYearForm = Math.max(...formKeysRaw);
+            if (minYearForm < 1500) minYearForm = 1500;
+            if (maxYearForm > 2030) maxYearForm = 2030;
+
+            const formKeys = [];
+            const formVals = [];
+            for (let y = minYearForm; y <= maxYearForm; y += 10) {
+                formKeys.push(y + 's');
+                formVals.push(stats.formalization_years[y + 's'] || 0);
+            }
+
             const gradForm = ctxForm.getContext('2d').createLinearGradient(0, 0, 0, 400);
             gradForm.addColorStop(0, 'rgba(42,157,143,0.55)'); // Teal color for formalization
             gradForm.addColorStop(1, 'rgba(42,157,143,0.02)');

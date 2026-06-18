@@ -584,12 +584,19 @@
 {% endblock %}
 
 {% block extra_js %}
-{% if mammal.distribution or mammal.latitude %}
+{% if mammal.latitude and mammal.longitude %}
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 (function () {
     var mapEl = document.getElementById('distribution-map');
     if (!mapEl) return;
+
+    /* ── Dados da espécie ── */
+    var animalLat  = parseFloat("{{ mammal.latitude|stringformat:'f' }}");
+    var animalLon  = parseFloat("{{ mammal.longitude|stringformat:'f' }}");
+    var animalName = "{{ mammal.common_name|escapejs }}";
+    var animalBin  = "{{ mammal.binomial_name|default:''|escapejs }}";
+    var distribRaw = "{{ mammal.distribution|default:''|escapejs }}";
 
     /* ── Mapa base ── */
     var map = L.map('distribution-map', {
@@ -598,7 +605,7 @@
         worldCopyJump: false,
         maxBounds: [[-90, -180], [90, 180]],
         maxBoundsViscosity: 1.0
-    }).setView([20, 0], 2);
+    }).setView([animalLat, animalLon], 5);
 
     L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png', {
         attribution: '&copy; CARTO', subdomains: 'abcd', maxZoom: 18, noWrap: true
@@ -608,157 +615,45 @@
         attribution: '', subdomains: 'abcd', maxZoom: 18, noWrap: true, zIndex: 400
     }).addTo(map);
 
-    /* ── Dados do animal ── */
-    var distribRaw = "{{ mammal.distribution|default:''|escapejs }}";
-    var hasLat     = {% if mammal.latitude and mammal.longitude %}true{% else %}false{% endif %};
-    var animalLat  = {% if mammal.latitude %}parseFloat("{{ mammal.latitude|stringformat:'f' }}"){% else %}null{% endif %};
-    var animalLon  = {% if mammal.longitude %}parseFloat("{{ mammal.longitude|stringformat:'f' }}"){% else %}null{% endif %};
-    var animalName = "{{ mammal.common_name|escapejs }}";
-    var animalBin  = "{{ mammal.binomial_name|default:''|escapejs }}";
+    /* ── Função para estimar raio do habitat ── */
+    function estimateRadius(distribText) {
+        var t = distribText.toLowerCase();
+        if (t.match(/ilha|island|cay|key|atoll/i))    return 30;
+        if (t.match(/região|region|area|área/i))       return 300;
+        if (t.match(/bacia|basin|valley|vale/i))       return 500;
+        if (t.match(/sul|norte|leste|oeste|central/i)) return 600;
+        return 200; // padrão
+    }
 
-    /* ── Dicionário de países PT → EN (nome GeoJSON) ── */
-    var PT2EN = {
-        'Polônia':'Poland','Alemanha':'Germany','França':'France','Espanha':'Spain',
-        'Itália':'Italy','Reino Unido':'United Kingdom','Grã-Bretanha':'United Kingdom',
-        'Rússia':'Russia','Turquia':'Turkey','Irã':'Iran','Índia':'India','China':'China',
-        'Egito':'Egypt','Marrocos':'Morocco','Áustria':'Austria','Bélgica':'Belgium',
-        'Suécia':'Sweden','Dinamarca':'Denmark','Holanda':'Netherlands','Países Baixos':'Netherlands',
-        'Suíça':'Switzerland','Ucrânia':'Ukraine','Grécia':'Greece','Romênia':'Romania',
-        'Bulgária':'Bulgaria','Hungria':'Hungary','Iraque':'Iraq','Síria':'Syria',
-        'Líbia':'Libya','Tunísia':'Tunisia','Argélia':'Algeria','Portugal':'Portugal',
-        'Japão':'Japan','Coreia do Sul':'South Korea','Coreia do Norte':'North Korea',
-        'Austrália':'Australia','Nova Zelândia':'New Zealand','Brasil':'Brazil',
-        'Argentina':'Argentina','México':'Mexico','Canadá':'Canada',
-        'Estados Unidos':'United States of America','EUA':'United States of America',
-        'USA':'United States of America','África do Sul':'South Africa','Nigéria':'Nigeria',
-        'Quênia':'Kenya','Etiópia':'Ethiopia','Tanzânia':'Tanzania','Madagascar':'Madagascar',
-        'Peru':'Peru','Chile':'Chile','Colômbia':'Colombia','Venezuela':'Venezuela',
-        'Filipinas':'Philippines','Indonésia':'Indonesia','Malásia':'Malaysia',
-        'Tailândia':'Thailand','Mianmar':'Myanmar','Vietnã':'Vietnam',
-        'Cazaquistão':'Kazakhstan','Mongólia':'Mongolia','Nepal':'Nepal',
-        'Paquistão':'Pakistan','Bangladesh':'Bangladesh','Sri Lanka':'Sri Lanka',
-        'Etiópia':'Ethiopia','Somália':'Somalia','Angola':'Angola','Moçambique':'Mozambique',
-        'Zimbábue':'Zimbabwe','Namíbia':'Namibia','Botsuana':'Botswana',
-        'Cuba':'Cuba','Jamaica':'Jamaica','Haiti':'Haiti','Paraguai':'Paraguay',
-        'Bolívia':'Bolivia','Equador':'Ecuador','Uruguai':'Uruguay',
-        'Costa Rica':'Costa Rica','Panamá':'Panama','Guatemala':'Guatemala',
-        'Honduras':'Honduras','El Salvador':'El Salvador','Nicarágua':'Nicaragua',
-        'República Dominicana':'Dominican Republic'
-    };
-
-    /* Tokens da distribuição */
-    var tokens = distribRaw.split(',').map(function(s){ return s.trim(); }).filter(Boolean);
-
-    /* Separar tokens em países conhecidos vs texto livre */
-    var knownCountries = new Set();
-    tokens.forEach(function(t){
-        var en = PT2EN[t] || t;
-        /* Testar se parece um país (sem parênteses, sem texto descritivo) */
-        if (!t.match(/\(|[0-9]|Ilha|ilha|caverna|Caverna|planície|Floresta|floresta|sul da|norte|centro|leste|oeste|região|costeiro|tropical|ilha|arquip|bacia/i)) {
-            knownCountries.add(en);
-        }
-    });
-
-    /* ── Função para mostrar círculo de habitat quando não há país no GeoJSON ── */
-    function showHabitatCircle(lat, lon, radiusKm, label) {
-        if (isNaN(lat) || isNaN(lon)) return null;
-        var radiusM = radiusKm * 1000;
-        var circle = L.circle([lat, lon], {
+    /* ── Desenhar Área de Distribuição ── */
+    if (!isNaN(animalLat) && !isNaN(animalLon)) {
+        var radiusM = estimateRadius(distribRaw) * 1000;
+        
+        // Círculo de Habitat (Área)
+        var circle = L.circle([animalLat, animalLon], {
             radius: radiusM,
             fillColor: '#C4A57B',
             color: '#fff',
             weight: 1.5,
             fillOpacity: 0.45
         }).addTo(map);
-        circle.bindTooltip('<strong>' + label + '</strong>', { sticky: true });
-        return circle;
+
+        // Marcador Central Exato
+        var marker = L.circleMarker([animalLat, animalLon], {
+            radius: 6, fillColor: '#dc2f02',
+            color: '#fff', weight: 2, fillOpacity: 1
+        }).addTo(map);
+
+        var popupContent = '<b>' + animalName + '</b>' +
+            (animalBin ? '<br><em>' + animalBin + '</em>' : '') +
+            '<br><small>' + distribRaw + '</small>';
+
+        marker.bindPopup(popupContent);
+        circle.bindTooltip('<strong>Habitat: ' + distribRaw + '</strong>', { sticky: true });
+
+        // Ajustar zoom para caber a área de distribuição com padding extra
+        map.fitBounds(circle.getBounds(), { padding: [50, 50], maxZoom: 7 });
     }
-
-    /* ── Função para estimar raio com base no tipo de habitat ── */
-    function estimateRadius(distribText) {
-        var t = distribText.toLowerCase();
-        if (t.match(/ilha|island|cay|key|atoll/i))    return 50;   // 50 km para ilhas
-        if (t.match(/região|region|area|área/i))       return 300;
-        if (t.match(/bacia|basin|valley|vale/i))       return 500;
-        if (t.match(/sul|norte|leste|oeste|central/i)) return 600;
-        return 250; // padrão
-    }
-
-    /* ── Carregar GeoJSON e desenhar ── */
-    fetch('{% static "data/countries.geo.json" %}')
-        .then(function(r){ return r.json(); })
-        .then(function(geoData) {
-            var allBounds = [];
-
-            /* Fundo: todos os países em tom escuro */
-            L.geoJson(geoData, {
-                style: {
-                    fillColor: '#1e1810', weight: 0.7,
-                    opacity: 0.6, color: '#4a4035', fillOpacity: 0.4
-                }
-            }).addTo(map);
-
-            /* Países destacados do GeoJSON */
-            var matched = 0;
-            if (knownCountries.size > 0) {
-                var highlightLayer = L.geoJson(geoData, {
-                    filter: function(f){ return knownCountries.has(f.properties.name); },
-                    style: {
-                        fillColor: '#C4A57B', weight: 2,
-                        opacity: 1, color: '#ffffff', fillOpacity: 0.72
-                    },
-                    onEachFeature: function(f, layer) {
-                        layer.bindTooltip('<strong>' + f.properties.name + '</strong>', { sticky: true });
-                        layer.on('mouseover', function(e){ e.target.setStyle({ fillColor: '#8B6F47', fillOpacity: 0.92 }); });
-                        layer.on('mouseout',  function(e){ highlightLayer.resetStyle(e.target); });
-                    }
-                }).addTo(map);
-
-                if (highlightLayer.getBounds().isValid()) {
-                    allBounds.push(highlightLayer.getBounds());
-                    matched = highlightLayer.getLayers().length;
-                }
-            }
-
-            /* Se não encontrou países no GeoJSON E tem coordenadas → círculo de habitat */
-            if (matched === 0 && hasLat && animalLat && !isNaN(animalLat)) {
-                var radius = estimateRadius(distribRaw);
-                var circle = showHabitatCircle(animalLat, animalLon, radius, distribRaw.substring(0, 60));
-                if (circle) allBounds.push(circle.getBounds());
-            }
-
-            /* Marcador puntual do registro (se tiver lat/lon) */
-            if (hasLat && animalLat && !isNaN(animalLat)) {
-                var marker = L.circleMarker([animalLat, animalLon], {
-                    radius: 7, fillColor: '#dc2f02',
-                    color: '#fff', weight: 2, fillOpacity: 1
-                }).addTo(map);
-                marker.bindPopup(
-                    '<b>' + animalName + '</b>' +
-                    (animalBin ? '<br><em>' + animalBin + '</em>' : '') +
-                    '<br><small>' + distribRaw.substring(0, 80) + '</small>'
-                );
-            }
-
-            /* Ajustar zoom para mostrar toda a área */
-            if (allBounds.length > 0) {
-                var combined = allBounds[0];
-                for (var i = 1; i < allBounds.length; i++) combined.extend(allBounds[i]);
-                map.fitBounds(combined, { padding: [30, 30], maxZoom: 8 });
-            } else if (hasLat && animalLat && !isNaN(animalLat)) {
-                map.setView([animalLat, animalLon], 5);
-            }
-        })
-        .catch(function(e) {
-            console.error('Map GeoJSON error:', e);
-            /* Fallback: só ponto */
-            if (hasLat && animalLat && !isNaN(animalLat)) {
-                L.circleMarker([animalLat, animalLon], {
-                    radius: 10, fillColor: '#C4A57B', color: '#fff', weight: 2, fillOpacity: 0.9
-                }).addTo(map).bindPopup('<b>' + animalName + '</b>').openPopup();
-                map.setView([animalLat, animalLon], 5);
-            }
-        });
 
     /* Atualizar mapa ao redimensionar */
     window.addEventListener('resize', function(){ map.invalidateSize(); });
