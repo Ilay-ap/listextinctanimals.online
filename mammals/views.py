@@ -1,22 +1,82 @@
+import json
 import unicodedata
+from collections import Counter
+
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.contrib import messages
-from django.http import JsonResponse, HttpResponseRedirect
+from django.http import JsonResponse, HttpResponseRedirect, HttpResponse
 from django.db.models import Q, Count
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.utils.translation import get_language, gettext_lazy as _
 from django.urls import reverse
+from django.views.decorators.csrf import csrf_exempt
+
+from accounts.models import UserProfile
 from .models import Mammal, Comment, Favorite
 from .decorators import admin_required
 from .translation_service import TranslatedMammal
-from accounts.models import UserProfile
-import json
-import re
-from collections import Counter
-from django.views.decorators.csrf import csrf_exempt
-from django.http import HttpResponse
+
+User = get_user_model()
+
+
+def get_country_from_distribution(distribution):
+    """Retorna o país ou região baseado no campo distribution"""
+    dist_clean = normalize_text(distribution)
+    country_map = {
+        ("australia", "gales do sul", "queensland", "victoria", "tasmania", "macquarie", "ilha christmas", "nova gales"): "Austrália",
+        ("cuba",): "Cuba",
+        ("hispaniola", "republica dominicana", "haiti"): "Hispaniola",
+        ("madagascar",): "Madagascar",
+        ("japao", "japan"): "Japão",
+        ("mexico",): "México",
+        ("brasil",): "Brasil",
+        ("indonesia",): "Indonésia",
+        ("nova zelandia", "new zealand", "maori"): "Nova Zelândia",
+        ("caribe", "porto rico", "jamaica", "barbuda", "antinhas", "antilhas"): "Ilhas do Caribe",
+        ("salomao",): "Ilhas Salomão",
+        ("argentina",): "Argentina",
+        ("peru",): "Peru",
+        ("colombia",): "Colômbia",
+        ("chile",): "Chile",
+        ("falkland", "malvinas"): "Ilhas Malvinas",
+        ("galapagos", "equador"): "Equador (Galápagos)",
+        ("mauricio", "reuniao", "rodrigues"): "Ilhas Mascarenhas",
+        ("argelia", "marrocos", "norte da africa"): "Norte da África",
+        ("russia", "siberia"): "Rússia",
+        ("canada",): "Canadá",
+        ("estados unidos", "eua", "california", "texas"): "Estados Unidos"
+    }
+
+    for keys, val in country_map.items():
+        if any(k in dist_clean for k in keys):
+            return val
+
+    # Fallback
+    parts = str(distribution).split(',', maxsplit=1)
+    return parts[-1].split('(', maxsplit=1)[0].strip() if len(parts) > 1 else str(distribution).split('(', maxsplit=1)[0].strip()
+
+
+def get_continent_from_region(region):
+    """Mapeia as regiões simplificadas para os continentes"""
+    reg = str(region or '').strip()
+    if not reg:
+        return 'Unknown'
+
+    if "Americas" in reg:
+        return 'Américas'
+    if "Asia" in reg:
+        return 'Ásia'
+    if "Europa" in reg:
+        return 'Europa'
+    if "Oceano" in reg or "Australia" in reg:
+        return 'Oceania'
+    if "Madagascar" in reg or "Africa" in reg:
+        return 'África'
+    if "Caribe" in reg:
+        return 'Caribe'
+    return reg
 
 
 def index(request):
@@ -65,7 +125,7 @@ def index(request):
 
 def mammal_detail(request, pk):
     """Página de detalhes de um mamífero"""
-    
+
     # Otimizar query - carregar comentários com usuários em uma query
     mammal_obj = get_object_or_404(
         Mammal.objects.prefetch_related('comments__user'),
@@ -625,70 +685,7 @@ def global_map_data(request):
                 else:
                     lat, lon = 0.0, 0.0
 
-            dist_clean = normalize_text(mammal.distribution)
-            country = "Desconhecido"
-
-            if any(
-                x in dist_clean for x in [
-                    "australia",
-                    "gales do sul",
-                    "queensland",
-                    "victoria",
-                    "tasmania",
-                    "macquarie",
-                    "ilha christmas",
-                    "nova gales"]):
-                country = "Austrália"
-            elif "cuba" in dist_clean:
-                country = "Cuba"
-            elif any(x in dist_clean for x in ["hispaniola", "republica dominicana", "haiti"]):
-                country = "Hispaniola"
-            elif "madagascar" in dist_clean:
-                country = "Madagascar"
-            elif "japao" in dist_clean or "japan" in dist_clean:
-                country = "Japão"
-            elif "mexico" in dist_clean:
-                country = "México"
-            elif "brasil" in dist_clean:
-                country = "Brasil"
-            elif "indonesia" in dist_clean:
-                country = "Indonésia"
-            elif any(x in dist_clean for x in ["nova zelandia", "new zealand", "maori"]):
-                country = "Nova Zelândia"
-            elif any(x in dist_clean for x in ["caribe", "porto rico", "jamaica", "barbuda", "antinhas", "antilhas"]):
-                country = "Ilhas do Caribe"
-            elif "salomao" in dist_clean:
-                country = "Ilhas Salomão"
-            elif "argentina" in dist_clean:
-                country = "Argentina"
-            elif "peru" in dist_clean:
-                country = "Peru"
-            elif "colombia" in dist_clean:
-                country = "Colômbia"
-            elif "chile" in dist_clean:
-                country = "Chile"
-            elif "falkland" in dist_clean or "malvinas" in dist_clean:
-                country = "Ilhas Malvinas"
-            elif "galapagos" in dist_clean or "equador" in dist_clean:
-                country = "Equador (Galápagos)"
-            elif "mauricio" in dist_clean or "reuniao" in dist_clean or "rodrigues" in dist_clean:
-                country = "Ilhas Mascarenhas"
-            elif "argelia" in dist_clean or "marrocos" in dist_clean or "norte da africa" in dist_clean:
-                country = "Norte da África"
-            elif "russia" in dist_clean or "siberia" in dist_clean:
-                country = "Rússia"
-            elif "canada" in dist_clean:
-                country = "Canadá"
-            elif any(x in dist_clean for x in ["estados unidos", "eua", "california", "texas"]):
-                country = "Estados Unidos"
-            else:
-                # Fallback
-                parts = str(mammal.distribution).split(',')
-                if len(parts) > 1:
-                    country = parts[-1].split('(')[0].strip()
-                else:
-                    country = str(mammal.distribution).split('(')[0].strip()
-
+            country = get_country_from_distribution(mammal.distribution)
             location_key = f"{lat}_{lon}"
             location_name = country
 
@@ -727,21 +724,7 @@ def global_map_data(request):
             if not reg:
                 continue
 
-            matched_cont = None
-            if "Americas" in reg:
-                matched_cont = 'Américas'
-            elif "Asia" in reg:
-                matched_cont = 'Ásia'
-            elif "Europa" in reg:
-                matched_cont = 'Europa'
-            elif "Oceano" in reg or "Australia" in reg:
-                matched_cont = 'Oceania'
-            elif "Madagascar" in reg or "Africa" in reg:
-                matched_cont = 'África'
-            elif "Caribe" in reg:
-                matched_cont = 'Caribe'
-            else:
-                matched_cont = reg
+            matched_cont = get_continent_from_region(reg)
 
             if matched_cont not in continent_map:
                 continent_map[matched_cont] = {
@@ -809,72 +792,8 @@ def dashboard_api(request):
     total = mammals.count()
 
     for m in mammals:
-        # 1. Countries
         if m.distribution:
-            dist_clean = normalize_text(m.distribution)
-            country = "Desconhecido"
-
-            if any(
-                x in dist_clean for x in [
-                    "australia",
-                    "gales do sul",
-                    "queensland",
-                    "victoria",
-                    "tasmania",
-                    "macquarie",
-                    "ilha christmas",
-                    "nova gales"]):
-                country = "Austrália"
-            elif "cuba" in dist_clean:
-                country = "Cuba"
-            elif any(x in dist_clean for x in ["hispaniola", "republica dominicana", "haiti"]):
-                country = "Hispaniola"
-            elif "madagascar" in dist_clean:
-                country = "Madagascar"
-            elif "japao" in dist_clean or "japan" in dist_clean:
-                country = "Japão"
-            elif "mexico" in dist_clean:
-                country = "México"
-            elif "brasil" in dist_clean:
-                country = "Brasil"
-            elif "indonesia" in dist_clean:
-                country = "Indonésia"
-            elif any(x in dist_clean for x in ["nova zelandia", "new zealand", "maori"]):
-                country = "Nova Zelândia"
-            elif any(x in dist_clean for x in ["caribe", "porto rico", "jamaica", "barbuda", "antinhas", "antilhas"]):
-                country = "Ilhas do Caribe"
-            elif "salomao" in dist_clean:
-                country = "Ilhas Salomão"
-            elif "argentina" in dist_clean:
-                country = "Argentina"
-            elif "peru" in dist_clean:
-                country = "Peru"
-            elif "colombia" in dist_clean:
-                country = "Colômbia"
-            elif "chile" in dist_clean:
-                country = "Chile"
-            elif "falkland" in dist_clean or "malvinas" in dist_clean:
-                country = "Ilhas Malvinas"
-            elif "galapagos" in dist_clean or "equador" in dist_clean:
-                country = "Equador (Galápagos)"
-            elif "mauricio" in dist_clean or "reuniao" in dist_clean or "rodrigues" in dist_clean:
-                country = "Ilhas Mascarenhas"
-            elif "argelia" in dist_clean or "marrocos" in dist_clean or "norte da africa" in dist_clean:
-                country = "Norte da África"
-            elif "russia" in dist_clean or "siberia" in dist_clean:
-                country = "Rússia"
-            elif "canada" in dist_clean:
-                country = "Canadá"
-            elif any(x in dist_clean for x in ["estados unidos", "eua", "california", "texas"]):
-                country = "Estados Unidos"
-            else:
-                # Fallback
-                parts = str(m.distribution).split(',')
-                if len(parts) > 1:
-                    country = parts[-1].split('(')[0].strip()
-                else:
-                    country = str(m.distribution).split('(')[0].strip()
-
+            country = get_country_from_distribution(m.distribution)
             country_counts[country] += 1
 
         # 2. Ano de Extinção Biológica (agrupado por década)
@@ -889,25 +808,8 @@ def dashboard_api(request):
             decade_str = f"{decade}s"
             formalization_year_counts[decade_str] += 1
 
-        # 4. Continent (usando Region para compatibilidade com a v18)
         if m.region:
-            # Mapeia as regiões simplificadas para os continentes dos gráficos
-            reg = m.region.strip()
-            if "Americas" in reg:
-                continent_counts['Américas'] += 1
-            elif "Asia" in reg:
-                continent_counts['Ásia'] += 1
-            elif "Europa" in reg:
-                continent_counts['Europa'] += 1
-            elif "Oceano" in reg or "Australia" in reg:
-                continent_counts['Oceania'] += 1
-            elif "Madagascar" in reg or "Africa" in reg:
-                continent_counts['África'] += 1
-            elif "Caribe" in reg:
-                continent_counts['Caribe'] += 1
-            else:
-                continent_counts[reg] += 1
-
+            continent_counts[get_continent_from_region(m.region)] += 1
         # 5. Taxonomy
         if m.taxonomy_order:
             taxonomy_counts[m.taxonomy_order] += 1
@@ -949,6 +851,8 @@ def log_js_error(request):
         data = json.loads(request.body)
         with open('js_errors.log', 'a', encoding='utf-8') as f:
             f.write(json.dumps(data) + "\n")
-    except Exception:
+    except json.JSONDecodeError:
+        pass
+    except IOError:
         pass
     return HttpResponse("OK")

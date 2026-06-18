@@ -1,22 +1,27 @@
-from django.db import models
-from django.contrib.auth.models import User
-from django.urls import reverse
-from django.core.cache import cache
 import os
 import uuid
+from django.db import models
+from django.conf import settings
+from django.urls import reverse
 from django.core.exceptions import ValidationError
+
 
 def validate_image_extension(value):
     ext = os.path.splitext(value.name)[1]
     valid_extensions = ['.jpg', '.jpeg', '.png', '.webp']
     if not ext.lower() in valid_extensions:
-        raise ValidationError('Extensão de arquivo não suportada. Apenas JPG, PNG ou WEBP são permitidos.')
+        raise ValidationError(
+            'Extensão de arquivo não suportada. Apenas JPG, PNG ou WEBP são permitidos.')
+
 
 def safe_mammal_image_path(instance, filename):
     """Gera um nome de arquivo seguro via UUID mitigando ataques de Path Traversal"""
+    # pylint: disable=unused-argument
     ext = filename.split('.')[-1].lower()
     filename = f"{uuid.uuid4().hex}.{ext}"
     return os.path.join('mammals', filename)
+
+
 class Mammal(models.Model):
     """Modelo para mamíferos extintos"""
     common_name = models.CharField(
@@ -196,17 +201,17 @@ class Mammal(models.Model):
 
     @property
     def gallery_images(self):
-        import os
-        from django.conf import settings
+        """Retorna imagens adicionais da galeria para o auroque."""
         media_path = os.path.join(settings.MEDIA_ROOT, 'mammals')
         if not os.path.exists(media_path):
             return []
-        
+
         files = os.listdir(media_path)
         images = []
-        
-        if self.binomial_name.lower() == 'bos primigenius':
-            prefixes = ['02_', '03_', '04_', '05_', '06_', '08_', '09_', '10_', '11_', '12_', '13_', '14_', '15_']
+
+        if str(self.binomial_name).lower() == 'bos primigenius':
+            prefixes = ['02_', '03_', '04_', '05_', '06_', '08_',
+                        '09_', '10_', '11_', '12_', '13_', '14_', '15_']
             for f in files:
                 if any(f.startswith(p) for p in prefixes) and f.lower().endswith(('.jpg', '.jpeg', '.png', '.webp')):
                     images.append({
@@ -237,10 +242,10 @@ class Mammal(models.Model):
     @property
     def short_description(self):
         """Retorna uma versão curta da descrição"""
-        if len(self.description) > 200:
-            return self.description[:200] + '...'
-        return self.description
-    
+        desc = str(self.description)
+        if len(desc) > 200:
+            return desc[:200] + '...'
+        return desc
 
 
 class Comment(models.Model):
@@ -252,10 +257,10 @@ class Comment(models.Model):
         verbose_name="Mamífero"
     )
     user = models.ForeignKey(
-        User,
+        settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name='comments',
-        verbose_name="Usuário"
+        help_text="Usuário que fez o comentário"
     )
     content = models.TextField(
         verbose_name="Conteúdo",
@@ -280,10 +285,10 @@ class Comment(models.Model):
 class Favorite(models.Model):
     """Modelo para favoritos (relação N:N entre usuários e mamíferos)"""
     user = models.ForeignKey(
-        User,
+        settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name='favorites',
-        verbose_name="Usuário"
+        help_text="Usuário que favoritou"
     )
     mammal = models.ForeignKey(
         Mammal,
@@ -305,59 +310,3 @@ class Favorite(models.Model):
 
     def __str__(self):
         return f"{self.user.username} favoritou {self.mammal.common_name}"
-
-
-class Rating(models.Model):
-    """Modelo para avaliações de mamíferos pelos usuários"""
-    RATING_CHOICES = [
-        (1, '1 estrela'),
-        (2, '2 estrelas'),
-        (3, '3 estrelas'),
-        (4, '4 estrelas'),
-        (5, '5 estrelas'),
-    ]
-    
-    user = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name='ratings',
-        verbose_name="Usuário"
-    )
-    mammal = models.ForeignKey(
-        Mammal,
-        on_delete=models.CASCADE,
-        related_name='ratings',
-        verbose_name="Mamífero"
-    )
-    score = models.IntegerField(
-        choices=RATING_CHOICES,
-        verbose_name="Pontuação",
-        help_text="Avaliação de 1 a 5 estrelas"
-    )
-    review = models.TextField(
-        blank=True,
-        null=True,
-        verbose_name="Comentário da Avaliação",
-        help_text="Comentário opcional sobre a avaliação"
-    )
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Criado em")
-    updated_at = models.DateTimeField(auto_now=True, verbose_name="Atualizado em")
-
-    class Meta:
-        verbose_name = "Avaliação"
-        verbose_name_plural = "Avaliações"
-        ordering = ['-created_at']
-        unique_together = ['user', 'mammal']
-        indexes = [
-            models.Index(fields=['user']),
-            models.Index(fields=['mammal']),
-            models.Index(fields=['score']),
-        ]
-
-    def __str__(self):
-        return f"{self.user.username} avaliou {self.mammal.common_name} com {self.score} estrelas"
-    
-    @property
-    def stars_display(self):
-        """Retorna representação visual das estrelas"""
-        return '⭐' * self.score + '☆' * (5 - self.score)

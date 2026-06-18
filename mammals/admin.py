@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Mammal, Comment, Favorite, Rating
+from .models import Mammal, Comment, Favorite
 
 
 @admin.register(Mammal)
@@ -32,15 +32,3 @@ class FavoriteAdmin(admin.ModelAdmin):
     ordering = ['-created_at']
     date_hierarchy = 'created_at'
 
-
-@admin.register(Rating)
-class RatingAdmin(admin.ModelAdmin):
-    list_display = ['user', 'mammal', 'score', 'stars_display', 'created_at', 'updated_at']
-    list_filter = ['score', 'created_at', 'updated_at']
-    search_fields = ['user__username', 'mammal__common_name', 'review']
-    ordering = ['-created_at']
-    date_hierarchy = 'created_at'
-    
-    def stars_display(self, obj):
-        return obj.stars_display
-    stars_display.short_description = 'Estrelas'
