@@ -788,12 +788,9 @@ footer p:first-child {
     }
 
     .filter-buttons {
-        flex-wrap: nowrap;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-        scrollbar-width: none;
+        flex-wrap: wrap;
+        justify-content: center;
         padding-bottom: 0.5rem;
-        justify-content: flex-start;
     }
     
     .filter-buttons::-webkit-scrollbar {

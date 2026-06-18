@@ -604,7 +604,26 @@ def global_map_data(request):
             lon = mammal.longitude
 
             if lat is None or lon is None:
-                continue
+                # Fallback coordinates based on region
+                reg = (mammal.region or "").lower()
+                if "caribe" in reg:
+                    lat, lon = 19.0, -73.0
+                elif "australia" in reg:
+                    lat, lon = -25.2, 133.7
+                elif "asia" in reg:
+                    lat, lon = 34.0, 100.0
+                elif "americas" in reg:
+                    lat, lon = 10.0, -75.0
+                elif "madagascar" in reg:
+                    lat, lon = -18.7, 46.8
+                elif "africa" in reg:
+                    lat, lon = 8.7, 20.9
+                elif "oceano" in reg:
+                    lat, lon = -10.0, 160.0
+                elif "europa" in reg:
+                    lat, lon = 50.0, 10.0
+                else:
+                    lat, lon = 0.0, 0.0
 
             dist_clean = normalize_text(mammal.distribution)
             country = "Desconhecido"
@@ -698,48 +717,31 @@ def global_map_data(request):
         locations = list(location_data.values())
 
         # Calcular estatísticas por continente para o heatmap de territórios
-        continent_qs = (
-            Mammal.objects .only(
-                'id',
-                'common_name',
-                'binomial_name',
-                'continent',
-                'image_filename') .exclude(
-                continent__isnull=True) .exclude(
-                continent__exact=''))
+        continent_qs = Mammal.objects.only(
+            'id', 'common_name', 'binomial_name', 'region', 'image_filename'
+        ).all()
         continent_map = {}
 
-        valid_continents = {
-            'América do Norte': 'América do Norte',
-            'North America': 'América do Norte',
-            'América do Sul': 'América do Sul',
-            'South America': 'América do Sul',
-            'Europa': 'Europa',
-            'Europe': 'Europa',
-            'Ásia': 'Ásia',
-            'Asia': 'Ásia',
-            'África': 'África',
-            'Africa': 'África',
-            'Oceania': 'Oceania',
-            'Australia': 'Oceania',
-        }
-
         for m in continent_qs:
-            cont_raw = (m.continent or '').strip()
-            if not cont_raw:
+            reg = (m.region or '').strip()
+            if not reg:
                 continue
 
             matched_cont = None
-            for k, v in valid_continents.items():
-                if k.lower() in cont_raw.lower():
-                    matched_cont = v
-                    break
-
-            if not matched_cont:
-                if 'américa' in cont_raw.lower() or 'america' in cont_raw.lower():
-                    matched_cont = 'América do Norte'
-                else:
-                    continue  # Skip se não for continente válido
+            if "Americas" in reg:
+                matched_cont = 'Américas'
+            elif "Asia" in reg:
+                matched_cont = 'Ásia'
+            elif "Europa" in reg:
+                matched_cont = 'Europa'
+            elif "Oceano" in reg or "Australia" in reg:
+                matched_cont = 'Oceania'
+            elif "Madagascar" in reg or "Africa" in reg:
+                matched_cont = 'África'
+            elif "Caribe" in reg:
+                matched_cont = 'Caribe'
+            else:
+                matched_cont = reg
 
             if matched_cont not in continent_map:
                 continent_map[matched_cont] = {
@@ -875,40 +877,36 @@ def dashboard_api(request):
 
             country_counts[country] += 1
 
-        # 2. Ano de Extinção Biológica (campo estruturado)
+        # 2. Ano de Extinção Biológica (agrupado por década)
         if m.extinction_year:
-            biological_year_counts[str(m.extinction_year)] += 1
+            decade = (m.extinction_year // 10) * 10
+            decade_str = f"{decade}s"
+            biological_year_counts[decade_str] += 1
 
-        # 3. Ano de Formalização (campo estruturado)
+        # 3. Ano de Formalização (agrupado por década)
         if m.formalization_year:
-            formalization_year_counts[str(m.formalization_year)] += 1
+            decade = (m.formalization_year // 10) * 10
+            decade_str = f"{decade}s"
+            formalization_year_counts[decade_str] += 1
 
-        # 4. Continent
-        if m.continent:
-            cont = m.continent.strip()
-            valid_continents = {
-                'América do Norte': 'América do Norte',
-                'North America': 'América do Norte',
-                'América do Sul': 'América do Sul',
-                'South America': 'América do Sul',
-                'Europa': 'Europa',
-                'Europe': 'Europa',
-                'Ásia': 'Ásia',
-                'Asia': 'Ásia',
-                'África': 'África',
-                'Africa': 'África',
-                'Oceania': 'Oceania',
-                'Australia': 'Oceania',
-            }
-            matched = False
-            for k, v in valid_continents.items():
-                if k.lower() in cont.lower():
-                    continent_counts[v] += 1
-                    matched = True
-                    break
-            if not matched:
-                if 'américa' in cont.lower() or 'america' in cont.lower():
-                    continent_counts['América do Norte'] += 1
+        # 4. Continent (usando Region para compatibilidade com a v18)
+        if m.region:
+            # Mapeia as regiões simplificadas para os continentes dos gráficos
+            reg = m.region.strip()
+            if "Americas" in reg:
+                continent_counts['Américas'] += 1
+            elif "Asia" in reg:
+                continent_counts['Ásia'] += 1
+            elif "Europa" in reg:
+                continent_counts['Europa'] += 1
+            elif "Oceano" in reg or "Australia" in reg:
+                continent_counts['Oceania'] += 1
+            elif "Madagascar" in reg or "Africa" in reg:
+                continent_counts['África'] += 1
+            elif "Caribe" in reg:
+                continent_counts['Caribe'] += 1
+            else:
+                continent_counts[reg] += 1
 
         # 5. Taxonomy
         if m.taxonomy_order:
