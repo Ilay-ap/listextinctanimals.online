@@ -1,0 +1,25 @@
+# constants.py
+COUNTRY_MAP = {
+    ("australia", "gales do sul", "queensland", "victoria", "tasmania", "macquarie", "ilha christmas", "nova gales"): "Austrália",
+    ("cuba",): "Cuba",
+    ("hispaniola", "republica dominicana", "haiti"): "Hispaniola",
+    ("madagascar",): "Madagascar",
+    ("japao", "japan"): "Japão",
+    ("mexico",): "México",
+    ("brasil",): "Brasil",
+    ("indonesia",): "Indonésia",
+    ("nova zelandia", "new zealand", "maori"): "Nova Zelândia",
+    ("caribe", "porto rico", "jamaica", "barbuda", "antinhas", "antilhas"): "Ilhas do Caribe",
+    ("salomao",): "Ilhas Salomão",
+    ("argentina",): "Argentina",
+    ("peru",): "Peru",
+    ("colombia",): "Colômbia",
+    ("chile",): "Chile",
+    ("falkland", "malvinas"): "Ilhas Malvinas",
+    ("galapagos", "equador"): "Equador (Galápagos)",
+    ("mauricio", "reuniao", "rodrigues"): "Ilhas Mascarenhas",
+    ("argelia", "marrocos", "norte da africa"): "Norte da África",
+    ("russia", "siberia"): "Rússia",
+    ("canada",): "Canadá",
+    ("estados unidos", "eua", "california", "texas"): "Estados Unidos"
+}

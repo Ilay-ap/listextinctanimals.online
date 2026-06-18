@@ -7,4 +7,3 @@ Este pacote contém testes para:
 - Operações CRUD
 - Banco de dados
 """
-

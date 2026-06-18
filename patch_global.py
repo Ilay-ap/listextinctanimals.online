@@ -1,7 +1,7 @@
 ﻿import os
 import re
 
-with open('mammals/views.py', 'r', encoding='utf-8') as f:
+with open("mammals/views.py", "r", encoding="utf-8") as f:
     content = f.read()
 
 # Fix global_map_data
@@ -61,12 +61,12 @@ new_global = '''def global_map_data(request):
 
 # Instead of exact replace, I'll use regex to nuke the old logic
 content = re.sub(
-    r'def global_map_data.*?if lat is None or lon is None:\s+continue.*?if not location_raw and mammal.distribution:.*?location_raw = mammal.distribution.*?strip\(\)',
+    r"def global_map_data.*?if lat is None or lon is None:\s+continue.*?if not location_raw and mammal.distribution:.*?location_raw = mammal.distribution.*?strip\(\)",
     new_global,
     content,
-    flags=re.DOTALL
+    flags=re.DOTALL,
 )
 
-with open('mammals/views.py', 'w', encoding='utf-8') as f:
+with open("mammals/views.py", "w", encoding="utf-8") as f:
     f.write(content)
 print("global_map_data patched.")

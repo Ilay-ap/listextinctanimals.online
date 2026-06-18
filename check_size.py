@@ -1,6 +1,7 @@
 ﻿import os
 
-def get_size(start_path = '.'):
+
+def get_size(start_path="."):
     total_size = 0
     for dirpath, dirnames, filenames in os.walk(start_path):
         for f in filenames:
@@ -8,6 +9,7 @@ def get_size(start_path = '.'):
             if not os.path.islink(fp):
                 total_size += os.path.getsize(fp)
     return total_size
+
 
 print(f"Total size: {get_size('.') / (1024*1024):.2f} MB")
 print(f"Media size: {get_size('./media') / (1024*1024):.2f} MB")

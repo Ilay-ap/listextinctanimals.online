@@ -1,6 +1,6 @@
-﻿import urllib.request
-import json
+﻿import json
 import time
+import urllib.request
 
 time.sleep(2)
 
@@ -9,6 +9,8 @@ try:
     with urllib.request.urlopen(req) as response:
         data = json.loads(response.read().decode())
         print(f"Total Locations (Points): {data['statistics']['total_locations']}")
-        print(f"Max Concentration per Country: {data['statistics']['max_concentration']}")
+        print(
+            f"Max Concentration per Country: {data['statistics']['max_concentration']}"
+        )
 except Exception as e:
     print(f"Error: {e}")

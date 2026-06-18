@@ -1,21 +1,19 @@
-from django.db import models
 from django.contrib.auth.models import User
+from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 
 class UserProfile(models.Model):
     """Extensão do modelo User para adicionar campo is_admin"""
+
     user = models.OneToOneField(
-        User,
-        on_delete=models.CASCADE,
-        related_name='profile',
-        verbose_name="Usuário"
+        User, on_delete=models.CASCADE, related_name="profile", verbose_name="Usuário"
     )
     is_admin = models.BooleanField(
         default=False,
         verbose_name="É Administrador",
-        help_text="Define se o usuário tem privilégios administrativos"
+        help_text="Define se o usuário tem privilégios administrativos",
     )
 
     class Meta:

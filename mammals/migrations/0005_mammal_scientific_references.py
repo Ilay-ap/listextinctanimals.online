@@ -6,13 +6,21 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('mammals', '0004_mammal_conservation_legacy_mammal_ecological_impact_and_more'),
+        (
+            "mammals",
+            "0004_mammal_conservation_legacy_mammal_ecological_impact_and_more",
+        ),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='mammal',
-            name='scientific_references',
-            field=models.TextField(blank=True, help_text='Referências bibliográficas e científicas da espécie', null=True, verbose_name='Referências Científicas'),
+            model_name="mammal",
+            name="scientific_references",
+            field=models.TextField(
+                blank=True,
+                help_text="Referências bibliográficas e científicas da espécie",
+                null=True,
+                verbose_name="Referências Científicas",
+            ),
         ),
     ]

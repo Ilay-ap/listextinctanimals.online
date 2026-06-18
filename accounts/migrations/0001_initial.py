@@ -15,15 +15,38 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='UserProfile',
+            name="UserProfile",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('is_admin', models.BooleanField(default=False, help_text='Define se o usuário tem privilégios administrativos', verbose_name='É Administrador')),
-                ('user', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='profile', to=settings.AUTH_USER_MODEL, verbose_name='Usuário')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "is_admin",
+                    models.BooleanField(
+                        default=False,
+                        help_text="Define se o usuário tem privilégios administrativos",
+                        verbose_name="É Administrador",
+                    ),
+                ),
+                (
+                    "user",
+                    models.OneToOneField(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="profile",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="Usuário",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Perfil de Usuário',
-                'verbose_name_plural': 'Perfis de Usuários',
+                "verbose_name": "Perfil de Usuário",
+                "verbose_name_plural": "Perfis de Usuários",
             },
         ),
     ]
