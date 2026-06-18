@@ -117,6 +117,38 @@ class Mammal(models.Model):
         verbose_name="Referências Científicas",
         help_text="Referências bibliográficas e científicas da espécie"
     )
+    extinction_year = models.IntegerField(
+        blank=True,
+        null=True,
+        verbose_name="Ano de Extinção Biológica",
+        help_text="Último registro vivo confirmado (ano)"
+    )
+    formalization_year = models.IntegerField(
+        blank=True,
+        null=True,
+        verbose_name="Ano de Formalização",
+        help_text="Ano da declaração formal de extinção (IUCN ou literatura)"
+    )
+    formalization_source = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True,
+        verbose_name="Fonte da Formalização",
+        help_text="Ex: IUCN 2008, lit. 1903"
+    )
+    region = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True,
+        verbose_name="Região",
+        help_text="Região geográfica (Americas, Caribe, Australia, etc.)"
+    )
+    main_cause = models.TextField(
+        blank=True,
+        null=True,
+        verbose_name="Causa Principal",
+        help_text="Causa principal da extinção"
+    )
     continent = models.CharField(
         max_length=100,
         blank=True,

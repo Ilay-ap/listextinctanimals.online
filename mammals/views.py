@@ -797,9 +797,12 @@ def dashboard_api(request):
     mammals = Mammal.objects.all()
 
     country_counts = Counter()
-    era_counts = Counter()
+    biological_year_counts = Counter()
+    formalization_year_counts = Counter()
     continent_counts = Counter()
     taxonomy_counts = Counter()
+    region_counts = Counter()
+    cause_counts = Counter()
 
     total = mammals.count()
 
@@ -872,38 +875,15 @@ def dashboard_api(request):
 
             country_counts[country] += 1
 
-        # 2. Era (agrupada por Ano Exato para o gráfico de curva temporal)
-        if m.extinction_era:
-            era_raw = m.extinction_era.lower()
-            parsed_year = None
+        # 2. Ano de Extinção Biológica (campo estruturado)
+        if m.extinction_year:
+            biological_year_counts[str(m.extinction_year)] += 1
 
-            # Buscar anos exatos (ex: 1931 -> 1931)
-            years = re.findall(r'\b(1[5-9]\d\d|20\d\d)\b', era_raw)
-            if years:
-                parsed_year = int(years[-1])
-            else:
-                # Estimativas se tiver apenas o século
-                if 'xvi' in era_raw or '16' in era_raw:
-                    parsed_year = 1550
-                elif 'xvii' in era_raw or '17' in era_raw:
-                    parsed_year = 1650
-                elif 'xviii' in era_raw or '18' in era_raw:
-                    parsed_year = 1750
-                elif 'xix' in era_raw or '19' in era_raw:
-                    parsed_year = 1850
-                elif 'xx' in era_raw or '20' in era_raw:
-                    parsed_year = 1950
-                elif 'xxi' in era_raw or '21' in era_raw:
-                    parsed_year = 2010
-                elif 'holoceno' in era_raw:
-                    parsed_year = 1500
-                elif 'pleistoceno' in era_raw:
-                    parsed_year = 1500
+        # 3. Ano de Formalização (campo estruturado)
+        if m.formalization_year:
+            formalization_year_counts[str(m.formalization_year)] += 1
 
-            if parsed_year and parsed_year >= 1500:
-                era_counts[str(parsed_year)] += 1
-
-        # 3. Continent
+        # 4. Continent
         if m.continent:
             cont = m.continent.strip()
             valid_continents = {
@@ -930,16 +910,38 @@ def dashboard_api(request):
                 if 'américa' in cont.lower() or 'america' in cont.lower():
                     continent_counts['América do Norte'] += 1
 
-        # 4. Taxonomy
+        # 5. Taxonomy
         if m.taxonomy_order:
             taxonomy_counts[m.taxonomy_order] += 1
+
+        # 6. Region (novo campo)
+        if m.region:
+            region_counts[m.region] += 1
+
+        # 7. Main cause (agrupada)
+        if m.main_cause:
+            cause_raw = m.main_cause.lower()
+            if 'caca' in cause_raw or 'caça' in cause_raw:
+                cause_counts['Caça'] += 1
+            if 'invasor' in cause_raw:
+                cause_counts['Espécies Invasoras'] += 1
+            if 'habitat' in cause_raw or 'desmatamento' in cause_raw:
+                cause_counts['Perda de Habitat'] += 1
+            if 'coloniz' in cause_raw:
+                cause_counts['Colonização'] += 1
+            if 'clima' in cause_raw:
+                cause_counts['Mudança Climática'] += 1
 
     return JsonResponse({
         'total': total,
         'countries': dict(country_counts),
-        'eras': dict(era_counts),
+        'biological_years': dict(biological_year_counts),
+        'formalization_years': dict(formalization_year_counts),
+        'eras': dict(biological_year_counts),  # backward compat
         'continents': dict(continent_counts),
-        'taxonomy': dict(taxonomy_counts)
+        'taxonomy': dict(taxonomy_counts),
+        'regions': dict(region_counts),
+        'causes': dict(cause_counts),
     })
 
 

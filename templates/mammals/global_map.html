@@ -219,19 +219,32 @@
     <div class="analytics-section">
         <div class="dashboards-grid">
 
-            <!-- CURVA DE EXTINÇÃO — largura total -->
+            <!-- CURVA DE EXTINÇÃO BIOLÓGICA — largura total -->
             <div class="dashboard-card full-width">
-                <button class="info-btn" onclick="toggleInfo('panel-era', this)">?</button>
-                <div class="info-panel" id="panel-era">
+                <button class="info-btn" onclick="toggleInfo('panel-bio-era', this)">?</button>
+                <div class="info-panel" id="panel-bio-era">
                     <div class="info-panel-title">
-                        Curva de Extinção no Tempo
-                        <button class="info-panel-close" onclick="closeInfo('panel-era')">✕</button>
+                        Curva de Extinção Biológica
+                        <button class="info-panel-close" onclick="closeInfo('panel-bio-era')">✕</button>
                     </div>
-                    <p>Este gráfico de linha mostra <strong>quantas espécies foram extintas em cada ano</strong>, com registros desde 1500. Cada ponto na curva representa extinções documentadas naquele período.</p>
-                    <p>Uma <strong>subida íngreme</strong> indica períodos de crise ecológica — muitas vezes ligados à expansão colonial, caça industrial e destruição de habitats. O pico no século XX é especialmente dramático e reflete a modernização descuidada.</p>
+                    <p>Este gráfico mostra <strong>quando as espécies foram biologicamente extintas</strong> (ou vistas pela última vez). Cada ponto na curva representa a perda real do animal na natureza.</p>
                 </div>
-                <h3>Curva de Extinção no Tempo (1500 → Hoje)</h3>
-                <div class="chart-wrapper"><canvas id="eraChart"></canvas></div>
+                <h3>Curva de Extinção Biológica (1500 → Hoje)</h3>
+                <div class="chart-wrapper"><canvas id="biologicalYearChart"></canvas></div>
+            </div>
+
+            <!-- CURVA DE FORMALIZAÇÃO — largura total -->
+            <div class="dashboard-card full-width">
+                <button class="info-btn" onclick="toggleInfo('panel-form-era', this)">?</button>
+                <div class="info-panel" id="panel-form-era">
+                    <div class="info-panel-title">
+                        Curva de Formalização Científica
+                        <button class="info-panel-close" onclick="closeInfo('panel-form-era')">✕</button>
+                    </div>
+                    <p>Este gráfico mostra <strong>quando a extinção foi formalmente reconhecida</strong> pela ciência (ex: IUCN). Muitas vezes há um atraso de décadas entre o desaparecimento real e o reconhecimento oficial.</p>
+                </div>
+                <h3>Curva de Formalização Oficial (IUCN / Literatura)</h3>
+                <div class="chart-wrapper"><canvas id="formalizationYearChart"></canvas></div>
             </div>
 
             <!-- BARRAS: CONTINENTES -->
@@ -497,7 +510,7 @@ document.addEventListener('click', function(e) {
         });
 
     function drawCharts(stats) {
-        if (!stats || !stats.eras) { console.warn('Stats data invalid'); return; }
+        if (!stats || !stats.biological_years) { console.warn('Stats data invalid'); return; }
 
         Chart.defaults.color = '#B8A898';
         Chart.defaults.font.family = "'Inter', sans-serif";
@@ -524,20 +537,20 @@ document.addEventListener('click', function(e) {
 
         const gridColor = 'rgba(200,180,150,0.07)';
 
-        // ── A. Curva de Extinção ──
-        const ctxEra = document.getElementById('eraChart');
-        if (ctxEra) {
-            const eraKeys = Object.keys(stats.eras).sort((a, b) => parseInt(a) - parseInt(b));
-            const eraVals = eraKeys.map(k => stats.eras[k]);
-            const grad = ctxEra.getContext('2d').createLinearGradient(0, 0, 0, 400);
+        // ── A1. Curva de Extinção Biológica ──
+        const ctxBio = document.getElementById('biologicalYearChart');
+        if (ctxBio && stats.biological_years) {
+            const bioKeys = Object.keys(stats.biological_years).sort((a, b) => parseInt(a) - parseInt(b));
+            const bioVals = bioKeys.map(k => stats.biological_years[k]);
+            const grad = ctxBio.getContext('2d').createLinearGradient(0, 0, 0, 400);
             grad.addColorStop(0, 'rgba(220,47,2,0.55)');
             grad.addColorStop(1, 'rgba(220,47,2,0.02)');
 
-            new Chart(ctxEra, {
+            new Chart(ctxBio, {
                 type: 'line',
-                data: { labels: eraKeys, datasets: [{
-                    label: 'Espécies Extintas',
-                    data: eraVals,
+                data: { labels: bioKeys, datasets: [{
+                    label: 'Extinções Biológicas',
+                    data: bioVals,
                     borderColor: '#E76F51',
                     backgroundColor: grad,
                     borderWidth: 2.5,
@@ -562,6 +575,51 @@ document.addEventListener('click', function(e) {
                             grid: { color: gridColor },
                             ticks: { beginAtZero: true, font: { size: 11 } },
                             title: { display: true, text: 'Nº de Extinções', color: '#9B8877', font: { size: 11 } }
+                        }
+                    },
+                    animation: { duration: 1600 }
+                }
+            });
+        }
+
+        // ── A2. Curva de Formalização ──
+        const ctxForm = document.getElementById('formalizationYearChart');
+        if (ctxForm && stats.formalization_years) {
+            const formKeys = Object.keys(stats.formalization_years).sort((a, b) => parseInt(a) - parseInt(b));
+            const formVals = formKeys.map(k => stats.formalization_years[k]);
+            const gradForm = ctxForm.getContext('2d').createLinearGradient(0, 0, 0, 400);
+            gradForm.addColorStop(0, 'rgba(42,157,143,0.55)'); // Teal color for formalization
+            gradForm.addColorStop(1, 'rgba(42,157,143,0.02)');
+
+            new Chart(ctxForm, {
+                type: 'line',
+                data: { labels: formKeys, datasets: [{
+                    label: 'Formalizações Oficiais',
+                    data: formVals,
+                    borderColor: '#2A9D8F',
+                    backgroundColor: gradForm,
+                    borderWidth: 2.5,
+                    pointBackgroundColor: '#fff',
+                    pointBorderColor: '#2A9D8F',
+                    pointRadius: 4, pointHoverRadius: 7,
+                    tension: 0.35, fill: true
+                }]},
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                        legend: { labels: { usePointStyle: true } },
+                        tooltip: { ...tooltipCfg }
+                    },
+                    scales: {
+                        x: {
+                            grid: { color: gridColor },
+                            ticks: { maxTicksLimit: 16, maxRotation: 45, font: { size: 10 } }
+                        },
+                        y: {
+                            grid: { color: gridColor },
+                            ticks: { beginAtZero: true, font: { size: 11 } },
+                            title: { display: true, text: 'Nº de Registros', color: '#9B8877', font: { size: 11 } }
                         }
                     },
                     animation: { duration: 1600 }

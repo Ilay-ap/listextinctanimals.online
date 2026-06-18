@@ -469,8 +469,17 @@
                 <h3 id="taxonomy-heading">{% trans "Taxonomy" %}</h3>
                 <p><strong>{% trans "Order" %}:</strong> {{ mammal.taxonomy_order|default:_("Not specified") }}</p>
                 <p><strong>{% trans "Continent" %}:</strong> {{ mammal.continent|default:_("Not specified") }}</p>
-                {% if mammal.extinction_era %}
-                <p><strong>{% trans "Era" %}:</strong> {{ mammal.extinction_era }}</p>
+                {% if mammal.region %}
+                <p><strong>Região:</strong> {{ mammal.region }}</p>
+                {% endif %}
+                {% if mammal.extinction_year %}
+                <p><strong>Ano Biológico de Extinção:</strong> {{ mammal.extinction_year }}</p>
+                {% endif %}
+                {% if mammal.formalization_year %}
+                <p><strong>Ano de Formalização:</strong> {{ mammal.formalization_year }} ({{ mammal.formalization_source }})</p>
+                {% endif %}
+                {% if mammal.main_cause %}
+                <p><strong>Causa Principal:</strong> {{ mammal.main_cause }}</p>
                 {% endif %}
                 {% if mammal.diet %}
                 <p><strong>{% trans "Diet" %}:</strong> {{ mammal.diet }}</p>
