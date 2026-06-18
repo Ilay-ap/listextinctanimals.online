@@ -291,20 +291,6 @@
                 <div class="chart-wrapper"><canvas id="taxonomyChart"></canvas></div>
             </div>
 
-            <!-- POLAR AREA — largura total -->
-            <div class="dashboard-card full-width">
-                <button class="info-btn" onclick="toggleInfo('panel-polar', this)">?</button>
-                <div class="info-panel" id="panel-polar">
-                    <div class="info-panel-title">
-                        Volume Geográfico (Polar)
-                        <button class="info-panel-close" onclick="closeInfo('panel-polar')">✕</button>
-                    </div>
-                    <p>O gráfico de <strong>área polar</strong> projeta a concentração geográfica de extinções. O raio de cada fatia é proporcional ao impacto relativo do continente — diferente de uma barra reta, este visual demonstra a <strong>desigualdade geográfica</strong> das extinções de forma intuitiva.</p>
-                    <p>Clique em um continente na legenda para mostrar/ocultar. Passe o mouse para ver os dados exatos.</p>
-                </div>
-                <h3>Volume Geográfico por Continente (Área Polar)</h3>
-                <div class="chart-wrapper"><canvas id="scatterChart"></canvas></div>
-            </div>
 
         </div>
     </div>
@@ -695,36 +681,7 @@ document.addEventListener('click', function(e) {
             });
         }
 
-        // ── D. Polar Area: Volume Geográfico ──
-        const ctxPolar = document.getElementById('scatterChart');
-        if (ctxPolar) {
-            const cKeys = Object.keys(stats.continents).sort((a, b) => stats.continents[b] - stats.continents[a]);
-            const cVals = cKeys.map(k => stats.continents[k]);
-            new Chart(ctxPolar, {
-                type: 'polarArea',
-                data: { labels: cKeys, datasets: [{
-                    label: 'Extinções por Continente',
-                    data: cVals,
-                    backgroundColor: palette.map(c => c + 'CC'),
-                    borderColor: '#2a1f17', borderWidth: 2
-                }]},
-                options: {
-                    responsive: true, maintainAspectRatio: false,
-                    scales: {
-                        r: {
-                            grid: { color: 'rgba(200,180,150,0.1)' },
-                            ticks: { display: false, backdropColor: 'transparent' },
-                            pointLabels: { color: '#C4B5A0', font: { size: 12 } }
-                        }
-                    },
-                    plugins: {
-                        legend: { position: legendPosition, labels: { usePointStyle: true, font: { size: 12 }, padding: 16 } },
-                        tooltip: { ...tooltipCfg }
-                    },
-                    animation: { duration: 1400 }
-                }
-            });
-        }
+
     }
 })();
 </script>
