@@ -71,32 +71,35 @@
             <button id="clear-btn" class="clear-btn" aria-label="{% trans 'Clear search and filters' %}">✕ {% trans "Clear" %}</button>
         </div>
         
-        <div class="filter-section">
-            <h4>{% trans "Filter by Region:" %}</h4>
-            <div class="filter-buttons" role="group" aria-label="{% trans 'Region filters' %}">
-                <button class="filter-btn" data-filter-type="region" data-filter-value="África" aria-label="{% trans 'Filter by Africa' %}" aria-pressed="false">{% trans "Africa" %}</button>
-                <button class="filter-btn" data-filter-type="region" data-filter-value="América" aria-label="{% trans 'Filter by America' %}" aria-pressed="false">{% trans "America" %}</button>
-                <button class="filter-btn" data-filter-type="region" data-filter-value="Ásia" aria-label="{% trans 'Filter by Asia' %}" aria-pressed="false">{% trans "Asia" %}</button>
-                <button class="filter-btn" data-filter-type="region" data-filter-value="Europa" aria-label="{% trans 'Filter by Europe' %}" aria-pressed="false">{% trans "Europe" %}</button>
-                <button class="filter-btn" data-filter-type="region" data-filter-value="Oceania" aria-label="{% trans 'Filter by Oceania' %}" aria-pressed="false">{% trans "Oceania" %}</button>
-            </div>
-            
-            <h4>{% trans "Filter by Taxonomy:" %}</h4>
-            <div class="filter-buttons" role="group" aria-label="{% trans 'Taxonomy filters' %}">
-                <button class="filter-btn" data-filter-type="taxonomy" data-filter-value="RODENTIA" aria-label="{% trans 'Filter by Rodents' %}" aria-pressed="false">{% trans "Rodents" %}</button>
-                <button class="filter-btn" data-filter-type="taxonomy" data-filter-value="CHIROPTERA" aria-label="{% trans 'Filter by Chiroptera' %}" aria-pressed="false">{% trans "Chiroptera" %}</button>
-                <button class="filter-btn" data-filter-type="taxonomy" data-filter-value="ARTIODACTYLA" aria-label="{% trans 'Filter by Artiodactyls' %}" aria-pressed="false">{% trans "Artiodactyls" %}</button>
-                <button class="filter-btn" data-filter-type="taxonomy" data-filter-value="EULIPOTYPHLA" aria-label="{% trans 'Filter by Eulipotyphlans' %}" aria-pressed="false">{% trans "Eulipotyphlans" %}</button>
-                <button class="filter-btn" data-filter-type="taxonomy" data-filter-value="DIPROTODONTIA" aria-label="{% trans 'Filter by Diprotodonts' %}" aria-pressed="false">{% trans "Diprotodonts" %}</button>
-                <button class="filter-btn" data-filter-type="taxonomy" data-filter-value="CARNIVORA" aria-label="{% trans 'Filter by Carnivores' %}" aria-pressed="false">{% trans "Carnivores" %}</button>
-                <button class="filter-btn" data-filter-type="taxonomy" data-filter-value="PERAMELEMORPHIA" aria-label="{% trans 'Filter by Peramelemorphs' %}" aria-pressed="false">{% trans "Peramelemorphs" %}</button>
-                <button class="filter-btn" data-filter-type="taxonomy" data-filter-value="PRIMATES" aria-label="{% trans 'Filter by Primates' %}" aria-pressed="false">{% trans "Primates" %}</button>
+        <details class="info-card" style="margin-top: 1rem;">
+            <summary><h3>{% trans "Filters" %}</h3></summary>
+            <div class="filter-section" style="margin-top: 1rem;">
+                <h4>{% trans "Filter by Region:" %}</h4>
+                <div class="filter-buttons" role="group" aria-label="{% trans 'Region filters' %}">
+                    <button class="filter-btn" data-filter-type="region" data-filter-value="África" aria-label="{% trans 'Filter by Africa' %}" aria-pressed="false">{% trans "Africa" %}</button>
+                    <button class="filter-btn" data-filter-type="region" data-filter-value="América" aria-label="{% trans 'Filter by America' %}" aria-pressed="false">{% trans "America" %}</button>
+                    <button class="filter-btn" data-filter-type="region" data-filter-value="Ásia" aria-label="{% trans 'Filter by Asia' %}" aria-pressed="false">{% trans "Asia" %}</button>
+                    <button class="filter-btn" data-filter-type="region" data-filter-value="Europa" aria-label="{% trans 'Filter by Europe' %}" aria-pressed="false">{% trans "Europe" %}</button>
+                    <button class="filter-btn" data-filter-type="region" data-filter-value="Oceania" aria-label="{% trans 'Filter by Oceania' %}" aria-pressed="false">{% trans "Oceania" %}</button>
+                </div>
+                
+                <h4>{% trans "Filter by Taxonomy:" %}</h4>
+                <div class="filter-buttons" role="group" aria-label="{% trans 'Taxonomy filters' %}">
+                    <button class="filter-btn" data-filter-type="taxonomy" data-filter-value="RODENTIA" aria-label="{% trans 'Filter by Rodents' %}" aria-pressed="false">{% trans "Rodents" %}</button>
+                    <button class="filter-btn" data-filter-type="taxonomy" data-filter-value="CHIROPTERA" aria-label="{% trans 'Filter by Chiroptera' %}" aria-pressed="false">{% trans "Chiroptera" %}</button>
+                    <button class="filter-btn" data-filter-type="taxonomy" data-filter-value="ARTIODACTYLA" aria-label="{% trans 'Filter by Artiodactyls' %}" aria-pressed="false">{% trans "Artiodactyls" %}</button>
+                    <button class="filter-btn" data-filter-type="taxonomy" data-filter-value="EULIPOTYPHLA" aria-label="{% trans 'Filter by Eulipotyphlans' %}" aria-pressed="false">{% trans "Eulipotyphlans" %}</button>
+                    <button class="filter-btn" data-filter-type="taxonomy" data-filter-value="DIPROTODONTIA" aria-label="{% trans 'Filter by Diprotodonts' %}" aria-pressed="false">{% trans "Diprotodonts" %}</button>
+                    <button class="filter-btn" data-filter-type="taxonomy" data-filter-value="CARNIVORA" aria-label="{% trans 'Filter by Carnivores' %}" aria-pressed="false">{% trans "Carnivores" %}</button>
+                    <button class="filter-btn" data-filter-type="taxonomy" data-filter-value="PERAMELEMORPHIA" aria-label="{% trans 'Filter by Peramelemorphs' %}" aria-pressed="false">{% trans "Peramelemorphs" %}</button>
+                    <button class="filter-btn" data-filter-type="taxonomy" data-filter-value="PRIMATES" aria-label="{% trans 'Filter by Primates' %}" aria-pressed="false">{% trans "Primates" %}</button>
 
-                <button class="filter-btn" data-filter-type="taxonomy" data-filter-value="LAGOMORPHA" aria-label="{% trans 'Filter by Lagomorphs' %}" aria-pressed="false">{% trans "Lagomorphs" %}</button>
-                <button class="filter-btn" data-filter-type="taxonomy" data-filter-value="DASYUROMORPHIA" aria-label="{% trans 'Filter by Dasyuromorphs' %}" aria-pressed="false">{% trans "Dasyuromorphs" %}</button>
-                <button class="filter-btn" data-filter-type="taxonomy" data-filter-value="SIRENIA" aria-label="{% trans 'Filter by Sirenians' %}" aria-pressed="false">{% trans "Sirenians" %}</button>
+                    <button class="filter-btn" data-filter-type="taxonomy" data-filter-value="LAGOMORPHA" aria-label="{% trans 'Filter by Lagomorphs' %}" aria-pressed="false">{% trans "Lagomorphs" %}</button>
+                    <button class="filter-btn" data-filter-type="taxonomy" data-filter-value="DASYUROMORPHIA" aria-label="{% trans 'Filter by Dasyuromorphs' %}" aria-pressed="false">{% trans "Dasyuromorphs" %}</button>
+                    <button class="filter-btn" data-filter-type="taxonomy" data-filter-value="SIRENIA" aria-label="{% trans 'Filter by Sirenians' %}" aria-pressed="false">{% trans "Sirenians" %}</button>
+                </div>
             </div>
-        </div>
+        </details>
     </section>
 
     <section class="mammals-grid" role="region" aria-label="{% trans 'Mammals List' %}">
