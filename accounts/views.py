@@ -7,8 +7,10 @@ from django.utils.translation import activate, get_language
 from django.utils.translation import gettext_lazy as _
 
 from .models import UserProfile
+from django_ratelimit.decorators import ratelimit
 
 
+@ratelimit(key="ip", rate="10/m", block=True)
 def register_view(request):
     """View para registro de novos usuários"""
     if request.user.is_authenticated:
@@ -76,6 +78,7 @@ def register_view(request):
     return render(request, "accounts/register.html")
 
 
+@ratelimit(key="ip", rate="10/m", block=True)
 def login_view(request):
     """View para login de usuários"""
     if request.user.is_authenticated:
@@ -149,6 +152,7 @@ def profile_view(request):
 
 
 @login_required
+@ratelimit(key="ip", rate="10/m", block=True)
 def edit_profile_view(request):
     """View para editar perfil do usuário"""
     user_profile, created = UserProfile.objects.get_or_create(user=request.user)

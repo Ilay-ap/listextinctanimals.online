@@ -10,7 +10,7 @@ from django.core.cache import cache
 
 def get_translation_cache_key(text, source_lang, target_lang):
     """Gera chave única para cache de tradução"""
-    text_hash = hashlib.md5(text.encode("utf-8")).hexdigest()
+    text_hash = hashlib.md5(text.encode("utf-8"), usedforsecurity=False).hexdigest()
     return f"trans_{source_lang}_{target_lang}_{text_hash}"
 
 

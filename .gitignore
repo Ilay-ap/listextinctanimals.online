@@ -1,4 +1,4 @@
-﻿# Python
+# Python
 __pycache__/
 *.py[cod]
 *.class
@@ -8,6 +8,9 @@ __pycache__/
 *.log
 local_settings.py
 .env
+db.sqlite3
+test_db.sqlite3
+scratch/
 
 # Static files
 staticfiles/

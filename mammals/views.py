@@ -13,6 +13,7 @@ from django.urls import reverse
 from django.utils.translation import get_language
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.csrf import csrf_exempt
+from django_ratelimit.decorators import ratelimit
 
 from accounts.models import UserProfile
 
@@ -440,6 +441,7 @@ def admin_delete_user(request, user_id):
 
 
 @login_required
+@ratelimit(key="ip", rate="20/m", block=True)
 def add_comment(request, mammal_id):
     """Adicionar comentário a um mamífero"""
     if request.method == "POST":
@@ -502,6 +504,7 @@ def delete_comment(request, comment_id):
 
 
 @login_required
+@ratelimit(key="ip", rate="20/m", block=True)
 def toggle_favorite(request, mammal_id):
     """Adicionar/remover favorito"""
     if request.method == "POST":

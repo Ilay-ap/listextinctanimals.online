@@ -6,6 +6,7 @@ app_name = "mammals"
 
 urlpatterns = [
     path("log-error/", api.log_js_error, name="log_error"),
+    path("health/", api.health_check, name="health"),
     # Páginas públicas
     path("", views.index, name="index"),
     path("mammal/<int:pk>/", views.mammal_detail, name="detail"),

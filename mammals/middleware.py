@@ -34,7 +34,7 @@ class AutoInitMiddleware:
             try:
                 if Mammal.objects.exists():
                     return
-            except:
+            except Exception:
                 # Tabela não existe, precisa migrar
                 pass
 
@@ -88,3 +88,36 @@ class AutoInitMiddleware:
             import traceback
 
             traceback.print_exc()
+import time
+import logging
+
+logger = logging.getLogger("api.requests")
+
+class RequestLoggingMiddleware:
+    """Middleware para logar tempo de resposta e status HTTP para requisições"""
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        start_time = time.time()
+        
+        response = self.get_response(request)
+        
+        duration = time.time() - start_time
+        
+        # Logar apenas requisições para a API ou /health/
+        if request.path.startswith("/api/") or request.path.startswith("/health/"):
+            logger.info(
+                "API Request",
+                extra={
+                    "method": request.method,
+                    "path": request.path,
+                    "status_code": response.status_code,
+                    "duration_ms": round(duration * 1000, 2),
+                    "user_agent": request.META.get("HTTP_USER_AGENT", ""),
+                    "ip": request.META.get("REMOTE_ADDR", "")
+                }
+            )
+            
+        return response

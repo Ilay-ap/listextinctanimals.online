@@ -208,7 +208,25 @@ Cada espécie possui:
 - pip
 - Git
 
-### Passo a Passo
+
+### Usando Docker (Recomendado para Produção)
+
+`ash
+# 1. Construir e iniciar os contêineres
+docker-compose up -d --build
+
+# 2. Executar as migrações (se necessário, o script de inicialização já cuida disso)
+docker-compose exec web python manage.py migrate
+
+# 3. Criar superusuário
+docker-compose exec web python manage.py createsuperuser
+`
+
+**Acesse**: http://localhost:8000
+**Healthcheck**: http://localhost:8000/health/
+
+### Passo a Passo (Manual)
+
 
 ```bash
 # 1. Clonar repositório

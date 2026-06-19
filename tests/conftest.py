@@ -8,6 +8,21 @@ from django.contrib.auth.models import User
 from accounts.models import UserProfile
 
 
+@pytest.fixture(autouse=True)
+def test_settings(settings):
+    """Sobrescreve settings para o ambiente de testes"""
+    settings.RATELIMIT_ENABLE = False
+    settings.STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
+    settings.STORAGES = {
+        "default": {
+            "BACKEND": "django.core.files.storage.FileSystemStorage",
+        },
+        "staticfiles": {
+            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+        },
+    }
+
+
 @pytest.fixture
 def create_user(db):
     """Fixture para criar usuários de teste"""
