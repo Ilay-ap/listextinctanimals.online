@@ -13,7 +13,7 @@ urlpatterns = [
 ]
 
 urlpatterns += i18n_patterns(
-    path("admin/", admin.site.urls),
+    path("sistema-interno-zoo/", admin.site.urls),
     path("", include("mammals.urls")),
     path("accounts/", include("accounts.urls")),
 )

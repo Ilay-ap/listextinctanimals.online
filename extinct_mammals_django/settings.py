@@ -268,8 +268,10 @@ LOGGING = {
     "handlers": {
         "security_file": {
             "level": "WARNING",
-            "class": "logging.FileHandler",
+            "class": "logging.handlers.RotatingFileHandler",
             "filename": BASE_DIR / "security_incidents.log",
+            "maxBytes": 10485760,  # 10 MB
+            "backupCount": 3,
             "formatter": "security",
         },
         "console": {
@@ -310,7 +312,7 @@ if SENTRY_DSN:
         dsn=SENTRY_DSN,
         integrations=[DjangoIntegration()],
         traces_sample_rate=1.0,
-        send_default_pii=True,
+        send_default_pii=False,
     )
 
 # SECURITY SETTINGS FOR PAYLOADS

@@ -464,16 +464,18 @@ def dashboard_api(request):
     )
 
 
+logger = logging.getLogger("django.security")
+
 @require_POST
 @csrf_exempt
+@ratelimit(key="ip", rate="10/m", block=True)
 def log_js_error(request):
     try:
         data = json.loads(request.body)
-        with open("js_errors.log", "a", encoding="utf-8") as f:
-            f.write(json.dumps(data) + "\n")
+        logger.warning(f"JS Error: {json.dumps(data)}")
     except json.JSONDecodeError:
         pass
-    except IOError:
+    except Exception:
         pass
     return HttpResponse("OK")
 
