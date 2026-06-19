@@ -2,164 +2,71 @@
 
 Status: Em Produção
 Data: Junho de 2026
-Repositório: https://github.com/Ilay-ap/Cat-logo-Digital-de-Mam-feros-Extintos-desde-1500
-Site em Produção: https://extinct-mammals.onrender.com
+Repositório: https://github.com/Ilay-ap/listextinctanimals.online
+Site em Produção: https://listextinctanimals-online-1.onrender.com
 
 ---
 
 ## Sobre o Projeto
 
-Catálogo digital interativo focado na compilação de 114 mamíferos extintos desde o ano 1500. A aplicação foi desenvolvida no formato Progressive Web Application (PWA) utilizando o framework Django e documenta dados taxonômicos, geográficos e causais sobre a extinção destas espécies, servindo como ferramenta de pesquisa e conscientização.
+Catálogo digital interativo compilando 114 mamíferos extintos desde o ano 1500, operando como uma Progressive Web Application (PWA) baseada em Django. A aplicação documenta dados geográficos, taxonômicos e causas de extinção, apoiada por registros validados.
 
-### Características Principais
-
-- 114 espécies catalogadas com verificação baseada em registros de distribuição geográfica oficial.
-- Mapeamento geoespacial rigoroso englobando 80 localidades globais exclusivas via Nominatim API.
-- Hospedagem em arquitetura na nuvem (Render + PostgreSQL).
-- Tradução automática assíncrona (PT-BR / EN) através da Google Translate API.
-- Sistema de busca indexada e filtros múltiplos (região, taxonomia e época de extinção).
-- Painel para usuários autenticados gerenciarem comentários e lista de favoritos.
-- Nível de Acessibilidade aderente à especificação WCAG 2.1 Nível AA.
-- Conjunto de testes automatizados estruturado em Pytest.
+### Destaques
+- 114 espécies catalogadas com base na IUCN.
+- Mapeamento geográfico de 80 localidades via Nominatim API e clusterização dinâmica.
+- Banco de Dados PostgreSQL em arquitetura Cloud (Render).
+- Integração assíncrona com a Google Translate API (PT-BR / EN).
+- Autenticação de usuários para comentários e marcação de favoritos.
+- Conformidade com acessibilidade WCAG 2.1 (AA).
+- Cobertura de 81 testes automatizados (~1860 linhas de asserção em Pytest).
 
 ---
 
-## Acesso em Produção
+## Estrutura Técnica
 
-URL: https://extinct-mammals.onrender.com
-
-A infraestrutura atual está configurada sob os seguintes parâmetros:
-- Hospedagem: Render
-- Banco de Dados: PostgreSQL 15 (Instância na Nuvem)
-- Protocolo: HTTPS obrigatório (com configurações de HSTS habilitadas)
-- Pipeline de Deploy: CI/CD integrado ao GitHub
-
-Para utilização do PWA offline, acesse a URL via navegador e utilize a função nativa de "Instalar aplicativo".
+- **Backend:** Python 3.11, Django 5.0, Gunicorn, PostgreSQL 15, WhiteNoise.
+- **Frontend:** HTML5, CSS3, ES6+, Leaflet.js (Mapas).
+- **Segurança:** Configurações HSTS, restrições CSRF rigorosas, hashing Argon2 e Rate Limiting ativo em endpoints sensíveis.
 
 ---
 
-## Módulos do Sistema
+## Instalação Local (Desenvolvimento)
 
-### 1. Mapa Global Georreferenciado
-Interface que renderiza 80 localizações distintas utilizando clusterização dinâmica (Leaflet.markercluster). O sistema processa um mapa de calor que reflete com precisão as áreas de concentração dos habitats extintos, sem sobreposição artificial.
-
-### 2. Catálogo e Pesquisa
-Módulo responsável por indexar os 114 registros da tabela. Permite pesquisa por nome comum, nome científico e aplicação de filtros combinados baseados em regiões e classes taxonômicas.
-
-### 3. Fichas de Detalhamento Individual
-Cada mamífero possui uma visualização dedicada contendo seus metadados completos, incluindo causa principal do desaparecimento, continente e a delimitação de sua ocorrência histórica via mapa individual (Leaflet).
-
-### 4. Segurança e Auditoria
-As rotas de requisição e autenticação do sistema possuem camadas de segurança configuradas com proteção contra CSRF, controle de tráfego por IP (Rate Limiting de 10 requisições por minuto em endpoints sensíveis), rotação restrita de logs contra exaustão de disco e hashing moderno de senhas com Argon2.
-
----
-
-## Tecnologias Utilizadas
-
-### Backend
-- Python 3.11
-- Django 5.0
-- PostgreSQL 15
-- Gunicorn (Servidor WSGI)
-- WhiteNoise (Compressão e fornecimento de arquivos estáticos)
-
-### Frontend
-- HTML5 Semântico
-- CSS3
-- JavaScript (ES6+)
-- Leaflet.js
-
-### APIs e Integrações Externas
-- Nominatim API (OpenStreetMap)
-- Google Translate API
-- Service Workers e Manifest (PWA)
-
-### Testes
-- Pytest / pytest-django
-
----
-
-## Instalação Local (Ambiente de Desenvolvimento)
-
-### Pré-requisitos
-- Python 3.11 ou superior
-- Git
-
-### Procedimento
-
-1. Clone o repositório em sua máquina:
+1. **Clonar e Acessar:**
 ```bash
-git clone https://github.com/Ilay-ap/Cat-logo-Digital-de-Mam-feros-Extintos-desde-1500.git
-cd Cat-logo-Digital-de-Mam-feros-Extintos-desde-1500
+git clone https://github.com/Ilay-ap/listextinctanimals.online.git
+cd listextinctanimals.online
 ```
 
-2. Crie e ative o ambiente virtual:
+2. **Ambiente Virtual e Dependências:**
 ```bash
 python -m venv venv
-# Linux ou macOS
-source venv/bin/activate
-# Windows
-venv\Scripts\activate
-```
-
-3. Instale as dependências listadas:
-```bash
+source venv/bin/activate  # macOS/Linux
+# venv\Scripts\activate   # Windows
 pip install -r requirements.txt
 ```
 
-4. Configure o arquivo de variáveis de ambiente (`.env`) na raiz do diretório com os seguintes dados básicos:
+3. **Variáveis de Ambiente (.env na raiz):**
 ```env
-SECRET_KEY=chave-secreta-de-desenvolvimento
+SECRET_KEY=sua_chave_secreta
 DEBUG=True
 DATABASE_URL=sqlite:///db.sqlite3
 ALLOWED_HOSTS=localhost,127.0.0.1
 ```
 
-5. Aplique as migrações no banco de dados local:
+4. **Migrações e Execução:**
 ```bash
 python manage.py migrate
-```
-
-6. Crie o superusuário para acesso ao painel de administração:
-```bash
 python manage.py createsuperuser
-```
-
-7. Inicie o servidor local:
-```bash
 python manage.py runserver
 ```
-
-A aplicação estará disponível no endereço http://localhost:8000.
-
----
-
-## Testes
-
-O ambiente conta com testes de software automatizados via Pytest para validar as rotinas de banco, views e formulários.
-
-Para executar todos os testes da aplicação:
-```bash
-pytest tests/ -v
-```
+Acesse em: http://localhost:8000
 
 ---
 
-## Arquitetura de Diretórios
+## Manutenção de Dados
 
-- `/extinct_mammals_django`: Configurações globais e de segurança da aplicação.
-- `/mammals`: Lógica de negócios central, modelos do banco de dados de mamíferos, endpoints da API e integrações de mapas e tradução.
-- `/accounts`: Funcionalidades de autenticação de usuários, perfil, e registro.
-- `/templates`: Arquivos HTML do projeto integrados com tags nativas do Django.
-- `/static`: Scripts customizados (JS), folha de estilos padronizada (CSS) e imagens das espécies.
-- `/tests`: Suíte de arquivos de validação e garantia de qualidade (QA).
-- `/scratch`: Scripts de migração e auditoria de base de dados para ambiente de desenvolvimento.
-
----
-
-## Gestão de Dados e Contribuições
-
-Os dados de produção baseiam-se estritamente na versão auditada `mamiferos_extintos_v18.txt`. Alterações diretas em metadados de espécies ou coordenadas devem ser comprovadas por dados paleontológicos ou referências da IUCN. Mudanças na estrutura de software podem ser submetidas via sistema de Pull Requests do repositório no GitHub.
+A base estrutural de dados repousa sobre a versão atual do arquivo `mamiferos_extintos_v18.txt`. Adições e alterações de metadados devem seguir validações paleobiológicas oficiais antes de qualquer Pull Request.
 
 Autor: Ilay-ap  
 Contato: Ilay.pag@gmail.com
