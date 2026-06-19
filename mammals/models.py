@@ -290,7 +290,8 @@ class Mammal(models.Model):
     @property
     def short_description(self):
         """Retorna uma versão curta da descrição"""
-        desc = str(self.description)
+        from django.utils.html import strip_tags
+        desc = strip_tags(str(self.description)).strip()
         if len(desc) > 200:
             return desc[:200] + "..."
         return desc

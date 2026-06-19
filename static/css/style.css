@@ -2027,3 +2027,52 @@ img {
     text-transform: uppercase;
     letter-spacing: 1px;
 }
+
+/* ==========================================================================
+   Table Styles (Markdown Generated)
+   ========================================================================== */
+.card-body table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.5rem 0;
+    font-size: 0.95rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    border-radius: var(--border-radius, 8px);
+    overflow: hidden;
+    display: block;
+    overflow-x: auto;
+}
+
+.card-body table th,
+.card-body table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.card-body table th {
+    background-color: var(--primary-color, #2E7D32);
+    color: white;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.05em;
+}
+
+.card-body table tbody tr {
+    background-color: var(--card-bg);
+    transition: background-color 0.2s ease;
+}
+
+.card-body table tbody tr:nth-of-type(even) {
+    background-color: var(--bg-color);
+}
+
+.card-body table tbody tr:hover {
+    background-color: rgba(46, 125, 50, 0.05);
+}
+
+/* Dark mode support */
+[data-theme="dark"] .card-body table tbody tr:hover {
+    background-color: rgba(129, 199, 132, 0.1);
+}
