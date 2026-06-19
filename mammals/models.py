@@ -93,22 +93,19 @@ class Mammal(models.Model):
         verbose_name="Foto/Imagem Oficial",
         help_text="Faça upload de uma foto para o mamífero",
     )
-    size_weight = models.CharField(
-        max_length=255,
+    size_weight = models.TextField(
         blank=True,
         null=True,
         verbose_name="Tamanho e Peso",
         help_text="Ex: 1,5m de altura, 200kg",
     )
-    diet = models.CharField(
-        max_length=255,
+    diet = models.TextField(
         blank=True,
         null=True,
         verbose_name="Dieta",
         help_text="O que este animal comia? (ex: Herbívoro, Carnívoro...)",
     )
-    extinction_era = models.CharField(
-        max_length=255,
+    extinction_era = models.TextField(
         blank=True,
         null=True,
         verbose_name="Época da Extinção",
@@ -236,19 +233,8 @@ class Mammal(models.Model):
 
         if str(self.binomial_name).lower() == "bos primigenius":
             prefixes = [
-                "02_",
-                "03_",
-                "04_",
-                "05_",
-                "06_",
-                "08_",
-                "09_",
-                "10_",
-                "11_",
-                "12_",
-                "13_",
-                "14_",
-                "15_",
+                "02_", "03_", "04_", "05_", "06_", "08_", "09_", "10_",
+                "11_", "12_", "13_", "14_", "15_",
             ]
             for f in files:
                 if any(f.startswith(p) for p in prefixes) and f.lower().endswith(
@@ -261,6 +247,23 @@ class Mammal(models.Model):
                             "caption": self._get_caption_for_file(f),
                         }
                     )
+        else:
+            slug = str(self.binomial_name).lower().replace(' ', '_')
+            prefix = f"{slug}_gallery_"
+            for f in files:
+                if f.startswith(prefix) and f.lower().endswith(
+                    (".jpg", ".jpeg", ".png", ".webp")
+                ):
+                    # Generate a simple caption from the filename
+                    simple_caption = f.replace(prefix, '').replace('_', ' ').rsplit('.', 1)[0].title()
+                    images.append(
+                        {
+                            "url": f"{settings.MEDIA_URL}mammals/{f}",
+                            "filename": f,
+                            "caption": simple_caption,
+                        }
+                    )
+                    
         return sorted(images, key=lambda x: x["url"])
 
     def _get_caption_for_file(self, filename):
