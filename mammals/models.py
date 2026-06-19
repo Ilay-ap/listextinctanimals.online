@@ -223,12 +223,15 @@ class Mammal(models.Model):
 
     @property
     def gallery_images(self):
-        """Retorna imagens adicionais da galeria para o auroque."""
-        media_path = os.path.join(settings.MEDIA_ROOT, "mammals")
-        if not os.path.exists(media_path):
+        """Retorna imagens adicionais da galeria para os mamíferos."""
+        import os
+        from django.conf import settings
+        
+        static_path = os.path.join(settings.BASE_DIR, "static", "images", "mammals_gallery")
+        if not os.path.exists(static_path):
             return []
 
-        files = os.listdir(media_path)
+        files = os.listdir(static_path)
         images = []
 
         if str(self.binomial_name).lower() == "bos primigenius":
@@ -242,8 +245,8 @@ class Mammal(models.Model):
                 ):
                     images.append(
                         {
-                            "url": f"{settings.MEDIA_URL}mammals/{f}",
-                            "filename": f,
+                            "url": f"{settings.STATIC_URL}images/mammals_gallery/{f}",
+                            "filename": f"mammals_gallery/{f}",
                             "caption": self._get_caption_for_file(f),
                         }
                     )
@@ -258,8 +261,8 @@ class Mammal(models.Model):
                     simple_caption = f.replace(prefix, '').replace('_', ' ').rsplit('.', 1)[0].title()
                     images.append(
                         {
-                            "url": f"{settings.MEDIA_URL}mammals/{f}",
-                            "filename": f,
+                            "url": f"{settings.STATIC_URL}images/mammals_gallery/{f}",
+                            "filename": f"mammals_gallery/{f}",
                             "caption": simple_caption,
                         }
                     )
