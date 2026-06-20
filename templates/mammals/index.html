@@ -6,53 +6,12 @@
 
 {% block content %}
 <div class="container">
-    <section class="hero" style="padding: 1.5rem 2rem; margin-bottom: 1.5rem;" role="region" aria-label="{% trans 'Introduction' %}">
-        <h2 style="margin-bottom: 0; font-size: 2.2rem;">{% trans "Digital Catalog of Extinct Mammals since 1500" %}</h2>
+    <section class="hero" style="padding: 2.5rem 2rem; margin-bottom: 2rem;" role="region" aria-label="{% trans 'Introduction' %}">
+        <h2 style="margin-bottom: 0; font-size: 2.4rem;">{% trans "Digital Catalog of Extinct Mammals since 1500" %}</h2>
     </section>
 
-    <section class="info-section" role="region" aria-label="{% trans 'Project Information' %}">
+    <section class="control-bar-section" role="search" aria-label="{% trans 'Search and Filters' %}">
         <style>
-            .info-card {
-                cursor: pointer;
-            }
-            .info-card summary {
-                list-style: none;
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-            }
-            .info-card summary::-webkit-details-marker {
-                display: none;
-            }
-            .info-card summary h3 {
-                margin-bottom: 0;
-            }
-            .info-card summary::after {
-                content: '+';
-                font-size: 1.5rem;
-                color: #2E7D32;
-                font-weight: bold;
-                transition: transform 0.3s ease;
-            }
-            .info-card[open] summary::after {
-                transform: rotate(45deg);
-            }
-            .info-card p {
-                margin-top: 1rem;
-                animation: fadeIn 0.3s ease-in-out;
-            }
-            @keyframes fadeIn {
-                from { opacity: 0; transform: translateY(-10px); }
-                to { opacity: 1; transform: translateY(0); }
-            }
-            [data-theme="dark"] .info-card summary::after {
-                color: var(--text-color);
-            }
-
-            [data-theme="dark"] .info-card summary::after {
-                color: var(--text-color);
-            }
-
             .unified-toolbar {
                 display: flex;
                 flex-wrap: wrap;
@@ -160,12 +119,6 @@
                 }
             }
         </style>
-        <details class="info-card">
-            <summary><h3>{% trans "Why does this matter?" %}</h3></summary>
-            <p>
-                {% trans "Species extinction is an irreversible process that results in the permanent loss of biodiversity. Since 1500, human activity has been the main cause of mammal extinction, through habitat destruction, overhunting, introduction of invasive species and climate change. Understanding these losses helps us prevent future extinctions and protect the species that still exist today." %}
-            </p>
-        </details>
     </section>
 
     <section class="control-bar-section" role="search" aria-label="{% trans 'Search and Filters' %}">
