@@ -48,6 +48,117 @@
             [data-theme="dark"] .info-card summary::after {
                 color: var(--text-color);
             }
+
+            [data-theme="dark"] .info-card summary::after {
+                color: var(--text-color);
+            }
+
+            .unified-toolbar {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: space-between;
+                align-items: center;
+                gap: 1.5rem;
+                margin: 2rem 0;
+                padding: 1rem 1.5rem;
+                background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--card-bg) 100%);
+                border-radius: 12px;
+                box-shadow: var(--shadow-md);
+                border: 1px solid var(--border-color);
+            }
+            .toolbar-search {
+                display: flex;
+                flex: 1 1 350px;
+                gap: 0.5rem;
+            }
+            .toolbar-actions {
+                display: flex;
+                flex-wrap: wrap;
+                align-items: center;
+                gap: 1.5rem;
+            }
+            .filter-dropdown {
+                position: relative;
+                margin: 0;
+            }
+            .filter-dropdown summary {
+                list-style: none;
+                cursor: pointer;
+                background-color: var(--card-bg);
+                color: var(--primary-color);
+                padding: 0.5rem 1rem;
+                border-radius: 6px;
+                font-weight: 600;
+                font-size: 1rem;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                transition: var(--transition);
+                border: 2px solid var(--border-color);
+            }
+            .filter-dropdown summary:hover {
+                border-color: var(--primary-color);
+            }
+            .filter-dropdown summary::-webkit-details-marker {
+                display: none;
+            }
+            .filter-dropdown summary::after {
+                content: '▾';
+                font-size: 1.2rem;
+                transition: transform 0.3s ease;
+                color: var(--primary-color);
+            }
+            .filter-dropdown[open] summary::after {
+                transform: rotate(180deg);
+            }
+            .filter-dropdown-content {
+                position: absolute;
+                top: 120%;
+                left: 50%;
+                transform: translateX(-50%);
+                width: max-content;
+                max-width: 90vw;
+                background-color: var(--card-bg);
+                padding: 1.5rem;
+                border-radius: 12px;
+                box-shadow: var(--shadow-lg);
+                border: 1px solid var(--border-color);
+                z-index: 100;
+                animation: fadeIn 0.2s ease-in-out;
+            }
+            .filter-dropdown-content h4 {
+                font-size: 1.1rem;
+                color: var(--primary-color);
+                margin-bottom: 0.9rem;
+                margin-top: 1.25rem;
+                font-weight: 600;
+            }
+            .filter-dropdown-content h4:first-child {
+                margin-top: 0;
+            }
+            @media (max-width: 900px) {
+                .unified-toolbar {
+                    flex-direction: column;
+                    align-items: stretch;
+                }
+                .toolbar-actions {
+                    justify-content: space-between;
+                }
+                .filter-dropdown-content {
+                    left: auto;
+                    right: 0;
+                    transform: none;
+                }
+            }
+            @media (max-width: 600px) {
+                .toolbar-actions {
+                    flex-direction: column;
+                    align-items: stretch;
+                }
+                .pagination-nav {
+                    justify-content: center;
+                }
+            }
         </style>
         <details class="info-card">
             <summary><h3>{% trans "Why does this matter?" %}</h3></summary>
@@ -57,80 +168,84 @@
         </details>
     </section>
 
-    <section class="search-section" role="search" aria-label="{% trans 'Search and Filters' %}">
-        <div class="search-container">
-            <input 
-                type="text" 
-                id="search-input" 
-                class="search-input" 
-                placeholder="{% trans 'Search by name, description, habitat or distribution...' %}"
-                autocomplete="off"
-                aria-label="{% trans 'Mammal search field' %}"
-            >
-            <button id="search-btn" class="search-btn" aria-label="{% trans 'Perform search' %}">{% trans "Search" %}</button>
-            <button id="clear-btn" class="clear-btn" aria-label="{% trans 'Clear search and filters' %}">✕ {% trans "Clear" %}</button>
-        </div>
-        
-        <details class="info-card" style="margin-top: 1rem;">
-            <summary><h3>{% trans "Filters" %}</h3></summary>
-            <div class="filter-section" style="margin-top: 1rem;">
-                <h4>{% trans "Filter by Region:" %}</h4>
-                <div class="filter-buttons" role="group" aria-label="{% trans 'Region filters' %}">
-                    <button class="filter-btn" data-filter-type="region" data-filter-value="África" aria-label="{% trans 'Filter by Africa' %}" aria-pressed="false">{% trans "Africa" %}</button>
-                    <button class="filter-btn" data-filter-type="region" data-filter-value="América" aria-label="{% trans 'Filter by America' %}" aria-pressed="false">{% trans "America" %}</button>
-                    <button class="filter-btn" data-filter-type="region" data-filter-value="Ásia" aria-label="{% trans 'Filter by Asia' %}" aria-pressed="false">{% trans "Asia" %}</button>
-                    <button class="filter-btn" data-filter-type="region" data-filter-value="Europa" aria-label="{% trans 'Filter by Europe' %}" aria-pressed="false">{% trans "Europe" %}</button>
-                    <button class="filter-btn" data-filter-type="region" data-filter-value="Oceania" aria-label="{% trans 'Filter by Oceania' %}" aria-pressed="false">{% trans "Oceania" %}</button>
+    <section class="control-bar-section" role="search" aria-label="{% trans 'Search and Filters' %}">
+        <div class="unified-toolbar" id="pagination-wrapper">
+            
+            <!-- 1. Search Bar -->
+            <div class="toolbar-search">
+                <input 
+                    type="text" 
+                    id="search-input" 
+                    class="search-input" 
+                    placeholder="{% trans 'Search by name, description, habitat or distribution...' %}"
+                    autocomplete="off"
+                    aria-label="{% trans 'Mammal search field' %}"
+                    style="flex: 1; min-width: 0;"
+                >
+                <button id="search-btn" class="search-btn" aria-label="{% trans 'Perform search' %}">{% trans "Search" %}</button>
+                <button id="clear-btn" class="clear-btn" aria-label="{% trans 'Clear search and filters' %}">✕ {% trans "Clear" %}</button>
+            </div>
+            
+            <div class="toolbar-actions">
+                <!-- 2. Filters Dropdown -->
+                <details class="filter-dropdown">
+                    <summary>{% trans "Filters" %}</summary>
+                    <div class="filter-dropdown-content">
+                        <h4>{% trans "Filter by Region:" %}</h4>
+                        <div class="filter-buttons" role="group" aria-label="{% trans 'Region filters' %}">
+                            <button class="filter-btn" data-filter-type="region" data-filter-value="África" aria-label="{% trans 'Filter by Africa' %}" aria-pressed="false">{% trans "Africa" %}</button>
+                            <button class="filter-btn" data-filter-type="region" data-filter-value="América" aria-label="{% trans 'Filter by America' %}" aria-pressed="false">{% trans "America" %}</button>
+                            <button class="filter-btn" data-filter-type="region" data-filter-value="Ásia" aria-label="{% trans 'Filter by Asia' %}" aria-pressed="false">{% trans "Asia" %}</button>
+                            <button class="filter-btn" data-filter-type="region" data-filter-value="Europa" aria-label="{% trans 'Filter by Europe' %}" aria-pressed="false">{% trans "Europe" %}</button>
+                            <button class="filter-btn" data-filter-type="region" data-filter-value="Oceania" aria-label="{% trans 'Filter by Oceania' %}" aria-pressed="false">{% trans "Oceania" %}</button>
+                        </div>
+                        
+                        <h4>{% trans "Filter by Taxonomy:" %}</h4>
+                        <div class="filter-buttons" role="group" aria-label="{% trans 'Taxonomy filters' %}">
+                            <button class="filter-btn" data-filter-type="taxonomy" data-filter-value="RODENTIA" aria-label="{% trans 'Filter by Rodents' %}" aria-pressed="false">{% trans "Rodents" %}</button>
+                            <button class="filter-btn" data-filter-type="taxonomy" data-filter-value="CHIROPTERA" aria-label="{% trans 'Filter by Chiroptera' %}" aria-pressed="false">{% trans "Chiroptera" %}</button>
+                            <button class="filter-btn" data-filter-type="taxonomy" data-filter-value="ARTIODACTYLA" aria-label="{% trans 'Filter by Artiodactyls' %}" aria-pressed="false">{% trans "Artiodactyls" %}</button>
+                            <button class="filter-btn" data-filter-type="taxonomy" data-filter-value="EULIPOTYPHLA" aria-label="{% trans 'Filter by Eulipotyphlans' %}" aria-pressed="false">{% trans "Eulipotyphlans" %}</button>
+                            <button class="filter-btn" data-filter-type="taxonomy" data-filter-value="DIPROTODONTIA" aria-label="{% trans 'Filter by Diprotodonts' %}" aria-pressed="false">{% trans "Diprotodonts" %}</button>
+                            <button class="filter-btn" data-filter-type="taxonomy" data-filter-value="CARNIVORA" aria-label="{% trans 'Filter by Carnivores' %}" aria-pressed="false">{% trans "Carnivores" %}</button>
+                            <button class="filter-btn" data-filter-type="taxonomy" data-filter-value="PERAMELEMORPHIA" aria-label="{% trans 'Filter by Peramelemorphs' %}" aria-pressed="false">{% trans "Peramelemorphs" %}</button>
+                            <button class="filter-btn" data-filter-type="taxonomy" data-filter-value="PRIMATES" aria-label="{% trans 'Filter by Primates' %}" aria-pressed="false">{% trans "Primates" %}</button>
+                            <button class="filter-btn" data-filter-type="taxonomy" data-filter-value="LAGOMORPHA" aria-label="{% trans 'Filter by Lagomorphs' %}" aria-pressed="false">{% trans "Lagomorphs" %}</button>
+                            <button class="filter-btn" data-filter-type="taxonomy" data-filter-value="DASYUROMORPHIA" aria-label="{% trans 'Filter by Dasyuromorphs' %}" aria-pressed="false">{% trans "Dasyuromorphs" %}</button>
+                            <button class="filter-btn" data-filter-type="taxonomy" data-filter-value="SIRENIA" aria-label="{% trans 'Filter by Sirenians' %}" aria-pressed="false">{% trans "Sirenians" %}</button>
+                        </div>
+                    </div>
+                </details>
+
+                <!-- 3. Pagination & Display Options -->
+                <div class="pagination-controls-inline" style="display: flex; gap: 0.5rem; align-items: center;">
+                    <label for="items-per-page" style="margin:0; font-size: 0.9rem; font-weight: 500;">{% trans "Display" %}:</label>
+                    <select id="items-per-page" class="items-per-page-select" style="padding: 0.3rem; border-radius: 6px; border: 1px solid var(--border-color); background-color: var(--card-bg); color: var(--text-color);">
+                        <option value="10">10</option>
+                        <option value="20" selected>20</option>
+                        <option value="30">30</option>
+                        <option value="all">{% trans "All" %}</option>
+                    </select>
+                </div>
+
+                <div class="pagination-nav" style="display: flex; gap: 0.25rem; align-items: center;">
+                    <button class="pagination-btn" id="first-page-btn" aria-label="{% trans 'First page' %}" style="padding: 0.2rem 0.5rem; min-width: auto; font-size: 0.9rem;">««</button>
+                    <button class="pagination-btn" id="prev-page-btn" aria-label="{% trans 'Previous page' %}" style="padding: 0.2rem 0.5rem; min-width: auto; font-size: 0.9rem;">‹</button>
+                    
+                    <span class="pagination-info" id="pagination-info" style="font-size: 0.9rem; margin: 0 0.5rem;">
+                        <strong id="current-page">1</strong> / <strong id="total-pages">1</strong>
+                    </span>
+                    
+                    <button class="pagination-btn" id="next-page-btn" aria-label="{% trans 'Next page' %}" style="padding: 0.2rem 0.5rem; min-width: auto; font-size: 0.9rem;">›</button>
+                    <button class="pagination-btn" id="last-page-btn" aria-label="{% trans 'Last page' %}" style="padding: 0.2rem 0.5rem; min-width: auto; font-size: 0.9rem;">»»</button>
                 </div>
                 
-                <h4>{% trans "Filter by Taxonomy:" %}</h4>
-                <div class="filter-buttons" role="group" aria-label="{% trans 'Taxonomy filters' %}">
-                    <button class="filter-btn" data-filter-type="taxonomy" data-filter-value="RODENTIA" aria-label="{% trans 'Filter by Rodents' %}" aria-pressed="false">{% trans "Rodents" %}</button>
-                    <button class="filter-btn" data-filter-type="taxonomy" data-filter-value="CHIROPTERA" aria-label="{% trans 'Filter by Chiroptera' %}" aria-pressed="false">{% trans "Chiroptera" %}</button>
-                    <button class="filter-btn" data-filter-type="taxonomy" data-filter-value="ARTIODACTYLA" aria-label="{% trans 'Filter by Artiodactyls' %}" aria-pressed="false">{% trans "Artiodactyls" %}</button>
-                    <button class="filter-btn" data-filter-type="taxonomy" data-filter-value="EULIPOTYPHLA" aria-label="{% trans 'Filter by Eulipotyphlans' %}" aria-pressed="false">{% trans "Eulipotyphlans" %}</button>
-                    <button class="filter-btn" data-filter-type="taxonomy" data-filter-value="DIPROTODONTIA" aria-label="{% trans 'Filter by Diprotodonts' %}" aria-pressed="false">{% trans "Diprotodonts" %}</button>
-                    <button class="filter-btn" data-filter-type="taxonomy" data-filter-value="CARNIVORA" aria-label="{% trans 'Filter by Carnivores' %}" aria-pressed="false">{% trans "Carnivores" %}</button>
-                    <button class="filter-btn" data-filter-type="taxonomy" data-filter-value="PERAMELEMORPHIA" aria-label="{% trans 'Filter by Peramelemorphs' %}" aria-pressed="false">{% trans "Peramelemorphs" %}</button>
-                    <button class="filter-btn" data-filter-type="taxonomy" data-filter-value="PRIMATES" aria-label="{% trans 'Filter by Primates' %}" aria-pressed="false">{% trans "Primates" %}</button>
-
-                    <button class="filter-btn" data-filter-type="taxonomy" data-filter-value="LAGOMORPHA" aria-label="{% trans 'Filter by Lagomorphs' %}" aria-pressed="false">{% trans "Lagomorphs" %}</button>
-                    <button class="filter-btn" data-filter-type="taxonomy" data-filter-value="DASYUROMORPHIA" aria-label="{% trans 'Filter by Dasyuromorphs' %}" aria-pressed="false">{% trans "Dasyuromorphs" %}</button>
-                    <button class="filter-btn" data-filter-type="taxonomy" data-filter-value="SIRENIA" aria-label="{% trans 'Filter by Sirenians' %}" aria-pressed="false">{% trans "Sirenians" %}</button>
+                <div class="pagination-total" style="display:none;">
+                    <span id="total-items">{{ mammals.paginator.count }}</span>
                 </div>
             </div>
-        </details>
+        </div>
     </section>
-
-    <section class="mammals-grid" role="region" aria-label="{% trans 'Mammals List' %}">
-        <!-- Paginação e Controles numa única linha -->
-        <div class="pagination-wrapper" id="pagination-wrapper">
-            <div class="pagination-controls-inline">
-                <label for="items-per-page">{% trans "Display" %}:</label>
-                <select id="items-per-page" class="items-per-page-select">
-                    <option value="10">10</option>
-                    <option value="20" selected>20</option>
-                    <option value="30">30</option>
-                    <option value="all">{% trans "All" %}</option>
-                </select>
-            </div>
-            
-            <div class="pagination-nav">
-                <button class="pagination-btn" id="first-page-btn" aria-label="{% trans 'First page' %}">««</button>
-                <button class="pagination-btn" id="prev-page-btn" aria-label="{% trans 'Previous page' %}">‹</button>
-                
-                <span class="pagination-info" id="pagination-info">
-                    {% trans "Page" %} <strong id="current-page">1</strong> {% trans "of" %} <strong id="total-pages">1</strong>
-                </span>
-                
-                <button class="pagination-btn" id="next-page-btn" aria-label="{% trans 'Next page' %}">›</button>
-                <button class="pagination-btn" id="last-page-btn" aria-label="{% trans 'Last page' %}">»»</button>
-            </div>
-            
-            <div class="pagination-total">
-                <span id="total-items">{{ mammals.paginator.count }}</span> {% trans "species" %}
-            </div>
-        </div>
         
         <h3 id="species-count">{% trans "All Species" %} ({{ mammals.paginator.count }})</h3>
         <div class="grid" id="mammals-list">
