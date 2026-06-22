@@ -110,12 +110,27 @@
                 }
             }
             @media (max-width: 600px) {
+                .toolbar-search {
+                    flex-wrap: wrap;
+                }
+                .toolbar-search .search-input {
+                    flex: 1 1 100%;
+                }
+                .toolbar-search button {
+                    flex: 1;
+                }
                 .toolbar-actions {
                     flex-direction: column;
                     align-items: stretch;
+                    gap: 1rem;
+                }
+                .pagination-controls-inline {
+                    justify-content: center;
                 }
                 .pagination-nav {
                     justify-content: center;
+                    flex-wrap: wrap;
+                    gap: 0.5rem;
                 }
             }
         </style>
