@@ -99,38 +99,94 @@
                 .unified-toolbar {
                     flex-direction: column;
                     align-items: stretch;
+                    padding: 0.75rem 1rem;
+                    gap: 0.75rem;
+                }
+                .toolbar-search {
+                    flex: 1 1 auto;
+                }
+                .toolbar-search .search-input {
+                    min-width: 0;
+                    padding: 0.7rem 0.9rem;
+                    font-size: 0.9rem;
+                }
+                .toolbar-search .search-btn,
+                .toolbar-search .clear-btn {
+                    padding: 0.7rem 1rem;
+                    font-size: 0.85rem;
                 }
                 .toolbar-actions {
                     justify-content: space-between;
                 }
                 .filter-dropdown-content {
-                    left: auto;
-                    right: 0;
+                    left: 0;
+                    right: auto;
                     transform: none;
+                    width: calc(100vw - 3rem);
+                    max-width: calc(100vw - 3rem);
                 }
             }
             @media (max-width: 600px) {
+                .unified-toolbar {
+                    padding: 0.6rem 0.75rem;
+                    gap: 0.6rem;
+                    margin: 1rem 0;
+                }
                 .toolbar-search {
+                    flex-direction: row;
                     flex-wrap: wrap;
+                    gap: 0.4rem;
                 }
                 .toolbar-search .search-input {
                     flex: 1 1 100%;
+                    min-width: 0;
+                    padding: 0.6rem 0.8rem;
+                    font-size: 0.85rem;
                 }
-                .toolbar-search button {
-                    flex: 1;
+                .toolbar-search .search-btn,
+                .toolbar-search .clear-btn {
+                    flex: 1 1 calc(50% - 0.2rem);
+                    padding: 0.55rem 0.5rem;
+                    font-size: 0.8rem;
+                    text-align: center;
                 }
                 .toolbar-actions {
-                    flex-direction: column;
-                    align-items: stretch;
-                    gap: 1rem;
+                    flex-direction: row;
+                    flex-wrap: wrap;
+                    align-items: center;
+                    gap: 0.5rem;
                 }
-                .pagination-controls-inline {
+                .filter-dropdown {
+                    flex: 1;
+                }
+                .filter-dropdown summary {
+                    font-size: 0.85rem;
+                    padding: 0.45rem 0.7rem;
                     justify-content: center;
                 }
                 .pagination-nav {
                     justify-content: center;
                     flex-wrap: wrap;
-                    gap: 0.5rem;
+                    gap: 0.4rem;
+                    width: 100%;
+                }
+                .pagination-nav button {
+                    padding: 0.4rem 0.6rem;
+                    font-size: 0.8rem;
+                }
+                .filter-dropdown-content {
+                    position: fixed;
+                    top: auto;
+                    bottom: 0;
+                    left: 0;
+                    right: 0;
+                    width: 100vw;
+                    max-width: 100vw;
+                    max-height: 70vh;
+                    overflow-y: auto;
+                    border-radius: 16px 16px 0 0;
+                    transform: none;
+                    z-index: 9999;
                 }
             }
         </style>

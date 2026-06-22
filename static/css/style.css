@@ -1984,6 +1984,12 @@ img {
 
 /* Responsividade */
 @media (max-width: 768px) {
+    .search-input {
+        min-width: 0 !important;
+    }
+    .search-btn, .clear-btn {
+        padding: 0.65rem 1rem;
+    }
     .comment-header {
         flex-direction: column;
         align-items: flex-start;
