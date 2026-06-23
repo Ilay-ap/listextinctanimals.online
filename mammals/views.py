@@ -163,11 +163,16 @@ def mammal_detail(request, pk):
             "zoom": 5,
         }
 
+    geo_country = ""
+    if mammal_obj.distribution:
+        geo_country = get_country_from_distribution(mammal_obj.distribution)
+
     context = {
         "mammal": mammal,
         "comments": comments,
         "is_favorite": is_favorite,
         "map_data": json.dumps(map_data) if map_data else None,
+        "geo_country": geo_country,
     }
 
     return render(request, "mammals/detail.html", context)

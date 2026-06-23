@@ -128,65 +128,65 @@
             }
             @media (max-width: 600px) {
                 .unified-toolbar {
-                    padding: 0.6rem 0.75rem;
+                    padding: 0.6rem 0.6rem;
                     gap: 0.6rem;
                     margin: 1rem 0;
                 }
                 .toolbar-search {
                     flex-direction: row;
-                    flex-wrap: wrap;
-                    gap: 0.4rem;
+                    flex-wrap: nowrap;
+                    gap: 0.3rem;
                 }
                 .toolbar-search .search-input {
-                    flex: 1 1 100%;
+                    flex: 1 1 auto;
                     min-width: 0;
-                    padding: 0.6rem 0.8rem;
+                    padding: 0.5rem 0.6rem;
                     font-size: 0.85rem;
                 }
                 .toolbar-search .search-btn,
                 .toolbar-search .clear-btn {
-                    flex: 1 1 calc(50% - 0.2rem);
-                    padding: 0.55rem 0.5rem;
+                    flex: 0 0 auto;
+                    padding: 0.5rem 0.6rem;
                     font-size: 0.8rem;
                     text-align: center;
                 }
                 .toolbar-actions {
                     flex-direction: row;
-                    flex-wrap: wrap;
+                    flex-wrap: nowrap;
+                    justify-content: space-between;
                     align-items: center;
                     gap: 0.5rem;
+                    width: 100%;
                 }
                 .filter-dropdown {
                     flex: 1;
                 }
                 .filter-dropdown summary {
                     font-size: 0.85rem;
-                    padding: 0.45rem 0.7rem;
+                    padding: 0.4rem 0.5rem;
                     justify-content: center;
                 }
-                .pagination-nav {
+                .pagination-controls-inline {
+                    flex: 1;
                     justify-content: center;
-                    flex-wrap: wrap;
-                    gap: 0.4rem;
-                    width: 100%;
                 }
-                .pagination-nav button {
-                    padding: 0.4rem 0.6rem;
-                    font-size: 0.8rem;
+                .pagination-controls-inline select {
+                    font-size: 0.85rem;
+                    padding: 0.3rem;
                 }
                 .filter-dropdown-content {
-                    position: fixed;
-                    top: auto;
-                    bottom: 0;
+                    position: absolute;
+                    top: 110%;
                     left: 0;
-                    right: 0;
-                    width: 100vw;
-                    max-width: 100vw;
-                    max-height: 70vh;
+                    right: auto;
+                    bottom: auto;
+                    width: 100%;
+                    max-width: 100%;
+                    max-height: 60vh;
                     overflow-y: auto;
-                    border-radius: 16px 16px 0 0;
-                    transform: none;
+                    border-radius: 12px;
                     z-index: 9999;
+                    box-shadow: var(--shadow-lg);
                 }
             }
         </style>

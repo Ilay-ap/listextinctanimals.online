@@ -422,10 +422,18 @@
             </section>
             {% endif %}
 
-            {% if mammal.distribution %}
+            {% if mammal.distribution or mammal.continent or mammal.region %}
             <section class="detail-section">
                 <h3 id="distribution-heading">{% trans "Geographic Distribution" %}</h3>
+                {% if mammal.continent %}
+                <p><strong>{% trans "Continent" %}:</strong> {{ mammal.continent }}</p>
+                {% endif %}
+                {% if mammal.region %}
+                <p><strong>Região:</strong> {{ mammal.region }}</p>
+                {% endif %}
+                {% if mammal.distribution %}
                 <p>{{ mammal.distribution|safe }}</p>
+                {% endif %}
             </section>
             
             <!-- Mapa Interativo de Distribuição -->
@@ -465,33 +473,41 @@
             </section>
             {% endif %}
 
-            <section class="detail-section" id="taxonomy-section">
-                <h3 id="taxonomy-heading">{% trans "Taxonomy" %}</h3>
-                <p><strong>{% trans "Order" %}:</strong> {{ mammal.taxonomy_order|default:_("Not specified") }}</p>
-                <p><strong>{% trans "Continent" %}:</strong> {{ mammal.continent|default:_("Not specified") }}</p>
-                {% if mammal.region %}
-                <p><strong>Região:</strong> {{ mammal.region }}</p>
-                {% endif %}
-                {% if mammal.extinction_year %}
-                <p><strong>Ano Biológico de Extinção:</strong> {{ mammal.extinction_year }}</p>
-                {% endif %}
-                {% if mammal.formalization_year %}
-                <p><strong>Ano de Formalização:</strong> {{ mammal.formalization_year }} ({{ mammal.formalization_source }})</p>
-                {% endif %}
-                {% if mammal.main_cause %}
-                <p><strong>Causa Principal:</strong> {{ mammal.main_cause }}</p>
-                {% endif %}
+            {% if mammal.diet or mammal.size_weight %}
+            <section class="detail-section" id="physical-characteristics-section">
+                <h3 id="physical-characteristics-heading">{% trans "Características Físicas e Dieta" %}</h3>
                 {% if mammal.diet %}
                 <p><strong>{% trans "Diet" %}:</strong> {{ mammal.diet }}</p>
                 {% endif %}
                 {% if mammal.size_weight %}
                 <p><strong>{% trans "Size / Weight" %}:</strong> {{ mammal.size_weight }}</p>
                 {% endif %}
-                {% if mammal.taxonomy_extended %}
-                <h4 style="margin-top: 1rem; margin-bottom: 0.5rem; color: var(--text-color);">{% trans "Extended Taxonomy" %}</h4>
-                <p>{{ mammal.taxonomy_extended|safe }}</p>
+            </section>
+            {% endif %}
+
+            {% if mammal.extinction_year or mammal.formalization_year or mammal.main_cause %}
+            <section class="detail-section" id="historical-timeline-section">
+                <h3 id="historical-timeline-heading">{% trans "Histórico de Extinção" %}</h3>
+                {% if mammal.extinction_year %}
+                <p><strong>Ano Biológico de Extinção:</strong> {{ mammal.extinction_year }}</p>
+                {% endif %}
+                {% if mammal.formalization_year %}
+                <p><strong>Ano de Formalização:</strong> {{ mammal.formalization_year }} {% if mammal.formalization_source %}({{ mammal.formalization_source }}){% endif %}</p>
+                {% endif %}
+                {% if mammal.main_cause %}
+                <p><strong>Causa Principal:</strong> {{ mammal.main_cause }}</p>
                 {% endif %}
             </section>
+            {% endif %}
+
+            {% if mammal.taxonomy_extended %}
+            <section class="detail-section" id="taxonomy-section">
+                <h3 id="taxonomy-heading">{% trans "Taxonomy" %}</h3>
+                <div class="taxonomy-extended-content">
+                    {{ mammal.taxonomy_extended|safe }}
+                </div>
+            </section>
+            {% endif %}
 
             {% if mammal.gallery_images %}
             <section class="detail-section">
@@ -597,6 +613,7 @@
     var animalName = "{{ mammal.common_name|escapejs }}";
     var animalBin  = "{{ mammal.binomial_name|default:''|escapejs }}";
     var distribRaw = "{{ mammal.distribution|default:''|escapejs }}";
+    var geoCountry = "{{ geo_country|escapejs }}";
 
     /* ── Mapa base ── */
     var map = L.map('distribution-map', {
@@ -605,7 +622,7 @@
         worldCopyJump: false,
         maxBounds: [[-90, -180], [90, 180]],
         maxBoundsViscosity: 1.0
-    }).setView([animalLat, animalLon], 5);
+    }).setView([isNaN(animalLat) ? 0 : animalLat, isNaN(animalLon) ? 0 : animalLon], 4);
 
     L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png', {
         attribution: '&copy; CARTO', subdomains: 'abcd', maxZoom: 18, noWrap: true
@@ -615,45 +632,107 @@
         attribution: '', subdomains: 'abcd', maxZoom: 18, noWrap: true, zIndex: 400
     }).addTo(map);
 
-    /* ── Função para estimar raio do habitat ── */
-    function estimateRadius(distribText) {
-        var t = distribText.toLowerCase();
-        if (t.match(/ilha|island|cay|key|atoll/i))    return 30;
-        if (t.match(/região|region|area|área/i))       return 300;
-        if (t.match(/bacia|basin|valley|vale/i))       return 500;
-        if (t.match(/sul|norte|leste|oeste|central/i)) return 600;
-        return 200; // padrão
-    }
+    /* ── Carregar Fronteiras GeoJSON ── */
+    fetch('https://raw.githubusercontent.com/johan/world.geo.json/master/countries.geo.json')
+        .then(r => r.json())
+        .then(geo => {
+            let foundTerritory = false;
 
-    /* ── Desenhar Área de Distribuição ── */
-    if (!isNaN(animalLat) && !isNaN(animalLon)) {
-        var radiusM = estimateRadius(distribRaw) * 1000;
-        
-        // Círculo de Habitat (Área)
-        var circle = L.circle([animalLat, animalLon], {
-            radius: radiusM,
-            fillColor: '#C4A57B',
-            color: '#fff',
-            weight: 1.5,
-            fillOpacity: 0.45
-        }).addTo(map);
+            // Add CSS for the glowing heatmap effect
+            var style = document.createElement('style');
+            style.innerHTML = `
+                .heat-polygon {
+                    filter: blur(5px) drop-shadow(0 0 10px rgba(196, 165, 123, 0.6));
+                    transition: filter 0.3s ease, fill-opacity 0.3s;
+                    cursor: pointer;
+                }
+                .heat-polygon:hover {
+                    filter: blur(1px) drop-shadow(0 0 15px rgba(220, 47, 2, 0.9));
+                    z-index: 1000 !important;
+                }
+            `;
+            document.head.appendChild(style);
 
-        // Marcador Central Exato
-        var marker = L.circleMarker([animalLat, animalLon], {
-            radius: 6, fillColor: '#dc2f02',
-            color: '#fff', weight: 2, fillOpacity: 1
-        }).addTo(map);
+            L.geoJSON(geo, {
+                style: function(feature) {
+                    if (geoCountry && feature.properties.name === geoCountry) {
+                        return {
+                            fillColor: '#C4A57B',
+                            weight: 2,
+                            opacity: 0.6,
+                            color: '#C4A57B',
+                            fillOpacity: 0.75,
+                            className: 'heat-polygon'
+                        };
+                    }
+                    return { color: '#d4c5b0', weight: 1.0, opacity: 0.2, fillOpacity: 0 };
+                },
+                onEachFeature: function(feature, layer) {
+                    if (geoCountry && feature.properties.name === geoCountry) {
+                        foundTerritory = true;
+                        
+                        var popupContent = '<b>' + animalName + '</b>' +
+                            (animalBin ? '<br><em>' + animalBin + '</em>' : '') +
+                            '<br><small>' + distribRaw + '</small>';
 
-        var popupContent = '<b>' + animalName + '</b>' +
-            (animalBin ? '<br><em>' + animalBin + '</em>' : '') +
-            '<br><small>' + distribRaw + '</small>';
+                        layer.bindPopup(popupContent);
+                        layer.bindTooltip('<strong>Habitat: ' + distribRaw + '</strong>', { sticky: true });
 
-        marker.bindPopup(popupContent);
-        circle.bindTooltip('<strong>Habitat: ' + distribRaw + '</strong>', { sticky: true });
+                        // Ajustar o zoom para caber o polígono encontrado
+                        map.fitBounds(layer.getBounds(), { padding: [50, 50], maxZoom: 6 });
+                        
+                        layer.on({
+                            mouseover: function(e) {
+                                e.target.setStyle({ fillOpacity: 0.85, color: '#dc2f02' });
+                                if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) e.target.bringToFront();
+                            },
+                            mouseout: function(e) {
+                                e.target.setStyle({ fillOpacity: 0.6, color: '#ffffff' });
+                            }
+                        });
+                    }
+                }
+            }).addTo(map);
 
-        // Ajustar zoom para caber a área de distribuição com padding extra
-        map.fitBounds(circle.getBounds(), { padding: [50, 50], maxZoom: 7 });
-    }
+            /* Fallback se não encontrar o país no GeoJSON ou se não tiver geoCountry */
+            if (!foundTerritory && !isNaN(animalLat) && !isNaN(animalLon)) {
+                // Função para estimar raio (Fallback)
+                function estimateRadius(distribText) {
+                    var t = distribText.toLowerCase();
+                    if (t.match(/ilha|island|cay|key|atoll/i))    return 30;
+                    if (t.match(/região|region|area|área/i))       return 300;
+                    if (t.match(/bacia|basin|valley|vale/i))       return 500;
+                    if (t.match(/sul|norte|leste|oeste|central/i)) return 600;
+                    return 200; // padrão
+                }
+
+                var radiusM = estimateRadius(distribRaw) * 1000;
+                
+                var circle = L.circle([animalLat, animalLon], {
+                    radius: radiusM,
+                    fillColor: '#C4A57B',
+                    color: '#C4A57B',
+                    weight: 2,
+                    fillOpacity: 0.75,
+                    className: 'heat-polygon'
+                }).addTo(map);
+
+                var marker = L.circleMarker([animalLat, animalLon], {
+                    radius: 6, fillColor: '#dc2f02',
+                    color: '#fff', weight: 2, fillOpacity: 1
+                }).addTo(map);
+
+                var popupContent = '<b>' + animalName + '</b>' +
+                    (animalBin ? '<br><em>' + animalBin + '</em>' : '') +
+                    '<br><small>' + distribRaw + '</small>';
+
+                marker.bindPopup(popupContent);
+                circle.bindTooltip('<strong>Habitat: ' + distribRaw + '</strong>', { sticky: true });
+
+                map.fitBounds(circle.getBounds(), { padding: [50, 50], maxZoom: 7 });
+            }
+        })
+        .catch(err => console.error("Error loading GeoJSON", err));
 
     /* Atualizar mapa ao redimensionar */
     window.addEventListener('resize', function(){ map.invalidateSize(); });
