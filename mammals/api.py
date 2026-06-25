@@ -241,19 +241,35 @@ def dashboard_api(request):
         if m.region:
             region_counts[m.region] += 1
 
-        # 7. Main cause (agrupada)
-        if m.main_cause:
-            cause_raw = m.main_cause.lower()
-            if "caca" in cause_raw or "caça" in cause_raw:
-                cause_counts["Caça"] += 1
-            if "invasor" in cause_raw:
+        # 7. Causas (agrupadas e permitindo múltiplas por animal)
+        # Usa o campo extinction_causes porque ele contém a string bruta completa
+        causes_field = m.extinction_causes or m.main_cause
+        if causes_field:
+            cause_raw = causes_field.lower()
+            
+            # Caça e pressão humana direta
+            if any(kw in cause_raw for kw in ["caça", "caca", "perseguição", "humana"]):
+                cause_counts["Caça Humana"] += 1
+                
+            # Espécies Invasoras (predadores, competidores)
+            if any(kw in cause_raw for kw in ["invasor", "gato", "raposa", "rato", "porco", "cachorro", "cão", "mangusta", "predador"]):
                 cause_counts["Espécies Invasoras"] += 1
-            if "habitat" in cause_raw or "desmatamento" in cause_raw:
+                
+            # Perda de Habitat / Desmatamento
+            if any(kw in cause_raw for kw in ["habitat", "desmatamento", "destruição", "alteração", "agricultura"]):
                 cause_counts["Perda de Habitat"] += 1
+                
+            # Colonização e efeitos secundários 
             if "coloniz" in cause_raw:
                 cause_counts["Colonização"] += 1
-            if "clima" in cause_raw:
-                cause_counts["Mudança Climática"] += 1
+                
+            # Doenças / Patógenos
+            if any(kw in cause_raw for kw in ["doença", "doenca", "patógeno", "vírus", "bacteria", "fungo"]):
+                cause_counts["Doenças"] += 1
+                
+            # Desastres Naturais / Mudanças Climáticas
+            if any(kw in cause_raw for kw in ["clima", "seca", "glaciação", "aquecimento", "erupção", "erupcao", "vulc"]):
+                cause_counts["Desastres / Mudança Climática"] += 1
 
     return JsonResponse(
         {
@@ -394,74 +410,6 @@ def log_js_error(request):
         return JsonResponse({"success": False, "error": str(e)}, status=500)
 
 
-@require_GET
-def dashboard_api(request):
-    mammals = Mammal.objects.all()
-
-    country_counts = Counter()
-    biological_year_counts = Counter()
-    formalization_year_counts = Counter()
-    continent_counts = Counter()
-    taxonomy_counts = Counter()
-    region_counts = Counter()
-    cause_counts = Counter()
-
-    total = mammals.count()
-
-    for m in mammals:
-        if m.distribution:
-            country = get_country_from_distribution(m.distribution)
-            country_counts[country] += 1
-
-        # 2. Ano de Extinção Biológica (agrupado por década)
-        if m.extinction_year:
-            decade = (m.extinction_year // 10) * 10
-            decade_str = f"{decade}s"
-            biological_year_counts[decade_str] += 1
-
-        # 3. Ano de Formalização (agrupado por década)
-        if m.formalization_year:
-            decade = (m.formalization_year // 10) * 10
-            decade_str = f"{decade}s"
-            formalization_year_counts[decade_str] += 1
-
-        if m.region:
-            continent_counts[get_continent_from_region(m.region)] += 1
-        # 5. Taxonomy
-        if m.taxonomy_order:
-            taxonomy_counts[m.taxonomy_order] += 1
-
-        # 6. Region (novo campo)
-        if m.region:
-            region_counts[m.region] += 1
-
-        # 7. Main cause (agrupada)
-        if m.main_cause:
-            cause_raw = m.main_cause.lower()
-            if "caca" in cause_raw or "caça" in cause_raw:
-                cause_counts["Caça"] += 1
-            if "invasor" in cause_raw:
-                cause_counts["Espécies Invasoras"] += 1
-            if "habitat" in cause_raw or "desmatamento" in cause_raw:
-                cause_counts["Perda de Habitat"] += 1
-            if "coloniz" in cause_raw:
-                cause_counts["Colonização"] += 1
-            if "clima" in cause_raw:
-                cause_counts["Mudança Climática"] += 1
-
-    return JsonResponse(
-        {
-            "total": total,
-            "countries": dict(country_counts),
-            "biological_years": dict(biological_year_counts),
-            "formalization_years": dict(formalization_year_counts),
-            "eras": dict(biological_year_counts),  # backward compat
-            "continents": dict(continent_counts),
-            "taxonomy": dict(taxonomy_counts),
-            "regions": dict(region_counts),
-            "causes": dict(cause_counts),
-        }
-    )
 
 
 logger = logging.getLogger("django.security")

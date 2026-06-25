@@ -290,6 +290,21 @@
                 <h3>Proporção Taxonômica (Ordens)</h3>
                 <div class="chart-wrapper"><canvas id="taxonomyChart"></canvas></div>
             </div>
+            <!-- BARRAS HORIZONTAIS: CAUSAS DA EXTINÇÃO -->
+            <div class="dashboard-card full-width">
+                <button class="info-btn" onclick="toggleInfo('panel-causes', this)">?</button>
+                <div class="info-panel" id="panel-causes">
+                    <div class="info-panel-title">
+                        Principais Causas de Extinção
+                        <button class="info-panel-close" onclick="closeInfo('panel-causes')">✕</button>
+                    </div>
+                    <p><strong>Aviso Importante:</strong> Para muitas espécies históricas não há como ter certeza exata de qual foi a causa final da extinção.</p>
+                    <p>Além disso, a maioria dos animais sofreu com múltiplos fatores simultâneos (ex: caça excessiva somada à perda de habitat e espécies invasoras).</p>
+                    <p>Portanto, <strong>a soma total das barras ultrapassa o número de animais extintos</strong>, pois permite mapear todas as frentes que afetaram cada espécie.</p>
+                </div>
+                <h3>Causas da Extinção</h3>
+                <div class="chart-wrapper"><canvas id="causesChart"></canvas></div>
+            </div>
 
 
         </div>
@@ -703,6 +718,42 @@ document.addEventListener('click', function(e) {
             });
         }
 
+        // ── D. Barras Horizontais: Causas ──
+        const ctxCauses = document.getElementById('causesChart');
+        if (ctxCauses && stats.causes) {
+            // Ordenar por maior número de animais afetados
+            const causeKeys = Object.keys(stats.causes).sort((a, b) => stats.causes[b] - stats.causes[a]);
+            const causeVals = causeKeys.map(k => stats.causes[k]);
+            
+            new Chart(ctxCauses, {
+                type: 'bar',
+                data: { labels: causeKeys, datasets: [{
+                    label: 'Animais Afetados',
+                    data: causeVals,
+                    backgroundColor: palette.slice(0, causeKeys.length),
+                    borderRadius: 5, borderWidth: 0,
+                    maxBarThickness: 50
+                }]},
+                options: {
+                    indexAxis: 'y', // Define gráfico de barras horizontais
+                    responsive: true, maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: { legend: { display: false }, tooltip: { ...tooltipCfg } },
+                    scales: {
+                        x: { 
+                            grid: { color: gridColor },
+                            ticks: { beginAtZero: true, font: { size: 11 } },
+                            title: { display: true, text: 'Nº de Animais Afetados', color: '#9B8877', font: { size: 11 } }
+                        },
+                        y: {
+                            grid: { display: false }, 
+                            ticks: { font: { size: 11 } }
+                        }
+                    },
+                    animation: { duration: 1500 }
+                }
+            });
+        }
 
     }
 })();

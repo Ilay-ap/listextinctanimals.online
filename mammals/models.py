@@ -252,20 +252,35 @@ class Mammal(models.Model):
                     )
         else:
             slug = str(self.binomial_name).lower().replace(' ', '_')
-            prefix = f"{slug}_gallery_"
+            prefix_legacy = f"{slug}_gallery_"
+            prefix_new = f"{str(self.binomial_name).lower()} -"
+            prefix_new2 = f"{str(self.binomial_name).lower()} "
+            
             for f in files:
-                if f.startswith(prefix) and f.lower().endswith(
+                f_lower = f.lower()
+                if (f_lower.startswith(prefix_legacy) or f_lower.startswith(prefix_new) or f_lower.startswith(prefix_new2)) and f_lower.endswith(
                     (".jpg", ".jpeg", ".png", ".webp")
                 ):
                     # Generate a simple caption from the filename
-                    simple_caption = f.replace(prefix, '').replace('_', ' ').rsplit('.', 1)[0].title()
+                    if f_lower.startswith(prefix_legacy):
+                        simple_caption = f.replace(prefix_legacy, '').replace('_', ' ').rsplit('.', 1)[0].title()
+                    else:
+                        # Extract string after "Binomial Name -" or "Binomial Name "
+                        name_len = len(str(self.binomial_name))
+                        caption_part = f[name_len:].strip(" -_")
+                        simple_caption = caption_part.rsplit('.', 1)[0]
+                        if not simple_caption:
+                            simple_caption = "Imagem do animal"
                     
                     custom_caption = self._get_caption_for_file(f)
                     final_caption = custom_caption if custom_caption else simple_caption
                     
+                    import urllib.parse
+                    encoded_f = urllib.parse.quote(f)
+                    
                     images.append(
                         {
-                            "url": f"{settings.STATIC_URL}images/mammals_gallery/{f}",
+                            "url": f"{settings.STATIC_URL}images/mammals_gallery/{encoded_f}",
                             "filename": f"mammals_gallery/{f}",
                             "caption": final_caption,
                         }

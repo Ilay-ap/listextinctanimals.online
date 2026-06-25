@@ -1,0 +1,1357 @@
+
+
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<script>
+window.addEventListener('error', function(e) {
+    fetch('/pt-br/log-error/', {
+        method: 'POST',
+        body: JSON.stringify({ message: e.message, filename: e.filename, lineno: e.lineno, colno: e.colno, error: e.error ? e.error.stack : null })
+    });
+});
+window.addEventListener('unhandledrejection', function(e) {
+    fetch('/pt-br/log-error/', {
+        method: 'POST',
+        body: JSON.stringify({ message: e.reason ? e.reason.message : 'Unhandled Rejection', error: e.reason ? e.reason.stack : null })
+    });
+});
+</script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coelho-de-Cuba / Cuban coney - Catálogo de Mamíferos Extintos</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="description" content="Interactive catalog of extinct mammals since 1500 with maps, detailed information and favorites system">
+    <meta name="theme-color" content="#16213e">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Extinct Mammals">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/static/manifest.json">
+    
+    <!-- PWA Icons -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/images/icons/icon-72x72.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/static/images/icons/icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/images/icons/icon-192x192.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/static/images/icons/icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="/static/images/icons/icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="/static/images/icons/icon-128x128.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="/static/images/icons/icon-128x128.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="/static/images/icons/icon-96x96.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="/static/images/icons/icon-72x72.png">
+    <link rel="apple-touch-icon" href="/static/images/icons/icon-192x192.png">
+    <link rel="stylesheet" href="/static/css/style.css?v=2.0">
+    <link rel="stylesheet" href="/static/css/accessibility.css">
+    <link rel="stylesheet" href="/static/css/cookie-consent.css">
+    <link rel="stylesheet" href="/static/css/alerts.css">
+    <link rel="stylesheet" href="/static/css/buttons_fix.css">
+    
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+<style>
+    /* Layout Geral Otimizado da Página de Detalhes */
+    .detail-container {
+        width: 100%;
+        padding: 1rem 0;
+        animation: fadeInUp 0.6s ease-out;
+    }
+
+    /* Cabeçalho do Animal */
+    .detail-header h2 {
+        font-size: 2.25rem !important;
+        color: var(--primary-color) !important;
+        margin-bottom: 0.5rem !important;
+        font-weight: 700 !important;
+        text-align: center;
+    }
+    .detail-header .binomial-name {
+        font-size: 1.25rem !important;
+        color: var(--text-light) !important;
+        margin-top: 0 !important;
+        margin-bottom: 1.5rem !important;
+        font-style: italic !important;
+        text-align: center;
+    }
+
+    /* Estilo "Balão" (Card) com Paleta Padrão Marrom Clarinho */
+    .detail-section, .comments-section {
+        background-color: var(--bg-secondary) !important;
+        border: 1px solid var(--border-color) !important;
+        border-radius: 16px !important;
+        padding: 2.25rem !important;
+        margin-bottom: 2rem !important;
+        box-shadow: 0 4px 12px rgba(139, 111, 71, 0.08) !important;
+        transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease !important;
+    }
+
+    .detail-section:hover, .comments-section:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 24px rgba(139, 111, 71, 0.15) !important;
+        border-color: var(--primary-light) !important;
+    }
+
+    /* Títulos Clássicos dentro de cada Balão */
+    .detail-section h3, .comments-section h3 {
+        font-size: 1.45rem !important;
+        color: var(--primary-color) !important;
+        margin-top: 0 !important;
+        margin-bottom: 1.25rem !important;
+        padding-bottom: 0.75rem !important;
+        border-bottom: 2px solid var(--border-color) !important;
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        font-weight: 600 !important;
+    }
+
+    /* Textos dentro dos balões */
+    .detail-section p, .detail-section li, .detail-section table {
+        font-size: 1.05rem !important;
+        line-height: 1.75 !important;
+        color: var(--text-color) !important;
+        margin-bottom: 1rem;
+    }
+    .detail-section p:last-child {
+        margin-bottom: 0;
+    }
+
+    /* Ajuste de Espaçamento para o Mapa de Distribuição */
+    #distribution-map-container {
+        padding: 2rem !important;
+    }
+    #distribution-map {
+        border-radius: 12px !important;
+        border: 1px solid var(--border-color) !important;
+    }
+
+    /* Comentários Modernos com Contraste no Fundo do Balão */
+    .comment {
+        padding: 1.25rem !important;
+        border: 1px solid var(--border-color) !important;
+        border-radius: 12px !important;
+        background-color: var(--card-bg) !important;
+        margin-bottom: 1.25rem !important;
+        box-shadow: 0 2px 6px rgba(139, 111, 71, 0.04) !important;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .comment:hover {
+        transform: translateX(4px);
+        box-shadow: 0 4px 12px rgba(139, 111, 71, 0.08) !important;
+    }
+    .comment-header {
+        margin-bottom: 0.5rem !important;
+    }
+    .comment-content {
+        font-size: 0.98rem !important;
+        line-height: 1.6 !important;
+        color: var(--text-color) !important;
+    }
+
+    /* Formulário de Comentários */
+    .comment-form textarea {
+        width: 100%;
+        min-height: 100px;
+        padding: 0.75rem 1rem !important;
+        border: 1px solid var(--border-color) !important;
+        border-radius: 8px !important;
+        background: var(--card-bg) !important;
+        color: var(--text-color) !important;
+        margin-bottom: 0.75rem !important;
+        font-family: inherit;
+        font-size: 0.95rem;
+        transition: border-color 0.2s;
+    }
+    .comment-form textarea:focus {
+        border-color: var(--primary-color) !important;
+        outline: none;
+    }
+
+    /* Alinhamento de Botões de Ação */
+    .action-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin: 2rem 0;
+    }
+    .action-buttons form {
+        display: inline-block;
+    }
+    .btn-favorite, .action-buttons .btn-primary {
+        padding: 0.75rem 1.5rem !important;
+        font-size: 1rem !important;
+        font-weight: 600 !important;
+        border-radius: 8px !important;
+        cursor: pointer;
+        transition: var(--transition) !important;
+    }
+    
+    .back-link {
+        text-align: center;
+        margin-top: 2.5rem;
+    }
+    .back-link .btn-secondary {
+        padding: 0.75rem 1.5rem !important;
+        font-size: 1rem !important;
+        font-weight: 600 !important;
+        border-radius: 8px !important;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    /* Estilos do Slideshow de Imagens */
+    .slideshow-container {
+        position: relative;
+        max-width: 100%;
+        background: var(--bg-secondary);
+        border-radius: 12px;
+        overflow: hidden;
+        border: 1px solid var(--border-color);
+        min-height: 250px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 2.5rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    .mySlides {
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+        text-align: center;
+        box-sizing: border-box;
+    }
+    .mySlides img {
+        max-height: 400px;
+        max-width: 100%;
+        object-fit: contain;
+        border-radius: 12px 12px 0 0;
+    }
+    .slideshow-caption {
+        width: 100%;
+        font-size: 0.85rem;
+        color: var(--text-color);
+        background-color: var(--bg-secondary);
+        border-top: 1px solid var(--border-color);
+        text-align: center;
+        padding: 10px 12px;
+        box-sizing: border-box;
+        border-radius: 0 0 12px 12px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    [data-theme="dark"] .slideshow-caption {
+        background-color: var(--bg-secondary);
+        color: var(--text-color);
+        border-top-color: var(--border-color);
+    }
+    .prev-slide, .next-slide {
+        cursor: pointer;
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        padding: 12px 16px;
+        color: #fff;
+        font-weight: bold;
+        font-size: 24px;
+        background-color: rgba(0, 0, 0, 0.5);
+        border: none;
+        border-radius: 4px;
+        user-select: none;
+        z-index: 20;
+        transition: 0.2s;
+    }
+    .prev-slide {
+        left: 8px;
+    }
+    .next-slide {
+        right: 8px;
+    }
+    .prev-slide:hover, .next-slide:hover {
+        background-color: rgba(0, 0, 0, 0.9);
+        color: #fff;
+    }
+    .slideshow-dots {
+        position: absolute;
+        bottom: -25px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 6px;
+        z-index: 15;
+    }
+    .dot {
+        cursor: pointer;
+        height: 8px;
+        width: 8px;
+        background-color: rgba(0, 0, 0, 0.3);
+        border-radius: 50%;
+        display: inline-block;
+        transition: background-color 0.3s ease;
+    }
+    .active-dot, .dot:hover {
+        background-color: var(--primary-color);
+    }
+    .fade {
+        animation-name: fade;
+        animation-duration: 0.4s;
+    }
+    @keyframes fade {
+        from {opacity: .7} 
+        to {opacity: 1}
+    }
+    
+    /* Estilos das Referências Científicas */
+    .ref-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        column-count: 2;
+        column-gap: 2rem;
+    }
+    @media (max-width: 600px) {
+        .ref-list {
+            column-count: 1;
+        }
+        .detail-section, .comments-section {
+            padding: 1.25rem !important;
+        }
+        .detail-header h2 {
+            font-size: 1.75rem !important;
+        }
+    }
+    .ref-item {
+        padding: 0.3rem 0;
+        line-height: 1.5;
+        font-size: 0.85rem;
+        color: var(--text-color);
+        break-inside: avoid;
+    }
+    
+    /* Estilos da Galeria de Fotos Clássica */
+    .gallery-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+    @media (max-width: 480px) {
+        .gallery-grid {
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+        }
+    }
+    .gallery-item {
+        background-color: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 6px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        transition: border-color 0.2s, transform 0.2s;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    }
+    .gallery-item:hover {
+        border-color: var(--primary-color);
+        transform: translateY(-2px);
+    }
+    .gallery-img {
+        width: 100%;
+        height: 130px;
+        object-fit: cover;
+        cursor: zoom-in;
+        border-radius: 4px;
+    }
+    .gallery-caption {
+        padding: 0.5rem 0.25rem;
+        font-size: 0.75rem;
+        color: var(--text-light);
+        text-align: center;
+        line-height: 1.4;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 40px;
+    }
+</style>
+
+    
+    <!-- Microsoft Clarity -->
+    <script type="text/javascript">
+        (function(c,l,a,r,i,t,y){
+            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+        })(window, document, "clarity", "script", "tnroogw3ii");
+    </script>
+    
+    <script>
+        window.CLARITY_PROJECT_ID = 'tnroogw3ii';
+        
+        // URLs geradas pelo Django para uso no JavaScript (correção de i18n_patterns)
+        window.URLS = {
+            search: "/pt-br/search/",
+            globalMapData: "/pt-br/global-map-data/",
+            mammalBase: "/pt-br/mammal/1/".replace('/1/', '/')
+        };
+        
+        // Traduções para JavaScript
+        window.translations = {
+            'all_species': "Todas as Espécies",
+            'no_results': "Nenhum resultado encontrado",
+            'try_adjust_filters': "Tente ajustar os filtros ou usar termos de busca diferentes.",
+            'view_details': "Ver Detalhes",
+            'dark_theme': "Escuro",
+            'light_theme': "Claro"
+        };
+    </script>
+    
+    <style>
+    /* Navegação com tamanho fixo */
+    .navbar .container {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        align-items: center;
+        gap: 2rem;
+        min-height: 70px;
+    }
+    
+    .nav-brand {
+        grid-column: 1;
+    }
+    
+    .nav-menu {
+        grid-column: 3;
+        list-style: none;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin: 0;
+        padding: 0;
+    }
+    
+    .nav-menu li {
+        margin: 0;
+    }
+    
+    .nav-link {
+        display: inline-block;
+        padding: 0.6rem 1rem;
+        font-size: 0.9rem;
+        white-space: nowrap;
+        color: white;
+        text-decoration: none;
+        border-radius: 8px;
+        transition: var(--transition);
+        font-weight: 500;
+    }
+    
+    .nav-link:hover {
+        background: rgba(255, 255, 255, 0.15);
+        transform: translateY(-1px);
+    }
+    
+    /* Controles de tema e idioma — minimalistas */
+    .nav-controls {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        margin-left: 0.4rem;
+        padding-left: 0.4rem;
+        border-left: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    /* Mini-buttons for theme + language */
+    .theme-toggle {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 30px !important;
+        height: 30px !important;
+        min-width: 30px !important;
+        max-width: 30px !important;
+        min-height: 30px !important;
+        max-height: 30px !important;
+        align-self: center !important;
+        padding: 0 !important;
+        border-radius: 4px !important;
+        font-size: 0.75rem !important;
+        line-height: 30px !important;
+        cursor: pointer !important;
+        border: 1px solid rgba(255, 255, 255, 0.25) !important;
+        background: rgba(255, 255, 255, 0.1) !important;
+        color: white !important;
+        transition: background 0.2s !important;
+        aspect-ratio: 1 / 1 !important;
+        box-sizing: border-box !important;
+        overflow: hidden !important;
+    }
+    
+    
+    .theme-toggle:hover {
+        background: rgba(255, 255, 255, 0.2) !important;
+    }
+    
+    .theme-toggle-icon {
+        font-size: 0.9rem;
+        line-height: 1;
+    }
+    
+    .theme-toggle-text { display: none !important; }
+    
+    .language-selector {
+        height: 30px !important;
+        min-width: auto !important;
+        width: auto !important;
+        padding: 0 1.2rem 0 0.35rem !important;
+        font-size: 0.72rem !important;
+        font-weight: 500 !important;
+        border-radius: 4px !important;
+        cursor: pointer !important;
+        border: 1px solid rgba(255, 255, 255, 0.25) !important;
+        background-color: rgba(255, 255, 255, 0.1) !important;
+        color: white !important;
+        transition: background 0.2s !important;
+        appearance: none !important;
+        -webkit-appearance: none !important;
+        -moz-appearance: none !important;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 12 12'%3E%3Cpath fill='white' d='M6 9L1 4h10z'/%3E%3C/svg%3E") !important;
+        background-repeat: no-repeat !important;
+        background-position: right 0.3rem center !important;
+    }
+    
+    .language-selector:hover {
+        background-color: rgba(255, 255, 255, 0.2) !important;
+    }
+    
+    .language-form {
+        margin: 0;
+    }
+    
+    /* Hamburger menu */
+    .hamburger-menu {
+        display: none;
+        grid-column: 1;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        font-size: 1.5rem;
+        padding: 0.5rem 0.8rem;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: var(--transition);
+    }
+    
+    .hamburger-menu:hover {
+        background: rgba(255, 255, 255, 0.2);
+    }
+    
+    .menu-close {
+        display: none;
+    }
+    
+    @media (max-width: 1024px) {
+        .hamburger-menu {
+            display: block;
+        }
+        
+        .nav-menu {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 300px;
+            height: 100vh;
+            background: var(--primary-dark);
+            flex-direction: column;
+            align-items: stretch;
+            padding: 2rem 1rem;
+            box-shadow: -4px 0 20px rgba(0, 0, 0, 0.3);
+            transition: right 0.3s ease;
+            z-index: 2000;
+            overflow-y: auto;
+        }
+        
+        .nav-menu.active {
+            right: 0;
+        }
+        
+        .menu-close {
+            display: block;
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            font-size: 2rem;
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .menu-close:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .nav-link {
+            width: 100%;
+            text-align: left;
+            padding: 0.8rem 1rem;
+        }
+        
+        .nav-controls {
+            flex-direction: column;
+            width: 100%;
+            margin-left: 0;
+            padding-left: 0;
+            border-left: none;
+            border-top: 1px solid rgba(255, 255, 255, 0.3);
+            padding-top: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .theme-toggle,
+        .language-selector {
+            width: 100%;
+        }
+    }
+    
+    .menu-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 990;
+    }
+    
+    .menu-overlay.active {
+        display: block;
+    }
+    </style>
+</head>
+<body>
+    <!-- Skip link para acessibilidade -->
+    <a href="#main-content" class="skip-to-main">Pular para conteúdo principal</a>
+    
+    <header>
+        <nav class="navbar">
+            <div class="container">
+                <button class="hamburger-menu" id="hamburger-menu" aria-label="Abrir menu de navegação" aria-expanded="false">
+                    ☰
+                </button>
+                
+                <div class="nav-brand">
+                    <a href="/pt-br/">
+                        <h1>Catálogo de Mamíferos Extintos</h1>
+                        <p class="subtitle">Memória Biológica desde 1500</p>
+                    </a>
+                </div>
+                
+                <ul class="nav-menu" id="nav-menu">
+                    <button class="menu-close" id="menu-close" aria-label="Fechar menu">×</button>
+                    
+                    <li><a href="/pt-br/" class="nav-link">Início</a></li>
+                    <li><a href="/pt-br/about/" class="nav-link">Sobre</a></li>
+                    <li><a href="/pt-br/global-map/" class="nav-link">Dados</a></li>
+                    
+                    
+                        <li><a href="/pt-br/accounts/login/" class="nav-link">Entrar</a></li>
+                    
+                    
+                    <li class="nav-controls">
+                        <button id="theme-toggle" class="theme-toggle" aria-label="Alternar tema claro/escuro" aria-pressed="false">
+                            <span class="theme-toggle-icon" aria-hidden="true">🌙</span>
+                            <span class="theme-toggle-text"></span>
+                        </button>
+                        
+                        <form action="/i18n/setlang/" method="post" id="language-form" class="language-form">
+                            <input type="hidden" name="csrfmiddlewaretoken" value="dz6ZjVdVnEossSKAHWvfdnXT8o8te6OukMod3PBOBzHVD0D4651C0m5VDdQKJz0F">
+                            <input name="next" type="hidden" value="/pt-br/mammal/127/">
+                            <select name="language" onchange="this.form.submit()" class="language-selector" aria-label="Selecionar idioma">
+                                
+                                
+                                
+                                    <option value="pt-br" selected>
+                                        Português
+                                    </option>
+                                
+                                    <option value="en" >
+                                        English
+                                    </option>
+                                
+                            </select>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+    
+    <!-- Overlay para menu mobile -->
+    <div class="menu-overlay" id="menu-overlay"></div>
+
+    <main id="main-content" class="main-content">
+        
+        
+        
+<div class="detail-fluid-container" style="width: 100%; padding: 0;">
+    <!-- Breadcrumbs -->
+    <div style="padding: 10px 20px;">
+        <nav aria-label="Breadcrumb" class="breadcrumb">
+            <div class="breadcrumb-item">
+                <a href="/pt-br/">Início</a>
+            </div>
+            <span class="breadcrumb-separator" aria-hidden="true">/</span>
+            <div class="breadcrumb-item">
+                <a href="/pt-br/">Mamíferos</a>
+            </div>
+            <span class="breadcrumb-separator" aria-hidden="true">/</span>
+            <div class="breadcrumb-item">
+                <span class="breadcrumb-current" aria-current="page">Coelho-de-Cuba / Cuban coney</span>
+            </div>
+        </nav>
+    </div>
+
+    <div class="detail-container">
+        <div class="detail-header" style="padding: 0 20px; text-align: center;">
+            <h2>Coelho-de-Cuba / Cuban coney</h2>
+            
+                <p class="binomial-name"><em>Geocapromys columbianus</em></p>
+            
+        </div>
+
+        <div class="detail-image" style="position: relative; max-width: 600px; margin: 0 auto 1.5rem auto;">
+            
+                <!-- Slideshow Container -->
+                <div class="slideshow-container">
+                    
+                    <div class="mySlides fade" style="display: flex;">
+                        <img src="/static/images/mammals_gallery/Geocapromys%20columbianus%20-%20VPM-15735%20%281%29.jpg" alt="VPM-15735 (1)" onerror="this.onerror=null; this.src='/static/images/mammals_gallery/Geocapromys columbianus - VPM-15735 (1).jpg';">
+                        <div class="slideshow-caption">VPM-15735 (1)</div>
+                    </div>
+                    
+                    <div class="mySlides fade" style="display: none;">
+                        <img src="/static/images/mammals_gallery/Geocapromys%20columbianus%20-%20VPM-15735%20%2810%29.jpg" alt="VPM-15735 (10)" onerror="this.onerror=null; this.src='/static/images/mammals_gallery/Geocapromys columbianus - VPM-15735 (10).jpg';">
+                        <div class="slideshow-caption">VPM-15735 (10)</div>
+                    </div>
+                    
+                    <div class="mySlides fade" style="display: none;">
+                        <img src="/static/images/mammals_gallery/Geocapromys%20columbianus%20-%20VPM-15735%20%2811%29.jpg" alt="VPM-15735 (11)" onerror="this.onerror=null; this.src='/static/images/mammals_gallery/Geocapromys columbianus - VPM-15735 (11).jpg';">
+                        <div class="slideshow-caption">VPM-15735 (11)</div>
+                    </div>
+                    
+                    <div class="mySlides fade" style="display: none;">
+                        <img src="/static/images/mammals_gallery/Geocapromys%20columbianus%20-%20VPM-15735%20%2812%29.jpg" alt="VPM-15735 (12)" onerror="this.onerror=null; this.src='/static/images/mammals_gallery/Geocapromys columbianus - VPM-15735 (12).jpg';">
+                        <div class="slideshow-caption">VPM-15735 (12)</div>
+                    </div>
+                    
+                    <div class="mySlides fade" style="display: none;">
+                        <img src="/static/images/mammals_gallery/Geocapromys%20columbianus%20-%20VPM-15735%20%2813%29.jpg" alt="VPM-15735 (13)" onerror="this.onerror=null; this.src='/static/images/mammals_gallery/Geocapromys columbianus - VPM-15735 (13).jpg';">
+                        <div class="slideshow-caption">VPM-15735 (13)</div>
+                    </div>
+                    
+                    <div class="mySlides fade" style="display: none;">
+                        <img src="/static/images/mammals_gallery/Geocapromys%20columbianus%20-%20VPM-15735%20%2814%29.jpg" alt="VPM-15735 (14)" onerror="this.onerror=null; this.src='/static/images/mammals_gallery/Geocapromys columbianus - VPM-15735 (14).jpg';">
+                        <div class="slideshow-caption">VPM-15735 (14)</div>
+                    </div>
+                    
+                    <div class="mySlides fade" style="display: none;">
+                        <img src="/static/images/mammals_gallery/Geocapromys%20columbianus%20-%20VPM-15735%20%2815%29.jpg" alt="VPM-15735 (15)" onerror="this.onerror=null; this.src='/static/images/mammals_gallery/Geocapromys columbianus - VPM-15735 (15).jpg';">
+                        <div class="slideshow-caption">VPM-15735 (15)</div>
+                    </div>
+                    
+                    <div class="mySlides fade" style="display: none;">
+                        <img src="/static/images/mammals_gallery/Geocapromys%20columbianus%20-%20VPM-15735%20%2816%29.jpg" alt="VPM-15735 (16)" onerror="this.onerror=null; this.src='/static/images/mammals_gallery/Geocapromys columbianus - VPM-15735 (16).jpg';">
+                        <div class="slideshow-caption">VPM-15735 (16)</div>
+                    </div>
+                    
+                    <div class="mySlides fade" style="display: none;">
+                        <img src="/static/images/mammals_gallery/Geocapromys%20columbianus%20-%20VPM-15735%20%2817%29.jpg" alt="VPM-15735 (17)" onerror="this.onerror=null; this.src='/static/images/mammals_gallery/Geocapromys columbianus - VPM-15735 (17).jpg';">
+                        <div class="slideshow-caption">VPM-15735 (17)</div>
+                    </div>
+                    
+                    <div class="mySlides fade" style="display: none;">
+                        <img src="/static/images/mammals_gallery/Geocapromys%20columbianus%20-%20VPM-15735%20%2818%29.jpg" alt="VPM-15735 (18)" onerror="this.onerror=null; this.src='/static/images/mammals_gallery/Geocapromys columbianus - VPM-15735 (18).jpg';">
+                        <div class="slideshow-caption">VPM-15735 (18)</div>
+                    </div>
+                    
+                    <div class="mySlides fade" style="display: none;">
+                        <img src="/static/images/mammals_gallery/Geocapromys%20columbianus%20-%20VPM-15735%20%2819%29.jpg" alt="VPM-15735 (19)" onerror="this.onerror=null; this.src='/static/images/mammals_gallery/Geocapromys columbianus - VPM-15735 (19).jpg';">
+                        <div class="slideshow-caption">VPM-15735 (19)</div>
+                    </div>
+                    
+                    <div class="mySlides fade" style="display: none;">
+                        <img src="/static/images/mammals_gallery/Geocapromys%20columbianus%20-%20VPM-15735%20%282%29.jpg" alt="VPM-15735 (2)" onerror="this.onerror=null; this.src='/static/images/mammals_gallery/Geocapromys columbianus - VPM-15735 (2).jpg';">
+                        <div class="slideshow-caption">VPM-15735 (2)</div>
+                    </div>
+                    
+                    <div class="mySlides fade" style="display: none;">
+                        <img src="/static/images/mammals_gallery/Geocapromys%20columbianus%20-%20VPM-15735%20%2820%29.jpg" alt="VPM-15735 (20)" onerror="this.onerror=null; this.src='/static/images/mammals_gallery/Geocapromys columbianus - VPM-15735 (20).jpg';">
+                        <div class="slideshow-caption">VPM-15735 (20)</div>
+                    </div>
+                    
+                    <div class="mySlides fade" style="display: none;">
+                        <img src="/static/images/mammals_gallery/Geocapromys%20columbianus%20-%20VPM-15735%20%283%29.jpg" alt="VPM-15735 (3)" onerror="this.onerror=null; this.src='/static/images/mammals_gallery/Geocapromys columbianus - VPM-15735 (3).jpg';">
+                        <div class="slideshow-caption">VPM-15735 (3)</div>
+                    </div>
+                    
+                    <div class="mySlides fade" style="display: none;">
+                        <img src="/static/images/mammals_gallery/Geocapromys%20columbianus%20-%20VPM-15735%20%284%29.jpg" alt="VPM-15735 (4)" onerror="this.onerror=null; this.src='/static/images/mammals_gallery/Geocapromys columbianus - VPM-15735 (4).jpg';">
+                        <div class="slideshow-caption">VPM-15735 (4)</div>
+                    </div>
+                    
+                    <div class="mySlides fade" style="display: none;">
+                        <img src="/static/images/mammals_gallery/Geocapromys%20columbianus%20-%20VPM-15735%20%285%29.jpg" alt="VPM-15735 (5)" onerror="this.onerror=null; this.src='/static/images/mammals_gallery/Geocapromys columbianus - VPM-15735 (5).jpg';">
+                        <div class="slideshow-caption">VPM-15735 (5)</div>
+                    </div>
+                    
+                    <div class="mySlides fade" style="display: none;">
+                        <img src="/static/images/mammals_gallery/Geocapromys%20columbianus%20-%20VPM-15735%20%286%29.jpg" alt="VPM-15735 (6)" onerror="this.onerror=null; this.src='/static/images/mammals_gallery/Geocapromys columbianus - VPM-15735 (6).jpg';">
+                        <div class="slideshow-caption">VPM-15735 (6)</div>
+                    </div>
+                    
+                    <div class="mySlides fade" style="display: none;">
+                        <img src="/static/images/mammals_gallery/Geocapromys%20columbianus%20-%20VPM-15735%20%287%29.jpg" alt="VPM-15735 (7)" onerror="this.onerror=null; this.src='/static/images/mammals_gallery/Geocapromys columbianus - VPM-15735 (7).jpg';">
+                        <div class="slideshow-caption">VPM-15735 (7)</div>
+                    </div>
+                    
+                    <div class="mySlides fade" style="display: none;">
+                        <img src="/static/images/mammals_gallery/Geocapromys%20columbianus%20-%20VPM-15735%20%288%29.jpg" alt="VPM-15735 (8)" onerror="this.onerror=null; this.src='/static/images/mammals_gallery/Geocapromys columbianus - VPM-15735 (8).jpg';">
+                        <div class="slideshow-caption">VPM-15735 (8)</div>
+                    </div>
+                    
+                    <div class="mySlides fade" style="display: none;">
+                        <img src="/static/images/mammals_gallery/Geocapromys%20columbianus%20-%20VPM-15735%20%289%29.jpg" alt="VPM-15735 (9)" onerror="this.onerror=null; this.src='/static/images/mammals_gallery/Geocapromys columbianus - VPM-15735 (9).jpg';">
+                        <div class="slideshow-caption">VPM-15735 (9)</div>
+                    </div>
+                    
+                    <div class="mySlides fade" style="display: none;">
+                        <img src="/static/images/mammals_gallery/Geocapromys%20columbianus%20-%20mandibula%20Holotipo%20-%20VPM-9602.jpg" alt="mandibula Holotipo - VPM-9602" onerror="this.onerror=null; this.src='/static/images/mammals_gallery/Geocapromys columbianus - mandibula Holotipo - VPM-9602.jpg';">
+                        <div class="slideshow-caption">mandibula Holotipo - VPM-9602</div>
+                    </div>
+                    
+
+                    <!-- Next and previous buttons -->
+                    <a class="prev-slide" onclick="plusSlides(-1)">&#10094;</a>
+                    <a class="next-slide" onclick="plusSlides(1)">&#10095;</a>
+                    
+                    <!-- Slide indicator dots -->
+                    <div class="slideshow-dots">
+                        
+                        <span class="dot active-dot" onclick="currentSlide(1)"></span>
+                        
+                        <span class="dot" onclick="currentSlide(2)"></span>
+                        
+                        <span class="dot" onclick="currentSlide(3)"></span>
+                        
+                        <span class="dot" onclick="currentSlide(4)"></span>
+                        
+                        <span class="dot" onclick="currentSlide(5)"></span>
+                        
+                        <span class="dot" onclick="currentSlide(6)"></span>
+                        
+                        <span class="dot" onclick="currentSlide(7)"></span>
+                        
+                        <span class="dot" onclick="currentSlide(8)"></span>
+                        
+                        <span class="dot" onclick="currentSlide(9)"></span>
+                        
+                        <span class="dot" onclick="currentSlide(10)"></span>
+                        
+                        <span class="dot" onclick="currentSlide(11)"></span>
+                        
+                        <span class="dot" onclick="currentSlide(12)"></span>
+                        
+                        <span class="dot" onclick="currentSlide(13)"></span>
+                        
+                        <span class="dot" onclick="currentSlide(14)"></span>
+                        
+                        <span class="dot" onclick="currentSlide(15)"></span>
+                        
+                        <span class="dot" onclick="currentSlide(16)"></span>
+                        
+                        <span class="dot" onclick="currentSlide(17)"></span>
+                        
+                        <span class="dot" onclick="currentSlide(18)"></span>
+                        
+                        <span class="dot" onclick="currentSlide(19)"></span>
+                        
+                        <span class="dot" onclick="currentSlide(20)"></span>
+                        
+                        <span class="dot" onclick="currentSlide(21)"></span>
+                        
+                    </div>
+                </div>
+            
+        </div>
+
+        <div class="detail-content">
+            <section class="detail-section">
+                <h3 id="description-heading">Descrição</h3>
+                <p>Coelho-de-Cuba / Cuban coney (Geocapromys columbianus) era um mamífero da ordem Rodentia. Habitava a região de Cuba. Sua extinção foi registrada em 1500. A principal causa de sua extinção foi: caça, desmatamento, espécies invasoras.</p>
+            </section>
+
+            
+            <section class="detail-section">
+                <h3 id="habitat-heading">Habitat</h3>
+                <p>Região de Cuba</p>
+            </section>
+            
+
+            
+            <section class="detail-section">
+                <h3 id="distribution-heading">Geographic Distribution</h3>
+                
+                <p><strong>Continente:</strong> America do Norte</p>
+                
+                
+                <p><strong>Região:</strong> Caribe</p>
+                
+                
+                <p>Cuba</p>
+                
+            </section>
+            
+            <!-- Mapa Interativo de Distribuição -->
+            
+            <div id="distribution-map-container" class="detail-section">
+                <h3>Mapa de Distribuição Histórica</h3>
+                <div id="distribution-map" style="height: 400px; width: 100%; border-radius: 8px; border: 1px solid var(--border-color); background: #1a1410;"></div>
+            </div>
+            
+            
+
+            
+            <section class="detail-section">
+                <h3 id="extinction-heading">Causas da Extinção</h3>
+                <p>Caça, desmatamento, espécies invasoras</p>
+            </section>
+            
+
+            
+
+            
+
+            
+
+            
+
+            
+            <section class="detail-section" id="historical-timeline-section">
+                <h3 id="historical-timeline-heading">Histórico de Extinção</h3>
+                
+                <p><strong>Ano Biológico de Extinção:</strong> 1500</p>
+                
+                
+                <p><strong>Ano de Formalização:</strong> 2008 </p>
+                
+                
+                <p><strong>Causa Principal:</strong> Caça, desmatamento, espécies invasoras</p>
+                
+            </section>
+            
+
+            
+            <section class="detail-section" id="taxonomy-section">
+                <h3 id="taxonomy-heading">Taxonomia</h3>
+                <div class="taxonomy-extended-content">
+                    <ul style='list-style-type: none; padding-left: 0; margin-top: 0.5rem;'>
+<li style='margin-bottom: 0.3rem;'><strong>Classe:</strong> Mammalia</li>
+<li style='margin-bottom: 0.3rem;'><strong>Ordem:</strong> Rodentia</li>
+<li style='margin-bottom: 0.3rem;'><strong>Família:</strong> Capromyidae</li>
+<li style='margin-bottom: 0.3rem;'><strong>Gênero:</strong> Geocapromys</li>
+<li style='margin-bottom: 0.3rem;'><strong>Espécie:</strong> Geocapromys columbianus  Chapman, 1892</li>
+<li style='margin-bottom: 0.3rem;'><strong>Status IUCN:</strong> EX (Extinto)</li>
+</ul>
+                </div>
+            </section>
+            
+
+            
+            <section class="detail-section">
+                <h3 id="gallery-heading">Photo Gallery</h3>
+                <div class="gallery-grid">
+                    
+                    <div class="gallery-item">
+                        <img src="/static/images/mammals_gallery/Geocapromys%20columbianus%20-%20VPM-15735%20%281%29.jpg" alt="VPM-15735 (1)" class="gallery-img" onclick="window.open('/static/images/mammals_gallery/Geocapromys%20columbianus%20-%20VPM-15735%20%281%29.jpg', '_blank')">
+                        <div class="gallery-caption">VPM-15735 (1)</div>
+                    </div>
+                    
+                    <div class="gallery-item">
+                        <img src="/static/images/mammals_gallery/Geocapromys%20columbianus%20-%20VPM-15735%20%2810%29.jpg" alt="VPM-15735 (10)" class="gallery-img" onclick="window.open('/static/images/mammals_gallery/Geocapromys%20columbianus%20-%20VPM-15735%20%2810%29.jpg', '_blank')">
+                        <div class="gallery-caption">VPM-15735 (10)</div>
+                    </div>
+                    
+                    <div class="gallery-item">
+                        <img src="/static/images/mammals_gallery/Geocapromys%20columbianus%20-%20VPM-15735%20%2811%29.jpg" alt="VPM-15735 (11)" class="gallery-img" onclick="window.open('/static/images/mammals_gallery/Geocapromys%20columbianus%20-%20VPM-15735%20%2811%29.jpg', '_blank')">
+                        <div class="gallery-caption">VPM-15735 (11)</div>
+                    </div>
+                    
+                    <div class="gallery-item">
+                        <img src="/static/images/mammals_gallery/Geocapromys%20columbianus%20-%20VPM-15735%20%2812%29.jpg" alt="VPM-15735 (12)" class="gallery-img" onclick="window.open('/static/images/mammals_gallery/Geocapromys%20columbianus%20-%20VPM-15735%20%2812%29.jpg', '_blank')">
+                        <div class="gallery-caption">VPM-15735 (12)</div>
+                    </div>
+                    
+                    <div class="gallery-item">
+                        <img src="/static/images/mammals_gallery/Geocapromys%20columbianus%20-%20VPM-15735%20%2813%29.jpg" alt="VPM-15735 (13)" class="gallery-img" onclick="window.open('/static/images/mammals_gallery/Geocapromys%20columbianus%20-%20VPM-15735%20%2813%29.jpg', '_blank')">
+                        <div class="gallery-caption">VPM-15735 (13)</div>
+                    </div>
+                    
+                    <div class="gallery-item">
+                        <img src="/static/images/mammals_gallery/Geocapromys%20columbianus%20-%20VPM-15735%20%2814%29.jpg" alt="VPM-15735 (14)" class="gallery-img" onclick="window.open('/static/images/mammals_gallery/Geocapromys%20columbianus%20-%20VPM-15735%20%2814%29.jpg', '_blank')">
+                        <div class="gallery-caption">VPM-15735 (14)</div>
+                    </div>
+                    
+                    <div class="gallery-item">
+                        <img src="/static/images/mammals_gallery/Geocapromys%20columbianus%20-%20VPM-15735%20%2815%29.jpg" alt="VPM-15735 (15)" class="gallery-img" onclick="window.open('/static/images/mammals_gallery/Geocapromys%20columbianus%20-%20VPM-15735%20%2815%29.jpg', '_blank')">
+                        <div class="gallery-caption">VPM-15735 (15)</div>
+                    </div>
+                    
+                    <div class="gallery-item">
+                        <img src="/static/images/mammals_gallery/Geocapromys%20columbianus%20-%20VPM-15735%20%2816%29.jpg" alt="VPM-15735 (16)" class="gallery-img" onclick="window.open('/static/images/mammals_gallery/Geocapromys%20columbianus%20-%20VPM-15735%20%2816%29.jpg', '_blank')">
+                        <div class="gallery-caption">VPM-15735 (16)</div>
+                    </div>
+                    
+                    <div class="gallery-item">
+                        <img src="/static/images/mammals_gallery/Geocapromys%20columbianus%20-%20VPM-15735%20%2817%29.jpg" alt="VPM-15735 (17)" class="gallery-img" onclick="window.open('/static/images/mammals_gallery/Geocapromys%20columbianus%20-%20VPM-15735%20%2817%29.jpg', '_blank')">
+                        <div class="gallery-caption">VPM-15735 (17)</div>
+                    </div>
+                    
+                    <div class="gallery-item">
+                        <img src="/static/images/mammals_gallery/Geocapromys%20columbianus%20-%20VPM-15735%20%2818%29.jpg" alt="VPM-15735 (18)" class="gallery-img" onclick="window.open('/static/images/mammals_gallery/Geocapromys%20columbianus%20-%20VPM-15735%20%2818%29.jpg', '_blank')">
+                        <div class="gallery-caption">VPM-15735 (18)</div>
+                    </div>
+                    
+                    <div class="gallery-item">
+                        <img src="/static/images/mammals_gallery/Geocapromys%20columbianus%20-%20VPM-15735%20%2819%29.jpg" alt="VPM-15735 (19)" class="gallery-img" onclick="window.open('/static/images/mammals_gallery/Geocapromys%20columbianus%20-%20VPM-15735%20%2819%29.jpg', '_blank')">
+                        <div class="gallery-caption">VPM-15735 (19)</div>
+                    </div>
+                    
+                    <div class="gallery-item">
+                        <img src="/static/images/mammals_gallery/Geocapromys%20columbianus%20-%20VPM-15735%20%282%29.jpg" alt="VPM-15735 (2)" class="gallery-img" onclick="window.open('/static/images/mammals_gallery/Geocapromys%20columbianus%20-%20VPM-15735%20%282%29.jpg', '_blank')">
+                        <div class="gallery-caption">VPM-15735 (2)</div>
+                    </div>
+                    
+                    <div class="gallery-item">
+                        <img src="/static/images/mammals_gallery/Geocapromys%20columbianus%20-%20VPM-15735%20%2820%29.jpg" alt="VPM-15735 (20)" class="gallery-img" onclick="window.open('/static/images/mammals_gallery/Geocapromys%20columbianus%20-%20VPM-15735%20%2820%29.jpg', '_blank')">
+                        <div class="gallery-caption">VPM-15735 (20)</div>
+                    </div>
+                    
+                    <div class="gallery-item">
+                        <img src="/static/images/mammals_gallery/Geocapromys%20columbianus%20-%20VPM-15735%20%283%29.jpg" alt="VPM-15735 (3)" class="gallery-img" onclick="window.open('/static/images/mammals_gallery/Geocapromys%20columbianus%20-%20VPM-15735%20%283%29.jpg', '_blank')">
+                        <div class="gallery-caption">VPM-15735 (3)</div>
+                    </div>
+                    
+                    <div class="gallery-item">
+                        <img src="/static/images/mammals_gallery/Geocapromys%20columbianus%20-%20VPM-15735%20%284%29.jpg" alt="VPM-15735 (4)" class="gallery-img" onclick="window.open('/static/images/mammals_gallery/Geocapromys%20columbianus%20-%20VPM-15735%20%284%29.jpg', '_blank')">
+                        <div class="gallery-caption">VPM-15735 (4)</div>
+                    </div>
+                    
+                    <div class="gallery-item">
+                        <img src="/static/images/mammals_gallery/Geocapromys%20columbianus%20-%20VPM-15735%20%285%29.jpg" alt="VPM-15735 (5)" class="gallery-img" onclick="window.open('/static/images/mammals_gallery/Geocapromys%20columbianus%20-%20VPM-15735%20%285%29.jpg', '_blank')">
+                        <div class="gallery-caption">VPM-15735 (5)</div>
+                    </div>
+                    
+                    <div class="gallery-item">
+                        <img src="/static/images/mammals_gallery/Geocapromys%20columbianus%20-%20VPM-15735%20%286%29.jpg" alt="VPM-15735 (6)" class="gallery-img" onclick="window.open('/static/images/mammals_gallery/Geocapromys%20columbianus%20-%20VPM-15735%20%286%29.jpg', '_blank')">
+                        <div class="gallery-caption">VPM-15735 (6)</div>
+                    </div>
+                    
+                    <div class="gallery-item">
+                        <img src="/static/images/mammals_gallery/Geocapromys%20columbianus%20-%20VPM-15735%20%287%29.jpg" alt="VPM-15735 (7)" class="gallery-img" onclick="window.open('/static/images/mammals_gallery/Geocapromys%20columbianus%20-%20VPM-15735%20%287%29.jpg', '_blank')">
+                        <div class="gallery-caption">VPM-15735 (7)</div>
+                    </div>
+                    
+                    <div class="gallery-item">
+                        <img src="/static/images/mammals_gallery/Geocapromys%20columbianus%20-%20VPM-15735%20%288%29.jpg" alt="VPM-15735 (8)" class="gallery-img" onclick="window.open('/static/images/mammals_gallery/Geocapromys%20columbianus%20-%20VPM-15735%20%288%29.jpg', '_blank')">
+                        <div class="gallery-caption">VPM-15735 (8)</div>
+                    </div>
+                    
+                    <div class="gallery-item">
+                        <img src="/static/images/mammals_gallery/Geocapromys%20columbianus%20-%20VPM-15735%20%289%29.jpg" alt="VPM-15735 (9)" class="gallery-img" onclick="window.open('/static/images/mammals_gallery/Geocapromys%20columbianus%20-%20VPM-15735%20%289%29.jpg', '_blank')">
+                        <div class="gallery-caption">VPM-15735 (9)</div>
+                    </div>
+                    
+                    <div class="gallery-item">
+                        <img src="/static/images/mammals_gallery/Geocapromys%20columbianus%20-%20mandibula%20Holotipo%20-%20VPM-9602.jpg" alt="mandibula Holotipo - VPM-9602" class="gallery-img" onclick="window.open('/static/images/mammals_gallery/Geocapromys%20columbianus%20-%20mandibula%20Holotipo%20-%20VPM-9602.jpg', '_blank')">
+                        <div class="gallery-caption">mandibula Holotipo - VPM-9602</div>
+                    </div>
+                    
+                </div>
+            </section>
+            
+
+            
+            <section class="detail-section">
+                <h3 id="references-heading">Referências Científicas e Bibliográficas</h3>
+                <div class="ref-list">
+                    MUSEUM OF COMPARATIVE ZOOLOGY. *Geocapromys columbianus. Specimen MCZ:VP:VPM-9602*. Harvard University. Disponível em: <https://mczbase.mcz.harvard.edu/guid/MCZ:VP:VPM-9602>. Acesso em: 25 jun. 2026.
+                </div>
+            </section>
+            
+        </div>
+
+        
+
+        <div class="comments-section" id="comments-section">
+            <h3>Comentários (0)</h3>
+
+            
+            <p class="login-prompt">
+                <a href="/pt-br/accounts/login/?next=/pt-br/mammal/127/">Entrar</a> para comentar.
+            </p>
+            
+
+            <div class="comments-list" style="margin-top: 1.5rem;">
+                
+                <p class="no-comments" style="color: var(--text-light);">Nenhum comentário ainda. Seja o primeiro!</p>
+                
+            </div>
+        </div>
+
+        <div class="back-link">
+            <a href="/pt-br/" class="btn-secondary">← Voltar para a lista</a>
+        </div>
+    </div>
+</div>
+
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Catálogo de Mamíferos Extintos | TCC - TIC aplicadas à conservação da memória biológica</p>
+            <p>Desenvolvido para fins educacionais e de conservação da memória biológica</p>
+        </div>
+    </footer>
+
+    <div id="cookie-consent-banner" class="cookie-consent-banner">
+        <div class="cookie-consent-content">
+            <div class="cookie-consent-text">
+                <h3>🍪 Cookies e Privacidade</h3>
+                <p>
+                    Utilizamos cookies para melhorar sua experiência e entender como os visitantes interagem com nosso conteúdo. Seus dados são tratados de forma anônima e segura, em conformidade com a LGPD e GDPR.
+                </p>
+            </div>
+            <div class="cookie-consent-buttons">
+                <button id="cookie-accept" class="cookie-btn cookie-btn-accept">Aceitar Cookies</button>
+                <button id="cookie-reject" class="cookie-btn cookie-btn-reject">Rejeitar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/script.js?v=2.1"></script>
+    <script src="/static/js/cookie-consent.js"></script>
+    <script src="/static/js/pwa.js"></script>
+    
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+(function () {
+    var mapEl = document.getElementById('distribution-map');
+    if (!mapEl) return;
+
+    /* ── Dados da espécie ── */
+    var animalLat  = parseFloat("21.520000");
+    var animalLon  = parseFloat("-77.780000");
+    var animalName = "Coelho\u002Dde\u002DCuba / Cuban coney";
+    var animalBin  = "Geocapromys columbianus";
+    var distribRaw = "Cuba";
+    var geoCountry = "Cuba";
+
+    /* ── Mapa base ── */
+    var map = L.map('distribution-map', {
+        zoomControl: true,
+        scrollWheelZoom: true,
+        worldCopyJump: false,
+        maxBounds: [[-90, -180], [90, 180]],
+        maxBoundsViscosity: 1.0
+    }).setView([isNaN(animalLat) ? 0 : animalLat, isNaN(animalLon) ? 0 : animalLon], 4);
+
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; CARTO', subdomains: 'abcd', maxZoom: 18, noWrap: true
+    }).addTo(map);
+
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.png', {
+        attribution: '', subdomains: 'abcd', maxZoom: 18, noWrap: true, zIndex: 400
+    }).addTo(map);
+
+    /* ── Carregar Fronteiras GeoJSON ── */
+    fetch('https://raw.githubusercontent.com/johan/world.geo.json/master/countries.geo.json')
+        .then(r => r.json())
+        .then(geo => {
+            let foundTerritory = false;
+
+            // Add CSS for the glowing heatmap effect
+            var style = document.createElement('style');
+            style.innerHTML = `
+                .heat-polygon {
+                    filter: blur(5px) drop-shadow(0 0 10px rgba(196, 165, 123, 0.6));
+                    transition: filter 0.3s ease, fill-opacity 0.3s;
+                    cursor: pointer;
+                }
+                .heat-polygon:hover {
+                    filter: blur(1px) drop-shadow(0 0 15px rgba(220, 47, 2, 0.9));
+                    z-index: 1000 !important;
+                }
+            `;
+            document.head.appendChild(style);
+
+            L.geoJSON(geo, {
+                style: function(feature) {
+                    if (geoCountry && feature.properties.name === geoCountry) {
+                        return {
+                            fillColor: '#C4A57B',
+                            weight: 2,
+                            opacity: 0.6,
+                            color: '#C4A57B',
+                            fillOpacity: 0.75,
+                            className: 'heat-polygon'
+                        };
+                    }
+                    return { color: '#d4c5b0', weight: 1.0, opacity: 0.2, fillOpacity: 0 };
+                },
+                onEachFeature: function(feature, layer) {
+                    if (geoCountry && feature.properties.name === geoCountry) {
+                        foundTerritory = true;
+                        
+                        var popupContent = '<b>' + animalName + '</b>' +
+                            (animalBin ? '<br><em>' + animalBin + '</em>' : '') +
+                            '<br><small>' + distribRaw + '</small>';
+
+                        layer.bindPopup(popupContent);
+                        layer.bindTooltip('<strong>Habitat: ' + distribRaw + '</strong>', { sticky: true });
+
+                        // Ajustar o zoom para caber o polígono encontrado
+                        map.fitBounds(layer.getBounds(), { padding: [50, 50], maxZoom: 6 });
+                        
+                        layer.on({
+                            mouseover: function(e) {
+                                e.target.setStyle({ fillOpacity: 0.85, color: '#dc2f02' });
+                                if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) e.target.bringToFront();
+                            },
+                            mouseout: function(e) {
+                                e.target.setStyle({ fillOpacity: 0.6, color: '#ffffff' });
+                            }
+                        });
+                    }
+                }
+            }).addTo(map);
+
+            /* Fallback se não encontrar o país no GeoJSON ou se não tiver geoCountry */
+            if (!foundTerritory && !isNaN(animalLat) && !isNaN(animalLon)) {
+                // Função para estimar raio (Fallback)
+                function estimateRadius(distribText) {
+                    var t = distribText.toLowerCase();
+                    if (t.match(/ilha|island|cay|key|atoll/i))    return 30;
+                    if (t.match(/região|region|area|área/i))       return 300;
+                    if (t.match(/bacia|basin|valley|vale/i))       return 500;
+                    if (t.match(/sul|norte|leste|oeste|central/i)) return 600;
+                    return 200; // padrão
+                }
+
+                var radiusM = estimateRadius(distribRaw) * 1000;
+                
+                var circle = L.circle([animalLat, animalLon], {
+                    radius: radiusM,
+                    fillColor: '#C4A57B',
+                    color: '#C4A57B',
+                    weight: 2,
+                    fillOpacity: 0.75,
+                    className: 'heat-polygon'
+                }).addTo(map);
+
+                var marker = L.circleMarker([animalLat, animalLon], {
+                    radius: 6, fillColor: '#dc2f02',
+                    color: '#fff', weight: 2, fillOpacity: 1
+                }).addTo(map);
+
+                var popupContent = '<b>' + animalName + '</b>' +
+                    (animalBin ? '<br><em>' + animalBin + '</em>' : '') +
+                    '<br><small>' + distribRaw + '</small>';
+
+                marker.bindPopup(popupContent);
+                circle.bindTooltip('<strong>Habitat: ' + distribRaw + '</strong>', { sticky: true });
+
+                map.fitBounds(circle.getBounds(), { padding: [50, 50], maxZoom: 7 });
+            }
+        })
+        .catch(err => console.error("Error loading GeoJSON", err));
+
+    /* Atualizar mapa ao redimensionar */
+    window.addEventListener('resize', function(){ map.invalidateSize(); });
+})();
+</script>
+
+
+
+
+
+<script>
+    var slideIndex = 1;
+    showSlides(slideIndex);
+
+    function plusSlides(n) {
+        showSlides(slideIndex += n);
+    }
+
+    function currentSlide(n) {
+        showSlides(slideIndex = n);
+    }
+
+    function showSlides(n) {
+        var i;
+        var slides = document.getElementsByClassName("mySlides");
+        var dots = document.getElementsByClassName("dot");
+        if (slides.length === 0) return;
+        if (n > slides.length) {slideIndex = 1}    
+        if (n < 1) {slideIndex = slides.length}
+        for (i = 0; i < slides.length; i++) {
+            slides[i].style.display = "none";  
+        }
+        for (i = 0; i < dots.length; i++) {
+            dots[i].className = dots[i].className.replace(" active-dot", "");
+        }
+        slides[slideIndex-1].style.display = "flex";  
+        dots[slideIndex-1].className += " active-dot";
+    }
+</script>
+
+
+<script>
+// Restaurar posição de scroll após redirect
+(function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const scrollPos = urlParams.get('scroll');
+    
+    if (scrollPos) {
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function() {
+                setTimeout(function() {
+                    window.scrollTo(0, parseInt(scrollPos));
+                }, 100);
+            });
+        } else {
+            setTimeout(function() {
+                window.scrollTo(0, parseInt(scrollPos));
+            }, 100);
+        }
+    }
+})();
+</script>
+
+
+</body>
+
+</html>
