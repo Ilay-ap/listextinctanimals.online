@@ -247,7 +247,7 @@ class Mammal(models.Model):
                         {
                             "url": f"{settings.STATIC_URL}images/mammals_gallery/{f}",
                             "filename": f"mammals_gallery/{f}",
-                            "caption": self._get_caption_for_file(f),
+                            "caption": self._get_caption_for_file(f) or "Imagem do Auroque",
                         }
                     )
         else:
@@ -259,11 +259,15 @@ class Mammal(models.Model):
                 ):
                     # Generate a simple caption from the filename
                     simple_caption = f.replace(prefix, '').replace('_', ' ').rsplit('.', 1)[0].title()
+                    
+                    custom_caption = self._get_caption_for_file(f)
+                    final_caption = custom_caption if custom_caption else simple_caption
+                    
                     images.append(
                         {
                             "url": f"{settings.STATIC_URL}images/mammals_gallery/{f}",
                             "filename": f"mammals_gallery/{f}",
-                            "caption": simple_caption,
+                            "caption": final_caption,
                         }
                     )
                     
@@ -284,8 +288,24 @@ class Mammal(models.Model):
             "13_mandibula_dentes_alta_resolucao.jpg": "Mandíbula fóssil com dentes molares preservados em alta resolução.",
             "14_mandibula_isolada.jpg": "Mandíbula fóssil isolada para análise paleontológica.",
             "15_chifre_ultimo_auroque_1620.jpg": "Corno de caça esculpido a partir do chifre do último auroque vivo (datado de 1620).",
+            # Noronhomys vespuccii
+            "noronhomys_vespuccii_gallery_01_cranio_holotipo_ventral.png": "Holótipo de Noronhomys vespuccii (Rato de Vespucci) - Crânio, Vista Ventral. MCP 3460-PV.",
+            "noronhomys_vespuccii_gallery_02_cranio_holotipo_dorsal.png": "Holótipo de Noronhomys vespuccii (Rato de Vespucci) - Crânio, Vista Dorsal. MCP 3460-PV.",
+            "noronhomys_vespuccii_gallery_03_cranio_holotipo_lateral.png": "Holótipo de Noronhomys vespuccii (Rato de Vespucci) - Crânio, Vista Lateral. MCP 3460-PV.",
+            "noronhomys_vespuccii_gallery_04_holotipo_molares_inferiores.png": "Holótipo de Noronhomys vespuccii (Rato de Vespucci) - Molares inferiores direitos. MCP 3460-PV.",
+            "noronhomys_vespuccii_gallery_05_holotipo_molares_superiores.png": "Holótipo de Noronhomys vespuccii (Rato de Vespucci) - Molares superiores direitos. MCP 3460-PV.",
+            # Hippopotamus madagascariensis
+            "hippopotamus_madagascariensis_gallery_01_cranio_dorsal_femea.png": "Hipopótamo-anão de Madagascar - Crânio, Vista Dorsal (Fêmea). Material comparativo, Museu de Toulouse.",
+            "hippopotamus_madagascariensis_gallery_02_cranio_dorsal_macho.png": "Hipopótamo-anão de Madagascar - Crânio, Vista Dorsal (Macho). Material comparativo, Museu de Toulouse.",
+            "hippopotamus_madagascariensis_gallery_03_cranio_lateral_macho.png": "Hipopótamo-anão de Madagascar - Crânio, Vista Lateral (Macho). Material comparativo, Museu de Toulouse.",
+            "hippopotamus_madagascariensis_gallery_04_cranio_palatina_macho.png": "Hipopótamo-anão de Madagascar - Crânio, Vista Palatina (Macho). Material comparativo, Museu de Toulouse.",
+            "hippopotamus_madagascariensis_gallery_05_cranio_palatina_indeterminado.png": "Hipopótamo-anão de Madagascar - Crânio, Vista Palatina (Sexo indeterminado). Material comparativo, Museu de Toulouse.",
+            "hippopotamus_madagascariensis_gallery_06_cranio_nucal_macho.png": "Hipopótamo-anão de Madagascar - Crânio, Vista Nucal (Macho). Material comparativo, Museu de Toulouse.",
+            "hippopotamus_madagascariensis_gallery_07_cranio_lateral_femea.png": "Hipopótamo-anão de Madagascar - Crânio, Vista Lateral (Fêmea). Material comparativo, Museu de Toulouse.",
+            "hippopotamus_madagascariensis_gallery_08_mandibula_lateral_femea.png": "Hipopótamo-anão de Madagascar - Mandíbula, Vista Lateral (Fêmea). Material comparativo, Museu de Toulouse.",
+            "hippopotamus_madagascariensis_gallery_09_mandibula_palatina_macho.png": "Hipopótamo-anão de Madagascar - Mandíbula, Vista Palatina (Macho). Material comparativo, Museu de Toulouse.",
         }
-        return captions.get(filename, "Imagem do Auroque")
+        return captions.get(filename, None)
 
     @property
     def short_description(self):

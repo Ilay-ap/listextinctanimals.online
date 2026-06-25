@@ -170,7 +170,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        margin-bottom: 1.5rem;
+        margin-bottom: 2.5rem;
         box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     }
     .mySlides {
@@ -179,7 +179,6 @@
         align-items: center;
         width: 100%;
         text-align: center;
-        padding-bottom: 2.5rem;
         box-sizing: border-box;
     }
     .mySlides img {
@@ -189,17 +188,15 @@
         border-radius: 12px 12px 0 0;
     }
     .slideshow-caption {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
+        width: 100%;
         font-size: 0.85rem;
         color: var(--text-color);
-        background-color: rgba(255, 255, 255, 0.95);
+        background-color: var(--bg-secondary);
         border-top: 1px solid var(--border-color);
         text-align: center;
         padding: 10px 12px;
-        z-index: 10;
+        box-sizing: border-box;
+        border-radius: 0 0 12px 12px;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -214,22 +211,16 @@
         position: absolute;
         top: 50%;
         transform: translateY(-50%);
-        padding: 8px 12px;
-        color: var(--text-color);
+        padding: 12px 16px;
+        color: #fff;
         font-weight: bold;
-        font-size: 18px;
-        background-color: rgba(255, 255, 255, 0.8);
-        border: 1px solid var(--border-color);
+        font-size: 24px;
+        background-color: rgba(0, 0, 0, 0.5);
+        border: none;
         border-radius: 4px;
         user-select: none;
-        z-index: 15;
+        z-index: 20;
         transition: 0.2s;
-    }
-    [data-theme="dark"] .prev-slide,
-    [data-theme="dark"] .next-slide {
-        background-color: var(--bg-secondary);
-        color: var(--text-color);
-        border-color: var(--border-color);
     }
     .prev-slide {
         left: 8px;
@@ -238,12 +229,12 @@
         right: 8px;
     }
     .prev-slide:hover, .next-slide:hover {
-        background-color: var(--primary-color);
+        background-color: rgba(0, 0, 0, 0.9);
         color: #fff;
     }
     .slideshow-dots {
         position: absolute;
-        bottom: 8px;
+        bottom: -25px;
         left: 50%;
         transform: translateX(-50%);
         display: flex;
