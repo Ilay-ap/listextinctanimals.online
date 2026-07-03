@@ -49,7 +49,7 @@ def get_continent_from_region(region):
     if not reg:
         return "Unknown"
 
-    if "Americas" in reg:
+    if "Americas" in reg or "Caribe" in reg:
         return "Américas"
     if "Asia" in reg:
         return "Ásia"
@@ -59,8 +59,6 @@ def get_continent_from_region(region):
         return "Oceania"
     if "Madagascar" in reg or "Africa" in reg:
         return "África"
-    if "Caribe" in reg:
-        return "Caribe"
     return reg
 
 
