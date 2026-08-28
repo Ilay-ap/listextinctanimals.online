@@ -2,7 +2,7 @@ services:
   - type: web
     name: extinct-mammals
     runtime: python
-    buildCommand: "pip install -r requirements.txt && python manage.py migrate && python manage.py collectstatic --noinput"
+    buildCommand: "pip install -r requirements.txt && python manage.py migrate && python manage.py loaddata initial_mammals_v2.json && python manage.py collectstatic --noinput"
     startCommand: "gunicorn extinct_mammals_django.wsgi:application"
     envVars:
       - key: SECRET_KEY
@@ -11,6 +11,10 @@ services:
         value: "False"
       - key: PYTHON_VERSION
         value: "3.11.0"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: extinct-mammals-db
+          property: connectionString
     
 databases:
   - name: extinct-mammals-db
